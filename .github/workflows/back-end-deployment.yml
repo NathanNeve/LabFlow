@@ -31,14 +31,8 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Run Docker container with secrets
+      - name: Trigger Render Deployment
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          docker run \
-            -e USER_ADMIN_PASSWORD=${{ secrets.USER_ADMIN_PASSWORD }} \
-            -e USER_NATHAN_PASSWORD=${{ secrets.USER_NATHAN_PASSWORD }} \
-            -e USER_CESAR_PASSWORD=${{ secrets.USER_CESAR_PASSWORD }} \
-            -e RENDER_DEPLOY_HOOK_URL=${{ secrets.RENDER_DEPLOY_HOOK_URL }} \
-            ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
