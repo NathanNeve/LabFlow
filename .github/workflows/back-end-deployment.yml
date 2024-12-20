@@ -33,5 +33,8 @@ jobs:
       - name: Deploy
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          USER_ADMIN_PASSWORD: ${{ secrets.USER_ADMIN_PASSWORD }}
+          USER_NATHAN_PASSWORD: ${{ secrets.USER_NATHAN_PASSWORD }}
+          USER_CESAR_PASSWORD: ${{ secrets.USER_CESAR_PASSWORD }}
         run: |
           curl "$deploy_url"
