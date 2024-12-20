@@ -22,6 +22,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
+          docker run \
           -e USER_ADMIN_PASSWORD=${{ secrets.USER_ADMIN_PASSWORD }} \
           -e USER_NATHAN_PASSWORD=${{ secrets.USER_NATHAN_PASSWORD }} \
           -e USER_CESAR_PASSWORD=${{ secrets.USER_CESAR_PASSWORD }} \
