@@ -2,11 +2,21 @@ package com.thomasmore.blc.labflow.config;
 // file voor het seeden van de database met standaardwaarden
 import com.thomasmore.blc.labflow.entity.*;
 import com.thomasmore.blc.labflow.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataLoader implements CommandLineRunner {
+
+    @Value("${user.admin.password}")
+    private String adminPassword;
+
+    @Value("${user.nathan.password}")
+    private String nathanPassword;
+
+    @Value("${user.cesar.password}")
+    private String cesarPassword;
 
     private final UserRepository userRepository;
     private final RolRepository rolRepository;
@@ -46,11 +56,11 @@ public class DataLoader implements CommandLineRunner {
 
 
         // aanmaken users
-        User user0 = new User("$2a$04$ektFZZojdSsChLH.dgNxheysvpUmHt0i0FmXmtMldHKMCvJB2Rtti",
+        User user0 = new User(adminPassword,
                 "adminlabflow@digitalinnovation.be", "Admin", "DI", rol_admin);
-        User user1 = new User("$2a$04$u0OuSIi6P2uOx3n2hCwlKeJuU0S1D5BsG.IGVyCDllxQRGlH52LMe",
+        User user1 = new User(nathanPassword,
                 "nathanneve@test.be", "Nathan", "Neve", rol_admin);
-        User user2 = new User("$2a$04$u0OuSIi6P2uOx3n2hCwlKeJuU0S1D5BsG.IGVyCDllxQRGlH52LMe",
+        User user2 = new User(cesarPassword,
                 "césarvanleuffelen@test.be", "César", "van Leuffelen", rol_student);
         userRepository.save(user0);
         userRepository.save(user1);

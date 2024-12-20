@@ -57,6 +57,7 @@ public class PdfGeneratorService {
         canvas.rectangle(border);
         canvas.stroke();
 
+
         // Eerste standaard label
         // naam en voornaam toevoegen
         Paragraph nameParagraph = new Paragraph(voornaam + " " + achternaam, boldFont);
@@ -73,7 +74,17 @@ public class PdfGeneratorService {
         // staalcode
         ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
                 new Phrase(String.valueOf(staalCode), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
-                105, 25, 0); // Center the text inside the black rectangle
+                105, 15, 0); // Center the text inside the black rectangle
+
+        // Voeg de barcode toe
+        Barcode128 barcode = new Barcode128();
+        barcode.setCode(String.valueOf(staalCode)); // barcode representeert de staalCode
+        barcode.setFont(null); // geen tekst onder de barcode
+        Image barcodeImage = barcode.createImageWithBarcode(canvas, BaseColor.BLACK, BaseColor.BLACK);
+        barcodeImage.setAbsolutePosition(70, 30); // absolute positie van de barcode
+        barcodeImage.scalePercent(100); // grootte van de barcode
+        document.add(barcodeImage);
+
 
         // voor elke staalcategorie een label aanmaken
         for (Testcategorie testcategorie : testcategorieSet) {
@@ -86,6 +97,11 @@ public class PdfGeneratorService {
             newBorder.setBorderWidth(1);
             canvas.rectangle(newBorder);
             canvas.stroke();
+
+            // Voeg de barcode toe (defined bij het standaardlabel)
+            barcodeImage.setAbsolutePosition(70, 30); // absolute positie van de barcode
+            barcodeImage.scalePercent(100); // grootte van de barcode
+            document.add(barcodeImage);
 
             // patiënt naam
             nameParagraph.setAlignment(Element.ALIGN_LEFT);
@@ -101,7 +117,7 @@ public class PdfGeneratorService {
             // staalcode
             ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
                     new Phrase(String.valueOf(staalCode), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
-                    105, 25, 0); // Center the text inside the black rectangle
+                    105, 15, 0); // Center the text inside the black rectangle
 
             // test categorie naam
             ColumnText.showTextAligned(canvas, Element.ALIGN_RIGHT,

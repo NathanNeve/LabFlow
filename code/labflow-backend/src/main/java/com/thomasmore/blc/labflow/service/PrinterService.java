@@ -74,7 +74,8 @@ public class PrinterService {
                         "^FO200,25^A0N,30,30^FD" + staal.getPatientAchternaam() + "^FS\n" +
                         "^FO20,65^A0N,25,25^FD" + "Geboorte: " + formattedGeboorte + "^FS\n" +
                         "^FO20,105^A0N,25,25^FD" + "Geslacht: " + formattedGeslacht + "^FS\n" +
-                        "^FO170,205^A0N,25,25^FD" + staal.getStaalCode() + "^FS\n" +
+                        // barcode
+                        "^FO90,140^BY3^BCN,60,,,,A^FD" + staal.getStaalCode() + "^FS\n" +
                         "^XZ\n";
 
                 // label per categorie
@@ -87,9 +88,10 @@ public class PrinterService {
                             "^FO200,25^A0N,30,30^FD" + staal.getPatientAchternaam() + "^FS\n" +
                             "^FO20,65^A0N,25,25^FD" + "Geboorte: " + formattedGeboorte + "^FS\n" +
                             "^FO20,105^A0N,25,25^FD" + "Geslacht: " + formattedGeslacht + "^FS\n" +
-                            "^FO170,205^A0N,25,25^FD" + staal.getStaalCode() + "^FS\n" +
                             "^FO390,65^A0N,30,30^FR^FWR^FD" + testcategorie.getNaam() + "^FS\n" +
                             "^FO355,65^A0N,30,30^FR^FWR^FD" + testcategorie.getKleurnaam() + "^FS\n" +
+                            // Bacode
+                            "^FO90,140^BY3^BCN,60,,,,A^FD" + staal.getStaalCode() + "^FS\n" +
                             "^XZ\n";
                 }
             }
