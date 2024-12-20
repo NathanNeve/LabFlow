@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -26,13 +25,13 @@ jobs:
           docker build . -t ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
         working-directory: ./code/labflow-backend
-
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Render Deployment
+      - uses: actions/checkout@v3
+      - name: Deploy
         env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+          curl "$deploy_url"
