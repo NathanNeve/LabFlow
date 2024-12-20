@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -22,20 +23,22 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker run \
-          -e USER_ADMIN_PASSWORD=${{ secrets.USER_ADMIN_PASSWORD }} \
-          -e USER_NATHAN_PASSWORD=${{ secrets.USER_NATHAN_PASSWORD }} \
-          -e USER_CESAR_PASSWORD=${{ secrets.USER_CESAR_PASSWORD }} \
           docker build . -t ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
         working-directory: ./code/labflow-backend
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
-        env:
-          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Docker container with secrets
         run: |
-          curl "$deploy_url"
+          docker run \
+            -e USER_ADMIN_PASSWORD=${{ secrets.USER_ADMIN_PASSWORD }} \
+            -e USER_NATHAN_PASSWORD=${{ secrets.USER_NATHAN_PASSWORD }} \
+            -e USER_CESAR_PASSWORD=${{ secrets.USER_CESAR_PASSWORD }} \
+            -e RENDER_DEPLOY_HOOK_URL=${{ secrets.RENDER_DEPLOY_HOOK_URL }} \
+            ${{ secrets.DOCKER_USERNAME }}/labflow-app:latest
