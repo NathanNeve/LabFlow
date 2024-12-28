@@ -4,11 +4,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.context.ApplicationListener;
+
 
 @SpringBootApplication
-public class LabflowApplication {
+public class LabflowApplication implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
 
 	public static void main(String[] args) {
+		SpringApplication.run(LabflowApplication.class, args);
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
 		// Use System.getenv() to fetch variables set in production
 		String databaseUsername = System.getenv("DATABASE_USERNAME");
 		String databasePassword = System.getenv("DATABASE_PASSWORD");
@@ -20,8 +28,8 @@ public class LabflowApplication {
 		if (databaseUsername == null || databasePassword == null ||
 				adminPassword == null || cesarPassword == null || nathanPassword == null) {
 			Dotenv dotenv = Dotenv.configure()
-					.directory("./") // Adjust path if necessary
-					.ignoreIfMissing() // Avoid exceptions if .env doesn't exist
+					.directory("./")
+					.ignoreIfMissing()
 					.load();
 
 			databaseUsername = dotenv.get("DATABASE_USERNAME", "default_username");
@@ -37,8 +45,5 @@ public class LabflowApplication {
 		System.setProperty("env.USER_ADMIN_PASSWORD", adminPassword);
 		System.setProperty("env.USER_CESAR_PASSWORD", cesarPassword);
 		System.setProperty("env.USER_NATHAN_PASSWORD", nathanPassword);
-
-		// Start the application
-		SpringApplication.run(LabflowApplication.class, args);
 	}
 }
