@@ -2,11 +2,15 @@ package com.thomasmore.blc.labflow;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import io.github.cdimascio.dotenv.Dotenv;
-
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 public class LabflowApplication implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
@@ -17,18 +21,20 @@ public class LabflowApplication implements ApplicationListener<ApplicationEnviro
 
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-		// Use System.getenv() to fetch variables set in production
+		ConfigurableEnvironment environment = event.getEnvironment();
+
+		// Load environment variables
 		String databaseUsername = System.getenv("DATABASE_USERNAME");
 		String databasePassword = System.getenv("DATABASE_PASSWORD");
 		String adminPassword = System.getenv("USER_ADMIN_PASSWORD");
 		String cesarPassword = System.getenv("USER_CESAR_PASSWORD");
 		String nathanPassword = System.getenv("USER_NATHAN_PASSWORD");
 
-		// Fallback for development environments where a .env file is used
+		// Fallback to .env for local development
 		if (databaseUsername == null || databasePassword == null ||
 				adminPassword == null || cesarPassword == null || nathanPassword == null) {
 			Dotenv dotenv = Dotenv.configure()
-					.directory("./")
+					.directory("./") // Adjust path if necessary
 					.ignoreIfMissing()
 					.load();
 
@@ -39,11 +45,14 @@ public class LabflowApplication implements ApplicationListener<ApplicationEnviro
 			nathanPassword = dotenv.get("USER_NATHAN_PASSWORD", "default_nathan_password");
 		}
 
-		// Set System properties
-		System.setProperty("env.DATABASE_USERNAME", databaseUsername);
-		System.setProperty("env.DATABASE_PASSWORD", databasePassword);
-		System.setProperty("env.USER_ADMIN_PASSWORD", adminPassword);
-		System.setProperty("env.USER_CESAR_PASSWORD", cesarPassword);
-		System.setProperty("env.USER_NATHAN_PASSWORD", nathanPassword);
+		// Add properties to the Spring Environment
+		Map<String, Object> propertySource = new HashMap<>();
+		propertySource.put("user.admin.password", adminPassword);
+		propertySource.put("user.cesar.password", cesarPassword);
+		propertySource.put("user.nathan.password", nathanPassword);
+		propertySource.put("spring.datasource.username", databaseUsername);
+		propertySource.put("spring.datasource.password", databasePassword);
+
+		environment.getPropertySources().addFirst(new MapPropertySource("customProperties", propertySource));
 	}
 }
