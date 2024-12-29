@@ -495,6 +495,6 @@ public class DataLoader implements CommandLineRunner {
         staalTestRepository.save(staalTest2);
         staalTestRepository.save(staalTest3);
 
-
+        System.out.println("USER_ADMIN_PASSWORD: " + System.getenv("USER_ADMIN_PASSWORD"));
     }
 }

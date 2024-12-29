@@ -128,7 +128,7 @@ Documentatie: [tutorial hosting svelte app to github pages](https://www.okupter.
 
 ## 4 - PC installaties
 
-Wanneer je labels wil afdrukken op onderstaand scherm. Kan je een van de Zebra ZD421 label printers aansluiten op je laptop doormiddel van de bijgevoegde usb kabel. Je zal merken dat wanneer je op de knop 'afdrukken' duwt er niets zal gebeuren. Hiervoor moeten we op de gebruikte PC een klein programmatje downloaden. Dit programma'tje, genaamd **JSPrintManager**, is geschreven door de mensen van [NEOdynamic](https://www.neodynamic.com/). Zei maken allerlei software programmas voor het verbinden van software met hardware van printers. **VEILIG DUS**
+Wanneer je labels wil afdrukken op onderstaand scherm. Kan je een van de Zebra ZD421 label printers aansluiten op je laptop doormiddel van de bijgevoegde usb kabel. Je zal merken dat wanneer je op de knop 'afdrukken' duwt er niets zal gebeuren. Hiervoor moeten we op de gebruikte PC een klein programmatje downloaden. Dit programma'tje, genaamd **JSPrintManager**, is geschreven door de mensen van [NEOdynamic](https://www.neodynamic.com/). Zij maken allerlei software programmas voor het verbinden van software met hardware van printers. **VEILIG DUS**
 
 ![Label scherm](./assets//label-screen.png)
 
