@@ -2,21 +2,13 @@ package com.thomasmore.blc.labflow.config;
 // file voor het seeden van de database met standaardwaarden
 import com.thomasmore.blc.labflow.entity.*;
 import com.thomasmore.blc.labflow.repository.*;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataLoader implements CommandLineRunner {
-
-    @Value("${user.admin.password}")
-    private String adminPassword;
-
-    @Value("${user.nathan.password}")
-    private String nathanPassword;
-
-    @Value("${user.cesar.password}")
-    private String cesarPassword;
 
     private final UserRepository userRepository;
     private final RolRepository rolRepository;
@@ -47,6 +39,31 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        // Neem de env variabelen van render.com (production)
+        String adminPw = System.getenv("USER_ADMIN_PASSWORD");
+        String nathanPw = System.getenv("USER_NATHAN_PASSWORD");
+        String cesarPw = System.getenv("USER_CESAR_PASSWORD");
+
+        // anders nemen we ze van .env file (dev)
+        String adminPassword;
+        String cesarPassword;
+        String nathanPassword;
+        if (adminPw == null || nathanPw == null || cesarPw == null) {
+            Dotenv dotenv = Dotenv.configure()
+                    .directory("./")
+                    .ignoreIfMissing()
+                    .load();
+
+            adminPassword = dotenv.get("USER_ADMIN_PASSWORD");
+            nathanPassword = dotenv.get("USER_NATHAN_PASSWORD");
+            cesarPassword = dotenv.get("USER_CESAR_PASSWORD");
+        } else {
+            adminPassword = adminPw;
+            nathanPassword = nathanPw;
+            cesarPassword = cesarPw;
+        }
+
 
         // aanmaken rollen
         Rol rol_admin = new Rol("admin");
