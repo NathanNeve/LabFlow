@@ -10,9 +10,6 @@ COPY . /app
 # Create the databases directory (the SQLite file will be mounted here)
 RUN mkdir -p /app/databases && touch /app/databases/labflow.db
 
-# create a .env file
-RUN touch /app/.env
-
 # Expose the port that the Spring Boot app will run on
 EXPOSE 8080
 
