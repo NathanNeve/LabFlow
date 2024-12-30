@@ -1,29 +1,20 @@
-name: Code Checks
-
 on:
   push:
     branches:
       - main
+      - 'releases/**'
   pull_request:
-    branches:
-      - main
+      types: [opened, synchronize, reopened]
 
+name: Main Workflow
 jobs:
-  test:
+  sonarqube:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: sonarsource/sonarcloud-github-action@v4.0.0
-        with:
-          projectBaseDir: ./code/labflow-backend
-          args: >
-            -Dsonar.organization=thomas-more-digital-innovation
-            -Dsonar.projectKey=Thomas-More-Digital-Innovation_2425-TM_BLC-001-LabFlow
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.sources=lib/
-            -Dsonar.tests=tests/
-            -Dsonar.test.exclusions=tests/**
-            -Dsonar.verbose=true
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: sonarsource/sonarcloud-github-action@v4.0.0 # https://github.com/marketplace/actions/sonarcloud-scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
