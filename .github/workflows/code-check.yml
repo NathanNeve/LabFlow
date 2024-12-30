@@ -19,7 +19,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
-          working-directory: ./code/labflow-backend
           
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -36,6 +35,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
           
       - name: Build and analyze
+        working-directory: ./code/labflow-backend  # root backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NathanNeve_LabFlow
