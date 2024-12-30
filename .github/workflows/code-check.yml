@@ -25,7 +25,7 @@ jobs:
       - name: Create database directory
         run: mkdir -p ./code/labflow-backend/databases
 
-      - uses: sonarsource/sonarcloud-github-action@<action version>
+      - uses: sonarsource/sonarcloud-github-action@4.0.0
         with:
           projectBaseDir: ./code/labflow-backend
           args: >
