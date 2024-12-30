@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - main
-
   pull_request:
     branches:
       - main
 
 jobs:
-  SonarQube-code-check:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,15 +19,13 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: 17
           distribution: temurin
 
-      - name: Build Project
-        run: |
-          mvn clean install
-        working-directory: ./code/labflow-backend
+      - name: Create database directory
+        run: mkdir -p ./code/labflow-backend/databases
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarcloud-github-action@v4.0.0
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Run Tests with Profile
+        run: |
+          mvn clean test -Dspring.profiles.active=test
+        working-directory: ./code/labflow-backend
