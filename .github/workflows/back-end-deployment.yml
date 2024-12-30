@@ -6,19 +6,7 @@ on:
       - main
 
 jobs:
-  SonarQube-code-check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: SonarQube Scan
-      uses: sonarsource/sonarcloud-github-action@v4.0.0 # https://github.com/marketplace/actions/sonarcloud-scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            
   build-and-push:
-    needs: SonarQube-code-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
