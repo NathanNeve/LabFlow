@@ -4,17 +4,39 @@ on:
       - main
       - 'releases/**'
   pull_request:
-      types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 name: Main Workflow
+
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: SonarQube Scan
-      uses: sonarsource/sonarcloud-github-action@v4.0.0 # https://github.com/marketplace/actions/sonarcloud-scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Set up Java env
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      # Build
+      - name: Build project
+        run: mvn clean compile
+
+      # SonarQube Scan
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v4.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Thomas-More-Digital-Innovation_2425-TM_BLC-001-LabFlow
+            -Dsonar.organization=thomas-more-digital-innovation
+            -Dsonar.sources=src
+            -Dsonar.java.binaries=target/classes
