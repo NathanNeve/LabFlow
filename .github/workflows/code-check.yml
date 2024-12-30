@@ -25,7 +25,14 @@ jobs:
       - name: Create database directory
         run: mkdir -p ./code/labflow-backend/databases
 
-      - name: Run Tests with Profile
-        run: |
-          mvn clean test -Dspring.profiles.active=test
-        working-directory: ./code/labflow-backend
+      - uses: sonarsource/sonarcloud-github-action@<action version>
+        with:
+          projectBaseDir: ./code/labflow-backend
+          args: >
+            -Dsonar.organization=thomas-more-digital-innovation
+            -Dsonar.projectKey=Thomas-More-Digital-Innovation_2425-TM_BLC-001-LabFlow
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=lib/
+            -Dsonar.tests=tests/
+            -Dsonar.test.exclusions=tests/**
+            -Dsonar.verbose=true
