@@ -18,6 +18,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             
   build-and-push:
+    needs: SonarQube-code-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
