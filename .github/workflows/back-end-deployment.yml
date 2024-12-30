@@ -1,9 +1,11 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - Code Checks
+    types:
+      - completed
 
 jobs:
   build-and-push:
