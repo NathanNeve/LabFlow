@@ -28,6 +28,8 @@ jobs:
       # Build
       - name: Build project
         run: mvn clean compile
+        working-directory: ./code/labflow-backend  # root backend
+
 
       # SonarQube Scan
       - name: SonarQube Scan
