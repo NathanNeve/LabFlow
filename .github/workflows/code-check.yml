@@ -1,42 +1,37 @@
+name: SonarQube
 on:
   push:
     branches:
       - main
-      - 'releases/**'
   pull_request:
     types: [opened, synchronize, reopened]
-
-name: Main Workflow
-
 jobs:
-  sonarqube:
+  build:
+    name: Build and analyze
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # Set up Java env
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: temurin
-
-      # Build
-      - name: Build project
-        run: mvn clean compile
-        working-directory: ./code/labflow-backend  # root backend
-
-
-      # Run SonarQube Scan
-      - name: SonarQube Scan
-        uses: sonarsource/sonarcloud-github-action@v4.0.0
+          distribution: 'zulu'
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
         with:
-          args: >
-            -Dsonar.projectKey=Thomas-More-Digital-Innovation_2425-TM_BLC-001-LabFlow
-            -Dsonar.organization=thomas-more-digital-innovation
-            -Dsonar.sources=code/labflow-backend/src
-            -Dsonar.java.binaries=code/labflow-backend/target/classes
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NathanNeve_LabFlow
