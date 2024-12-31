@@ -1,19 +1,23 @@
 name: SonarQube
+
 on:
   push:
     branches:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+      
+      # backend
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -22,28 +26,29 @@ jobs:
 
       - name: Create database directory
         run: mkdir -p ./code/labflow-backend/databases
-          
+
       - name: Cache SonarQube packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
+
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-          
+
+      # Run SonarQube frontend and backend
       - name: Build and analyze
-        working-directory: ./code/labflow-backend  # root backend
+        working-directory: ./code/labflow-backend  # Root backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NathanNeve_LabFlow
+        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
-      # frontend part
+      # Frontend part
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -57,11 +62,11 @@ jobs:
           restore-keys: ${{ runner.os }}-node
 
       - name: Install frontend dependencies
-        working-directory: ./code/labflow-frontend # root frontend
+        working-directory: ./code/labflow-frontend  # Root frontend
         run: npm install
 
-      - name: Build and analyze frontend (Svelte)
-        working-directory: ./code/labflow-frontend # root frontend
+      - name: Build and analyze frontend
+        working-directory: ./code/labflow-frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: npm run sonar
