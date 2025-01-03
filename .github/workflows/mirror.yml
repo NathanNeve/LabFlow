@@ -17,7 +17,7 @@ jobs:
 
       - name: Set up new repository structure
         run: |
-          cd code/frontend
+          cd code/labflow-frontend
           git init
           git remote add origin https://${{ secrets.GIT_PAT }}@github.com/NathanNeve/LabFlowFrontend.git
 
