@@ -23,10 +23,10 @@ jobs:
 
       - name: Push to target repository
         run: |
-          cd code/frontend
+          cd code/labflow-frontend
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Mirror code/frontend"
+          git commit -m "Mirror code/labflow-frontend"
           git branch -M main
           git push -f origin main
