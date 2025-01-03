@@ -18,12 +18,14 @@ jobs:
       - name: Set up new repository structure
         run: |
           mkdir -p temp-mirror/code/frontend
-          cp -r . temp-mirror/code/frontend/
+          # Copy all files except the temp-mirror directory
+          shopt -s extglob
+          cp -r !(temp-mirror) temp-mirror/code/frontend
           cd temp-mirror
           git init
           git remote add origin https://github.com/NathanNeve/LabFlowFrontend.git
 
-      # Push only code/frontend to my other repo
+      # Push only code/frontend to the oother repository
       - name: Push to target repository
         run: |
           cd temp-mirror
