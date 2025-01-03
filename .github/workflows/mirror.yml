@@ -22,8 +22,8 @@ jobs:
           cp -r !(temp-mirror) temp-mirror/code/frontend
           cd temp-mirror
           git init
-          git remote add origin https://${{ secrets.GIT_PAT }}@github.com/your-username/new-repo.git
-
+          git remote add origin https://${{ secrets.GIT_PAT }}@github.com/NathanNeve/LabFlowFrontend.git
+                                                    
       - name: Push to target repository
         run: |
           cd temp-mirror
