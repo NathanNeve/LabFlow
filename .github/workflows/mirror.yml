@@ -1,0 +1,35 @@
+name: Mirror code/frontend to another repository
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up new repository structure
+        run: |
+          mkdir -p temp-mirror/code/frontend
+          cp -r . temp-mirror/code/frontend/
+          cd temp-mirror
+          git init
+          git remote add origin https://github.com/NathanNeve/LabFlowFrontend.git
+
+      # Push only code/frontend to my other repo
+      - name: Push to target repository
+        run: |
+          cd temp-mirror
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Mirror code/frontend"
+          git branch -M main
+          git push -f origin main
