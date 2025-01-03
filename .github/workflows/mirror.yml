@@ -15,17 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up new repository structure
+      - name: Set up new repository
         run: |
           mkdir -p temp-mirror/code/frontend
-          # Copy all files except the temp-mirror directory
           shopt -s extglob
           cp -r !(temp-mirror) temp-mirror/code/frontend
           cd temp-mirror
           git init
-          git remote add origin https://github.com/NathanNeve/LabFlowFrontend.git
+          git remote add origin https://${{ secrets.GIT_PAT }}@github.com/your-username/new-repo.git
 
-      # Push only code/frontend to the oother repository
       - name: Push to target repository
         run: |
           cd temp-mirror
