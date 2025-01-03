@@ -15,18 +15,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up new repository
+      - name: Set up new repository structure
         run: |
-          mkdir -p temp-mirror/code/frontend
-          shopt -s extglob
-          cp -r !(temp-mirror) temp-mirror/code/frontend
-          cd temp-mirror/code/frontend
+          cd code/frontend
           git init
           git remote add origin https://${{ secrets.GIT_PAT }}@github.com/NathanNeve/LabFlowFrontend.git
-                                                    
+
       - name: Push to target repository
         run: |
-          cd temp-mirror
+          cd code/frontend
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
