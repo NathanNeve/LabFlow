@@ -20,7 +20,7 @@ jobs:
           mkdir -p temp-mirror/code/frontend
           shopt -s extglob
           cp -r !(temp-mirror) temp-mirror/code/frontend
-          cd temp-mirror
+          cd temp-mirror/code/frontend
           git init
           git remote add origin https://${{ secrets.GIT_PAT }}@github.com/NathanNeve/LabFlowFrontend.git
                                                     
