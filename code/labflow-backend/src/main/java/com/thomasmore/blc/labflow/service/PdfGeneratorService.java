@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class PdfGeneratorService {
+    // format strings
+    String geboorteString = "Geboorte: ";
+    String geslachtString = "Geslacht: ";
+    String geenNotitieString = "Geen notitie";
 
     public byte[] generateLabelPdf(Staal staal) throws DocumentException {
 
@@ -65,8 +69,8 @@ public class PdfGeneratorService {
         document.add(nameParagraph);
 
         // geboortedatum & geslacht
-        document.add(new Paragraph("Geboorte: " + formattedDate, regularFont));
-        document.add(new Paragraph("Geslacht: " + (geslacht == 'M' ? "Man" : "Vrouw"), regularFont));
+        document.add(new Paragraph(geboorteString + formattedDate, regularFont));
+        document.add(new Paragraph(geslachtString + (geslacht == 'M' ? "Man" : "Vrouw"), regularFont));
 
         // spacing
         document.add(Chunk.NEWLINE);
@@ -84,7 +88,6 @@ public class PdfGeneratorService {
         barcodeImage.setAbsolutePosition(70, 30); // absolute positie van de barcode
         barcodeImage.scalePercent(100); // grootte van de barcode
         document.add(barcodeImage);
-
 
         // voor elke staalcategorie een label aanmaken
         for (Testcategorie testcategorie : testcategorieSet) {
@@ -108,8 +111,8 @@ public class PdfGeneratorService {
             document.add(nameParagraph);
 
             // geboortedatum & geslacht
-            document.add(new Paragraph("Geboorte: " + formattedDate, regularFont));
-            document.add(new Paragraph("Geslacht: " + (geslacht == 'M' ? "Man" : "Vrouw"), regularFont));
+            document.add(new Paragraph(geboorteString + formattedDate, regularFont));
+            document.add(new Paragraph(geslachtString + (geslacht == 'M' ? "Man" : "Vrouw"), regularFont));
 
             // spacing
             document.add(Chunk.NEWLINE);
@@ -178,8 +181,8 @@ public class PdfGeneratorService {
 
         leftCell.addElement(new Paragraph("PATIËNT", headerFont));
         leftCell.addElement(new Paragraph(voornaam + " " + achternaam, bodyFont));
-        leftCell.addElement(new Paragraph("Geboorte: " + formattedDate, bodyFont));
-        leftCell.addElement(new Paragraph("Geslacht: " + geslacht, bodyFont));
+        leftCell.addElement(new Paragraph(geboorteString + formattedDate, bodyFont));
+        leftCell.addElement(new Paragraph(geslachtString + geslacht, bodyFont));
         headerTable.addCell(leftCell);
 
         // Rechtse kant (Test code, datum, laborant, r-nummer)
@@ -249,16 +252,16 @@ public class PdfGeneratorService {
 
             // ophalen van het resultaat van de test
             String result = notitie.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode() == staalCode)
+                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
                     .map(StaalTest::getResult)
                     .filter(Objects::nonNull)
                     .findFirst()
-                    .orElse("Geen notitie");
+                    .orElse(geenNotitieString);
 
 
             // afhankelijk van het resultaat een cell toevoegen
-            if (result.equals("Geen notitie")) {
-                PdfPCell resultHeader = new PdfPCell(new Phrase("Geen notitie", bodyFont));
+            if (result.equals(geenNotitieString)) {
+                PdfPCell resultHeader = new PdfPCell(new Phrase(geenNotitieString, bodyFont));
                 resultHeader.setBorder(Rectangle.NO_BORDER);
                 dataTable.addCell(resultHeader);
             } else {
@@ -282,7 +285,7 @@ public class PdfGeneratorService {
 
             // ophalen van de nota van de notitie test
             String note = notitie.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode() == staalCode)
+                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
                     .map(StaalTest::getNote)
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -314,7 +317,7 @@ public class PdfGeneratorService {
 
             // ophalen van het resultaat van de test
             String result = test.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode() == staalCode)
+                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
                     .map(StaalTest::getResult)
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -322,7 +325,7 @@ public class PdfGeneratorService {
 
             // ophalen van de nota van de test
             String note = test.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode() == staalCode)
+                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
                     .map(StaalTest::getNote)
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -348,7 +351,8 @@ public class PdfGeneratorService {
             Set<Referentiewaarde> referentiewaardes = test.getReferentiewaardes();
 
             // afhankelijk van het aantal referentiewaardes, deze samenvoegen en toevoegen aan de tabel
-            if (referentiewaardes.size() > 0) {
+            assert referentiewaardes != null;
+            if (referentiewaardes.isEmpty()) {
                 // stream voor tussen elke referentiewaarde een '/' te plaatsen
                 String referentieWaarden = referentiewaardes.stream()
                         .map(Referentiewaarde::getWaarde)
@@ -380,8 +384,6 @@ public class PdfGeneratorService {
         }
 
         document.add(dataTable);
-
-
 
         document.close();
         return out.toByteArray();
