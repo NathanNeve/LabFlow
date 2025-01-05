@@ -14,7 +14,7 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"deploy": "gh-pages -d build",
-		"sonar": "sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.token= -Dsonar.projectKey=NathanNeve_LabFlow -Dsonar.organization=nathanneve -Dsonar.sources=src"
+		"sonar": "sonar-scanner -Dsonar.host.url=https://sonarcloud.io -Dsonar.token= -Dsonar.projectKey=NathanNeve_LabFlowFrontend -Dsonar.organization=nathanneve -Dsonar.sources=src"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",

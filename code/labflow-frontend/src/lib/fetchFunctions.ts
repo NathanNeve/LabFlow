@@ -1,6 +1,5 @@
-import { getCookie, fetchAll } from '$lib/globalFunctions';
+import { getCookie, fetchAll, fetchAllWithoutPrefix } from '$lib/globalFunctions';
 import { goto } from '$app/navigation';
-import { fetchAllWithoutPrefix } from '$lib/globalFunctions';
 import type { Eenheid, TestCategorie } from './types/dbTypes';
 
 const token = getCookie('authToken') ?? '';
