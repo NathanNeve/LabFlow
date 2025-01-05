@@ -3,7 +3,6 @@ package com.thomasmore.blc.labflow.config;
 import com.thomasmore.blc.labflow.entity.*;
 import com.thomasmore.blc.labflow.repository.*;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -39,11 +38,14 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        String admin_password = "USER_ADMIN_PASSWORD";
+        String nathan_password = "USER_NATHAN_PASSWORD";
+        String cesar_password = "USER_CESAR_PASSWORD";
 
         // Neem de env variabelen van render.com (production)
-        String adminPw = System.getenv("USER_ADMIN_PASSWORD");
-        String nathanPw = System.getenv("USER_NATHAN_PASSWORD");
-        String cesarPw = System.getenv("USER_CESAR_PASSWORD");
+        String adminPw = System.getenv(admin_password);
+        String nathanPw = System.getenv(nathan_password);
+        String cesarPw = System.getenv(cesar_password);
 
         // anders nemen we ze van .env file (dev)
         String adminPassword;
@@ -55,9 +57,9 @@ public class DataLoader implements CommandLineRunner {
                     .ignoreIfMissing()
                     .load();
 
-            adminPassword = dotenv.get("USER_ADMIN_PASSWORD");
-            nathanPassword = dotenv.get("USER_NATHAN_PASSWORD");
-            cesarPassword = dotenv.get("USER_CESAR_PASSWORD");
+            adminPassword = dotenv.get(admin_password);
+            nathanPassword = dotenv.get(nathan_password);
+            cesarPassword = dotenv.get(cesar_password);
         } else {
             adminPassword = adminPw;
             nathanPassword = nathanPw;
@@ -495,6 +497,6 @@ public class DataLoader implements CommandLineRunner {
         staalTestRepository.save(staalTest2);
         staalTestRepository.save(staalTest3);
 
-        System.out.println("USER_ADMIN_PASSWORD: " + System.getenv("USER_ADMIN_PASSWORD"));
+        System.out.println("USER_ADMIN_PASSWORD: " + System.getenv(admin_password));
     }
 }
