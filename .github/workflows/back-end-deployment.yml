@@ -1,9 +1,11 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - SonarQube
+    types:
+      - completed
 
 jobs:
   build-and-push:
@@ -32,13 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up environment variables
-        run: |
-          echo "USER_ADMIN_PASSWORD=${{ secrets.USER_ADMIN_PASSWORD }}" >> $GITHUB_ENV
-          echo "USER_NATHAN_PASSWORD=${{ secrets.USER_NATHAN_PASSWORD }}" >> $GITHUB_ENV
-          echo "USER_CESAR_PASSWORD=${{ secrets.USER_CESAR_PASSWORD }}" >> $GITHUB_ENV
-
       - name: Deploy
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
