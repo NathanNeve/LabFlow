@@ -15,6 +15,7 @@ In dit document geven we uitleg rond hoe je de LABflow web applicatie kan recre�
 - **3.3** - frontend
 - **4** - PC installaties
 - **4.1** - Disclaimer
+- **5** - Data Beheer
 
 ## 1 - Hoe project aanmaken
 
@@ -151,3 +152,19 @@ Wanneer je probeert af te drukken gaat de software eerst een nogal verontrustten
 **prijs licensie:** €150 per maand
 
 ![pop-up JSPrintManager](./assets/pop-up-jsprintmanager.png)
+
+## 5 - Data beheer
+
+Onze systemen zijn gemaakt om te werken in schoolomgevingen, daarom slagen wij vooral fictieve gegevens op. Echte gegevens die bijgehouden worden:
+
+- r of u nummer van persoon die test afneemt
+- account gegevens (naam, voornaam, email, paswoord)
+- naam laborant die test afneemt
+
+Alle andere data die opgeslagen wordt zijn fictieve of foutieve namen die toegekend worden aan de stalen. We slagen dus geen echte patiënt gegevens op in onze applicatie. Deze gegevens worden echter wel vergrendeld achter een authenticatie systeem.
+
+Moest u gegevens hebben geregistreerd die u wil veranderen of laten verwijderen kan u ons contacteren op:
+
+**email**: [r0929448@student.thomasmore.be](r0929448@student.thomasmore.be)
+
+**teams**: César Van Leuffelen
