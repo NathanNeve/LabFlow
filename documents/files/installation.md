@@ -1,75 +1,73 @@
-# Installatie handleiding LABflow
+# Installatiehandleiding LABflow
 
-In dit document geven we uitleg rond hoe je de LABflow web applicatie kan recreëren en zelf kan installeren.
+In dit document geven we uitleg over hoe je de LABflow-webapplicatie kunt recreëren en zelf kunt installeren.
 
 **Inhoudstafel:**
 
-- **1** - Hoe project aanmaken
+- **1** - Hoe een project aanmaken
 - **2** - Project klaar voor development
-- **2.1** - database
-- **2.2** - backend
-- **2.3** - frontend
-- **3** - project deployen naar productie
-- **3.1** - database
-- **3.2** - backend
-- **3.3** - frontend
-- **4** - PC installaties
-- **4.1** - Disclaimer
-- **5** - Data Beheer
+  - **2.1** - Database
+  - **2.2** - Backend
+  - **2.3** - Frontend
+- **3** - Project deployen naar productie
+  - **3.1** - Database
+  - **3.2** - Backend
+  - **3.3** - Frontend
+- **4** - PC-installaties
+  - **4.1** - Disclaimer
+- **5** - Databeheer
 
-## 1 - Hoe project aanmaken
+## 1 - Hoe een project aanmaken
 
-Eerst en vooral gaan we bespreken hoe je de LABflow applicatie zelf van scratch kan opstarten. Hieronder wordt stap voor stap uitgelijnd hoe je tot op hetzelfde startpunt kan komen als wij zijn gestart.
+Eerst en vooral gaan we bespreken hoe je de LABflow-applicatie zelf vanaf nul kunt opstarten. Hieronder wordt stap voor stap uitgelegd hoe je tot hetzelfde startpunt kunt komen als wij.
 
-**surf naar volgende website [spring boot initialiser](https://start.spring.io/)**
+**Surf naar de volgende website: [Spring Boot Initializer](https://start.spring.io/)**
 
-> op volgende site kan je een java springboot project starten zonder zelf te moeten configureren. Deze site gaat voor jouw een pom.xml file maken met alle nodige info voor een springboot project en jij kan zelf selecteren welke versies je wil gebruiken van java, maven, etc.
+> Op deze site kun je een Java Spring Boot-project starten zonder zelf te moeten configureren. Deze site genereert voor jou een `pom.xml`-bestand met alle benodigde informatie voor een Spring Boot-project, en je kunt zelf selecteren welke versies je wilt gebruiken van Java, Maven, etc.
 
-**settings:**
+**Instellingen:**
 
-- project: Maven
-- language: Java
-- springboot: 3.3.4
-- group: com.thomasmore.blc
-- artifact: LabFlow
-- name: LabFlow
-- packaging: jar
-- java version: 17
+- Project: Maven
+- Taal: Java
+- Spring Boot-versie: 3.3.4
+- Group: com.thomasmore.blc
+- Artifact: LabFlow
+- Naam: LabFlow
+- Packaging: JAR
+- Java-versie: 17
 
-Je krijgt een ZIP file en deze moet je unzippen en openen in je IntelliJ
+Je krijgt een ZIP-bestand, dat je moet uitpakken en openen in IntelliJ.
 
-surf naar [mvnrepository.com](https://mvnrepository.com/) en voeg volgende dependencies ook nog toe:
+Surf naar [mvnrepository.com](https://mvnrepository.com/) en voeg de volgende dependencies toe:
 
 - [ ] [SQLite JDBC](https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc)
 - [ ] [Spring Boot Starter Web](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web)
-- [ ] [Hibernate ORM hibernate community dialects](https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects)
+- [ ] [Hibernate ORM Hibernate Community Dialects](https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects)
 - [ ] [Spring Boot DevTools](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-devtools)
 - [ ] [Spring Boot Starter Test](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test)
 
-## 2 - klaar voor development
+## 2 - Klaar voor development
 
-### 2.1 - Back-end
+### 2.1 - Backend
 
-> bij het openen van het project krijg je normaal 2 grote errors
+> Bij het openen van het project krijg je normaal twee grote fouten:
 
-- .env ontbreekt
-- Alle files met .db extensie ontbreken
+- `.env` ontbreekt
+- Alle bestanden met een `.db`-extensie ontbreken
 
-ga naar application.properties
+Ga naar `application.properties`
 
-> path: src > main > resources > application.properties
+> Pad: `src/main/resources/application.properties`
 
-plaats volgende code in deze file:
+Plaats de volgende code in dit bestand:
 
-```# .env import
+```properties
+# .env import
 spring.config.import=file:.env[.properties]
 
 spring.application.name=labflow
 
-# database connection
-
-# the datasource url points to our database
-
+# Databaseverbinding
 spring.datasource.url=jdbc:sqlite:databases/labflow.db
 spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
 spring.jpa.hibernate.ddl-auto=create-drop
@@ -81,28 +79,33 @@ spring.datasource.password=${env.DATABASE_PASSWORD}
 spring.jpa.show-sql=true
 ```
 
-**maak een nieuwe .env aan:**
+**Maak een nieuw `.env`-bestand aan:**
 
-1. maak een duplicaat van de file `.env.example`
-2. daar plaats je 2 zaken in `DATABASE_USERNAME=admin123` en `DATABASE_PASSWORD=admin123`
+1. Maak een duplicaat van het bestand `.env.example`
+2. Voeg de volgende regels toe:
 
-**maak de database map en file aan:**
+```env
+DATABASE_USERNAME=admin123
+DATABASE_PASSWORD=admin123
+```
 
-1. in de root van je applicatie maak je een map `databases` aan
-2. daarin zet je een file `labflow.db`
+**Maak de database-map en het bestand aan:**
 
-> path: databases/labflow.db
+1. Maak in de root van je applicatie een map `databases` aan.
+2. Plaats daarin een bestand `labflow.db`.
 
-3. open rechts de tool voor databases
-4. sleep de labflow.db file in het venster van de database tool
+> Pad: `databases/labflow.db`
+
+3. Open rechts de tool voor databases.
+4. Sleep het `labflow.db`-bestand in het venster van de database-tool.
 
 **Laat het project runnen en kijk of het werkt!**
 
-> werkt het toch niet contacteer [Nathan Neve](mailto:r0742822@student.thomasmore.be) of [César Van Leuffelen](mailto:r0929448@student.thomasmore.be)
+> Werkt het toch niet? Contacteer [Nathan Neve](mailto:r0742822@student.thomasmore.be) of [César Van Leuffelen](mailto:r0929448@student.thomasmore.be).
 
-### 2.2 - Front-end
+### 2.2 - Frontend
 
-Voor de front-end gebruiken we **Svelte**: documentatie -> [docs](https://svelte.dev/docs/introduction).
+Voor de frontend gebruiken we **Svelte**: documentatie -> [docs](https://svelte.dev/docs/introduction).
 
 Installatie:
 
@@ -113,58 +116,57 @@ npm install
 npm run dev
 ```
 
-Door het uitvoeren van deze commando's maken we een startproject aan. Hierna installeren we onze nodige packages met `npm install`.
+Door deze commando's uit te voeren, maken we een startproject aan. Hierna installeren we onze benodigde packages met `npm install`.
 
-Met `npm run dev` starten we een development server op, op poort 5173, dit is de standaardpoort voor Svelte applicaties.
+Met `npm run dev` starten we een development server op poort 5173, de standaardpoort voor Svelte-applicaties.
 
-voor windows & mac: [http://localhost:5173/](http://localhost:5173/)
-voor Linux/Unix-based systemen: [http://0.0.0.0:5173/](http://0.0.0.0:5173/)
+- Voor Windows & Mac: [http://localhost:5173/](http://localhost:5173/)
+- Voor Linux/Unix-based systemen: [http://0.0.0.0:5173/](http://0.0.0.0:5173/)
 
-Meer informatie te vinden in code\labflow-frontend\README.md
+Meer informatie is te vinden in `code/labflow-frontend/README.md`.
 
-#### 2.2.1 hosting
+#### 2.2.1 Hosting
 
-Voor onze frontend te hosten hebben we gekozen voor Github Pages.  
-Documentatie: [tutorial hosting svelte app to github pages](https://www.okupter.com/blog/deploy-sveltekit-website-to-github-pages).  
+Voor onze frontend-hosting hebben we gekozen voor GitHub Pages.
+Documentatie: [Tutorial: hosting Svelte-app op GitHub Pages](https://www.okupter.com/blog/deploy-sveltekit-website-to-github-pages).
 
-## 4 - PC installaties
+## 4 - PC-installaties
 
-Wanneer je labels wil afdrukken op onderstaand scherm. Kan je een van de Zebra ZD421 label printers aansluiten op je laptop doormiddel van de bijgevoegde usb kabel. Je zal merken dat wanneer je op de knop 'afdrukken' duwt er niets zal gebeuren. Hiervoor moeten we op de gebruikte PC een klein programmatje downloaden. Dit programma'tje, genaamd **JSPrintManager**, is geschreven door de mensen van [NEOdynamic](https://www.neodynamic.com/). Zij maken allerlei software programmas voor het verbinden van software met hardware van printers. **VEILIG DUS**
+Wanneer je labels wilt afdrukken op het onderstaande scherm, kun je een van de Zebra ZD421-labelprinters aansluiten op je laptop via de bijgevoegde USB-kabel. Je zult merken dat wanneer je op de knop 'Afdrukken' drukt, er niets gebeurt. Hiervoor moeten we op de gebruikte pc een klein programma downloaden: **JSPrintManager** van [NEOdynamic](https://www.neodynamic.com/).
 
-![Label scherm](./assets//label-screen.png)
+![Label scherm](./assets/label-screen.png)
 
-We raden aan om enkel de link gebruikt in deze documentatie om virussen en gevaarlijke programmas te vermijden.
+We raden aan om enkel de link te gebruiken die in deze documentatie staat, om virussen en gevaarlijke programma's te vermijden.
 
-Als je op deze [link](https://www.neodynamic.com/downloads/jspm/) drukt kom je terecht op een pagina waar je de JSPrintManager software veilig kan downloaden. Kies eerst en vooral het juiste OS waar je op werkt. Als je windows gebruikt zal je een uitvoerbaar bestand downloaden. Wanneer je een mac gebruikt zal er een .pkg bestand downloaden.
+Download **JSPrintManager** hier: [link](https://www.neodynamic.com/downloads/jspm/). Kies het juiste OS. Voor Windows krijg je een uitvoerbaar bestand, voor Mac een `.pkg`-bestand.
 
->⚠️ Het kan zijn dat je computer het bestand niet wilt starten omdat hij niet zeker is of het wel veilig is. Zolang je het bestand hebt gedownload van de link hierboven is het bestand normaal veilig!
+> ⚠️ Je computer kan waarschuwen dat het bestand onveilig is. Als je het bestand via de bovenstaande link hebt gedownload, is het veilig!
 
-Wanneer je dit hebt gedaan (ongeacht welke systeem je gebruikt) mag je naar je 'download' folder gaan en dubbel klikken op het net gedownloade bestand. Er zal een installatie pop komen waar je moet doorlopen. Ga erdoor en pas niets aan.
+Na installatie zou de applicatie automatisch moeten starten. Als je nog steeds niets kunt afdrukken, zoek dan de applicatie en start deze handmatig.
 
-Wanneer je dit hebt gedaan zou de applicatie automatisch moeten opstaan. Als je nog altijd niets zou kunnen afdrukken zoek dan naar de applicatie en doe hem open net zoals je eender ander applicatie zou starten.
-
-Top! Je bent klaar om te starten met labels printen
+Top! Je bent klaar om labels te printen.
 
 ## 4.1 - Disclaimer
 
-Wanneer je probeert af te drukken gaat de software eerst een nogal verontrusttend scherm laten zijn zoals afgebeeld onderaan. Dit is compleet normaal. Dit is omdat we de gratis versie van de software willen gebruiken. Geen zorgen, klik gewoon op de afdruk knop en wanneer als juist geïnstalleerd is en aan staat zullen de labels starten met printen.
+Wanneer je probeert af te drukken, zal de software eerst een verontrustend scherm tonen, zoals hieronder afgebeeld. Dit is normaal omdat we de gratis versie van de software gebruiken. Klik gewoon op de afdrukknop en de labels zullen starten met printen als alles correct is geïnstalleerd.
 
-**prijs licensie:** €150 per maand
+**Prijs licentie:** €150 per maand
 
-![pop-up JSPrintManager](./assets/pop-up-jsprintmanager.png)
+![Pop-up JSPrintManager](./assets/pop-up-jsprintmanager.png)
 
-## 5 - Data beheer
+## 5 - Databeheer
 
-Onze systemen zijn gemaakt om te werken in schoolomgevingen, daarom slagen wij vooral fictieve gegevens op. Echte gegevens die bijgehouden worden:
+Onze systemen zijn gemaakt voor schoolomgevingen, daarom slaan wij vooral fictieve gegevens op. Echte gegevens die worden bijgehouden:
 
-- r of u nummer van persoon die test afneemt
-- account gegevens (naam, voornaam, email, paswoord)
-- naam laborant die test afneemt
+- R- of U-nummer van de persoon die de test afneemt
+- Accountgegevens (naam, voornaam, e-mail, wachtwoord)
+- Naam van de laborant die de test afneemt
 
-Alle andere data die opgeslagen wordt zijn fictieve of foutieve namen die toegekend worden aan de stalen. We slagen dus geen echte patiënt gegevens op in onze applicatie. Deze gegevens worden echter wel vergrendeld achter een authenticatie systeem.
+Alle andere opgeslagen gegevens zijn fictieve of foutieve namen die worden toegekend aan de stalen. We slaan dus geen echte patiëntgegevens op. Deze gegevens zijn echter wel beveiligd achter een authenticatiesysteem.
 
-Moest u gegevens hebben geregistreerd die u wil veranderen of laten verwijderen kan u ons contacteren op:
+Wil je geregistreerde gegevens wijzigen of laten verwijderen? Contacteer ons via:
 
-**email**: [r0929448@student.thomasmore.be](r0929448@student.thomasmore.be)
+**E-mail**: [r0929448@student.thomasmore.be](mailto:r0929448@student.thomasmore.be)
 
-**teams**: César Van Leuffelen
+**Teams**: César Van Leuffelen
+
