@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import logoLabflow from '$lib/assets/labflowLogo.svg';
+	import logoLabflow from '$lib/assets/labflowLogoTM.svg';
 	// @ts-ignore
 	import GoPerson from 'svelte-icons/go/GoPerson.svelte';
 	// @ts-ignore

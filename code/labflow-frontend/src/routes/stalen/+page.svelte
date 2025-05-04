@@ -75,6 +75,16 @@
 		editStaalErrorMessage = '';
 	}
 
+	// functie om de datum te formatteren naar dd/mm/yyyy
+	function formatDateToDDMMYYYY(dateStr: string): string {
+		if (!dateStr) return '';
+		const date = new Date(dateStr);
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const year = date.getFullYear();
+		return `${day}/${month}/${year}`;
+	}
+
 	onMount(async () => {
 		token = getCookie('authToken') || '';
 		const result = await fetchStalen();
@@ -96,15 +106,13 @@
 				staal.laborantNaam.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
 				staal.laborantRnummer.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
 				staal.aanmaakDatum.toString().toLowerCase().includes(searchCode.toLowerCase());
-			// Converteren searchdate en aanmaakdatum naar een datumobject
-			const searchDateObject = new Date(searchDate);
-			const aanmaakDatumObject = new Date(staal.aanmaakDatum);
 
-			const isValidDate = !isNaN(searchDateObject.getTime());
+			const parsedSearchDate = searchDate
+				? formatDateToDDMMYYYY(new Date(searchDate).toISOString())
+				: '';
 
-			// Date match: vergelijken van de datums, alleen als de searchDate een geldige datum is
-			const dateMatch = isValidDate
-				? searchDateObject.toDateString() === aanmaakDatumObject.toDateString()
+			const dateMatch = searchDate
+				? formatDateToDDMMYYYY(staal.aanmaakDatum) === parsedSearchDate
 				: true;
 
 			return codeMatch && dateMatch;
@@ -383,7 +391,7 @@
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Aanmaakdatum</p>
-							<p>{new Date(staal?.aanmaakDatum).toLocaleDateString() || ''}</p>
+							<p>{formatDateToDDMMYYYY(staal?.aanmaakDatum)}</p>
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Naam</p>
@@ -399,7 +407,7 @@
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Geboortedatum</p>
-							<p>{new Date(staal?.patientGeboorteDatum).toLocaleDateString() || ''}</p>
+							<p>{formatDateToDDMMYYYY(staal?.patientGeboorteDatum)}</p>
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400 font-bold">Laborant</p>
