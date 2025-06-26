@@ -49,7 +49,7 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"left": -400,
-											"top": -62,
+											"top": -78,
 											"height": 13
 										},
 										{
@@ -60,7 +60,7 @@
 											},
 											"font": "Arial;13;1",
 											"left": 429,
-											"top": 375,
+											"top": 367,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "Staal"
@@ -74,7 +74,7 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"left": -400,
-											"top": -62,
+											"top": -78,
 											"width": 73.67724609375,
 											"height": 13,
 											"text": "(from Model)"
@@ -88,14 +88,14 @@
 											"visible": false,
 											"font": "Arial;13;0",
 											"left": -400,
-											"top": -62,
+											"top": -78,
 											"height": 13,
 											"horizontalAlignment": 1
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 424,
-									"top": 368,
+									"top": 360,
 									"width": 170.43701171875,
 									"height": 25,
 									"stereotypeLabel": {
@@ -132,7 +132,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 398,
+											"top": 390,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "staalID PK",
@@ -149,10 +149,10 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 413,
+											"top": 405,
 											"width": 160.43701171875,
 											"height": 13,
-											"text": "userID int FK3",
+											"text": "userID int NNA FK3",
 											"horizontalAlignment": 0
 										},
 										{
@@ -166,7 +166,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 428,
+											"top": 420,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "staalCode int AK",
@@ -183,7 +183,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 443,
+											"top": 435,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "patiëntVoornaam string",
@@ -200,7 +200,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 458,
+											"top": 450,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "patiëntAchternaam string",
@@ -217,7 +217,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 473,
+											"top": 465,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "patiëntGeboorteDatum date",
@@ -234,7 +234,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 488,
+											"top": 480,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "patiëntGeslacht char",
@@ -251,7 +251,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 503,
+											"top": 495,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "laborantNaam string",
@@ -268,18 +268,35 @@
 											},
 											"font": "Arial;13;0",
 											"left": 429,
-											"top": 518,
+											"top": 510,
 											"width": 160.43701171875,
 											"height": 13,
 											"text": "laborantRnummer string",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGXrIP9+rUVqVM=",
+											"_parent": {
+												"$ref": "AAAAAAGSUYQkAdAxMUc="
+											},
+											"model": {
+												"$ref": "AAAAAAGXrIP977USU1U="
+											},
+											"font": "Arial;13;0",
+											"left": 429,
+											"top": 525,
+											"width": 160.43701171875,
+											"height": 13,
+											"text": "aanmaakDatum date",
 											"horizontalAlignment": 0
 										}
 									],
 									"font": "Arial;13;0",
 									"left": 424,
-									"top": 393,
+									"top": 385,
 									"width": 170.43701171875,
-									"height": 143
+									"height": 158
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -293,7 +310,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"left": -200,
-									"top": -31,
+									"top": -39,
 									"width": 10,
 									"height": 10
 								},
@@ -309,7 +326,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"left": -200,
-									"top": -31,
+									"top": -39,
 									"width": 10,
 									"height": 10
 								},
@@ -325,7 +342,7 @@
 									"visible": false,
 									"font": "Arial;13;0",
 									"left": -200,
-									"top": -31,
+									"top": -39,
 									"width": 10,
 									"height": 10
 								}
@@ -333,9 +350,9 @@
 							"font": "Arial;13;0",
 							"containerChangeable": true,
 							"left": 424,
-							"top": 368,
+							"top": 360,
 							"width": 170.43701171875,
-							"height": 168,
+							"height": 183,
 							"showVisibility": false,
 							"nameCompartment": {
 								"$ref": "AAAAAAGSUYQkANAssBg="
@@ -486,7 +503,7 @@
 											"top": 421,
 											"width": 151,
 											"height": 13,
-											"text": "rolID int FK4",
+											"text": "rolID int NNA FK4",
 											"horizontalAlignment": 0
 										},
 										{
@@ -503,7 +520,7 @@
 											"top": 436,
 											"width": 151,
 											"height": 13,
-											"text": "email string AK",
+											"text": "email string",
 											"horizontalAlignment": 0
 										},
 										{
@@ -537,7 +554,7 @@
 											"top": 466,
 											"width": 151,
 											"height": 13,
-											"text": "voorNaam string",
+											"text": "voorNaam string NA",
 											"horizontalAlignment": 0
 										},
 										{
@@ -554,7 +571,7 @@
 											"top": 481,
 											"width": 151,
 											"height": 13,
-											"text": "achterNaam string",
+											"text": "achterNaam string NA",
 											"horizontalAlignment": 0
 										}
 									],
@@ -769,7 +786,7 @@
 											"top": 189,
 											"width": 151,
 											"height": 13,
-											"text": "naam string AK",
+											"text": "naam string",
 											"horizontalAlignment": 0
 										}
 									],
@@ -1001,7 +1018,24 @@
 											"top": 444,
 											"width": 151,
 											"height": 13,
-											"text": "eenheidID int FK5",
+											"text": "eenheidID int NNA FK5",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGXrIeykDc2z8k=",
+											"_parent": {
+												"$ref": "AAAAAAGSUYR2vtCxatI="
+											},
+											"model": {
+												"$ref": "AAAAAAGXrIeyizczl/k="
+											},
+											"font": "Arial;13;0",
+											"left": 973,
+											"top": 459,
+											"width": 151,
+											"height": 13,
+											"text": "testcategorie int NNA FK2",
 											"horizontalAlignment": 0
 										},
 										{
@@ -1015,7 +1049,7 @@
 											},
 											"font": "Arial;13;0",
 											"left": 973,
-											"top": 459,
+											"top": 474,
 											"width": 151,
 											"height": 13,
 											"text": "testCode int AK",
@@ -1032,10 +1066,10 @@
 											},
 											"font": "Arial;13;0",
 											"left": 973,
-											"top": 474,
+											"top": 489,
 											"width": 151,
 											"height": 13,
-											"text": "naam string AK",
+											"text": "naam string",
 											"horizontalAlignment": 0
 										}
 									],
@@ -1043,7 +1077,7 @@
 									"left": 968,
 									"top": 409,
 									"width": 161,
-									"height": 83
+									"height": 98
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -2837,41 +2871,24 @@
 											"top": 693,
 											"width": 143,
 											"height": 13,
-											"text": "testID int FK6",
+											"text": "testID int NA FK6",
 											"horizontalAlignment": 0
 										},
 										{
 											"_type": "UMLAttributeView",
-											"_id": "AAAAAAGSZo3mcAG6/bs=",
+											"_id": "AAAAAAGXrIyRAFkIjA4=",
 											"_parent": {
 												"$ref": "AAAAAAGSZorSOtlCg/A="
 											},
 											"model": {
-												"$ref": "AAAAAAGSZo3mXwGo6cM="
+												"$ref": "AAAAAAGXrIyQ+1j5Fcw="
 											},
 											"font": "Arial;13;0",
 											"left": 973,
 											"top": 708,
 											"width": 143,
 											"height": 13,
-											"text": "referentieWaardeMin int",
-											"horizontalAlignment": 0
-										},
-										{
-											"_type": "UMLAttributeView",
-											"_id": "AAAAAAGSZo4oGwReLug=",
-											"_parent": {
-												"$ref": "AAAAAAGSZorSOtlCg/A="
-											},
-											"model": {
-												"$ref": "AAAAAAGSZo4oEwRMb1Y="
-											},
-											"font": "Arial;13;0",
-											"left": 973,
-											"top": 723,
-											"width": 143,
-											"height": 13,
-											"text": "referentieWaardeMax int",
+											"text": "waarde string",
 											"horizontalAlignment": 0
 										}
 									],
@@ -2879,7 +2896,7 @@
 									"left": 968,
 									"top": 673,
 									"width": 153,
-									"height": 68
+									"height": 53
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -3049,7 +3066,7 @@
 										"$ref": "AAAAAAGSZouwXeGefE8="
 									},
 									"edgePosition": 2,
-									"text": "1..1"
+									"text": "0..1"
 								},
 								{
 									"_type": "EdgeLabelView",
@@ -3345,7 +3362,7 @@
 											"top": 334,
 											"width": 134,
 											"height": 13,
-											"text": "staalID FK1 PK",
+											"text": "staalID FK1 NNA PK",
 											"horizontalAlignment": 0
 										},
 										{
@@ -3362,7 +3379,41 @@
 											"top": 349,
 											"width": 134,
 											"height": 13,
-											"text": "testID FK7 PK",
+											"text": "testID FK7 NNA PK",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGXrITlf8ZRoxk=",
+											"_parent": {
+												"$ref": "AAAAAAGSZriyHht/yIg="
+											},
+											"model": {
+												"$ref": "AAAAAAGXrITld8Y/B+g="
+											},
+											"font": "Arial;13;0",
+											"left": 717,
+											"top": 364,
+											"width": 134,
+											"height": 13,
+											"text": "result string NA",
+											"horizontalAlignment": 0
+										},
+										{
+											"_type": "UMLAttributeView",
+											"_id": "AAAAAAGXrITnF8dophA=",
+											"_parent": {
+												"$ref": "AAAAAAGSZriyHht/yIg="
+											},
+											"model": {
+												"$ref": "AAAAAAGXrITnE8dWHPY="
+											},
+											"font": "Arial;13;0",
+											"left": 717,
+											"top": 379,
+											"width": 134,
+											"height": 13,
+											"text": "note string NA",
 											"horizontalAlignment": 0
 										}
 									],
@@ -3370,7 +3421,7 @@
 									"left": 712,
 									"top": 329,
 									"width": 144,
-									"height": 38
+									"height": 68
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -4076,8 +4127,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYQkANApQvk="
 							},
-							"name": "userID int FK3",
-							"type": ""
+							"name": "userID int NNA FK3"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4141,6 +4191,14 @@
 							},
 							"name": "laborantRnummer string",
 							"type": ""
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGXrIP977USU1U=",
+							"_parent": {
+								"$ref": "AAAAAAGSUYQkANApQvk="
+							},
+							"name": "aanmaakDatum date"
 						}
 					]
 				},
@@ -4199,8 +4257,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYRLpNBV3fQ="
 							},
-							"name": "rolID int FK4",
-							"type": ""
+							"name": "rolID int NNA FK4"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4208,8 +4265,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYRLpNBV3fQ="
 							},
-							"name": "email string AK",
-							"type": ""
+							"name": "email string"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4226,8 +4282,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYRLpNBV3fQ="
 							},
-							"name": "voorNaam string",
-							"type": ""
+							"name": "voorNaam string NA"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4235,8 +4290,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYRLpNBV3fQ="
 							},
-							"name": "achterNaam string",
-							"type": ""
+							"name": "achterNaam string NA"
 						}
 					]
 				},
@@ -4295,8 +4349,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYRkpdB/4K4="
 							},
-							"name": "naam string AK",
-							"type": ""
+							"name": "naam string"
 						}
 					]
 				},
@@ -4351,7 +4404,7 @@
 								"_parent": {
 									"$ref": "AAAAAAGSZouwXeGaoAw="
 								},
-								"name": "1..1",
+								"name": "0..1",
 								"reference": {
 									"$ref": "AAAAAAGSUYR2vtCpnzk="
 								}
@@ -4394,8 +4447,15 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYR2vtCpnzk="
 							},
-							"name": "eenheidID int FK5",
-							"type": ""
+							"name": "eenheidID int NNA FK5"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGXrIeyizczl/k=",
+							"_parent": {
+								"$ref": "AAAAAAGSUYR2vtCpnzk="
+							},
+							"name": "testcategorie int NNA FK2"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4412,8 +4472,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSUYR2vtCpnzk="
 							},
-							"name": "naam string AK",
-							"type": ""
+							"name": "naam string"
 						}
 					]
 				},
@@ -4546,7 +4605,8 @@
 							"_parent": {
 								"$ref": "AAAAAAGSZorSOdk6+sQ="
 							},
-							"name": "referentieWaardeID PK"
+							"name": "referentieWaardeID PK",
+							"type": ""
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4554,23 +4614,15 @@
 							"_parent": {
 								"$ref": "AAAAAAGSZorSOdk6+sQ="
 							},
-							"name": "testID int FK6"
+							"name": "testID int NA FK6"
 						},
 						{
 							"_type": "UMLAttribute",
-							"_id": "AAAAAAGSZo3mXwGo6cM=",
+							"_id": "AAAAAAGXrIyQ+1j5Fcw=",
 							"_parent": {
 								"$ref": "AAAAAAGSZorSOdk6+sQ="
 							},
-							"name": "referentieWaardeMin int"
-						},
-						{
-							"_type": "UMLAttribute",
-							"_id": "AAAAAAGSZo4oEwRMb1Y=",
-							"_parent": {
-								"$ref": "AAAAAAGSZorSOdk6+sQ="
-							},
-							"name": "referentieWaardeMax int"
+							"name": "waarde string"
 						}
 					]
 				},
@@ -4620,7 +4672,7 @@
 							"_parent": {
 								"$ref": "AAAAAAGSZriyHRt3PqU="
 							},
-							"name": "staalID FK1 PK"
+							"name": "staalID FK1 NNA PK"
 						},
 						{
 							"_type": "UMLAttribute",
@@ -4628,7 +4680,23 @@
 							"_parent": {
 								"$ref": "AAAAAAGSZriyHRt3PqU="
 							},
-							"name": "testID FK7 PK"
+							"name": "testID FK7 NNA PK"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGXrITld8Y/B+g=",
+							"_parent": {
+								"$ref": "AAAAAAGSZriyHRt3PqU="
+							},
+							"name": "result string NA"
+						},
+						{
+							"_type": "UMLAttribute",
+							"_id": "AAAAAAGXrITnE8dWHPY=",
+							"_parent": {
+								"$ref": "AAAAAAGSZriyHRt3PqU="
+							},
+							"name": "note string NA"
 						}
 					]
 				}
@@ -5278,7 +5346,7 @@
 									"font": "Arial;13;0",
 									"left": 579,
 									"top": 124.5,
-									"width": 168.9326171875,
+									"width": 168,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXmwizFmkpM="
@@ -5477,7 +5545,7 @@
 									"font": "Arial;13;0",
 									"left": 601,
 									"top": 172.5,
-									"width": 119.82080078125,
+									"width": 119,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXojHTGXqmk="
@@ -5676,7 +5744,7 @@
 									"font": "Arial;13;0",
 									"left": 613,
 									"top": 220.5,
-									"width": 139.3271484375,
+									"width": 139,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXpQdzHGc1k="
@@ -5872,7 +5940,7 @@
 									"font": "Arial;13;0",
 									"left": 587.5,
 									"top": 284.5,
-									"width": 170.392578125,
+									"width": 169,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXre0DH1v5g="
@@ -6066,7 +6134,7 @@
 									"font": "Arial;13;0",
 									"left": 609.5,
 									"top": 396.5,
-									"width": 121.998046875,
+									"width": 121,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXsWLTIkSSI="
@@ -6262,7 +6330,7 @@
 									"font": "Arial;13;0",
 									"left": 617.5,
 									"top": 340.5,
-									"width": 122.00439453125,
+									"width": 121,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUXumJjJVj7I="
@@ -8973,7 +9041,7 @@
 									"font": "Arial;13;0",
 									"left": 622,
 									"top": 604.5,
-									"width": 105.11962890625,
+									"width": 104,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUX46yE6vntY="
@@ -9167,7 +9235,7 @@
 									"font": "Arial;13;0",
 									"left": 606.5,
 									"top": 652.5,
-									"width": 147.75048828125,
+									"width": 147,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUX5eB1AtQD8="
@@ -9366,7 +9434,7 @@
 									"font": "Arial;13;0",
 									"left": 629.5,
 									"top": 700.5,
-									"width": 103.1962890625,
+									"width": 102,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUX6f3FmNEVQ="
@@ -10649,7 +10717,7 @@
 									"font": "Arial;13;0",
 									"left": 637,
 									"top": 812.5,
-									"width": 100.32080078125,
+									"width": 99,
 									"height": 25,
 									"stereotypeLabel": {
 										"$ref": "AAAAAAGSUYLPCsRDa2A="
