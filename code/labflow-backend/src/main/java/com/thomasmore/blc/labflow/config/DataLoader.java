@@ -4,6 +4,7 @@ import com.thomasmore.blc.labflow.entity.*;
 import com.thomasmore.blc.labflow.repository.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,6 +18,7 @@ public class DataLoader implements CommandLineRunner {
     private final StaalRepository staalRepository;
     private final ReferentiewaardeRepository referentiewaardeRepository;
     private final StaalTestRepository staalTestRepository;
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
 
 
     public DataLoader(UserRepository userRepository,
@@ -38,6 +40,8 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+
         String admin_password = "USER_ADMIN_PASSWORD";
         String nathan_password = "USER_NATHAN_PASSWORD";
         String cesar_password = "USER_CESAR_PASSWORD";
@@ -53,13 +57,13 @@ public class DataLoader implements CommandLineRunner {
         String nathanPassword;
         if (adminPw == null || nathanPw == null || cesarPw == null) {
             Dotenv dotenv = Dotenv.configure()
-                    .directory("./")
-                    .ignoreIfMissing()
                     .load();
 
-            adminPassword = dotenv.get(admin_password);
-            nathanPassword = dotenv.get(nathan_password);
-            cesarPassword = dotenv.get(cesar_password);
+            // encryptie van de passwoorden in .env
+            adminPassword = encoder.encode(dotenv.get(admin_password));
+            nathanPassword = encoder.encode(dotenv.get(nathan_password));
+            cesarPassword = encoder.encode(dotenv.get(cesar_password));
+            System.out.println("NATHAN PASSWORD: " + dotenv.get("USER_NATHAN_PASSWORD"));
         } else {
             adminPassword = adminPw;
             nathanPassword = nathanPw;
@@ -496,7 +500,5 @@ public class DataLoader implements CommandLineRunner {
         staalTestRepository.save(staalTest1);
         staalTestRepository.save(staalTest2);
         staalTestRepository.save(staalTest3);
-
-        System.out.println("USER_ADMIN_PASSWORD: " + System.getenv(admin_password));
     }
 }
