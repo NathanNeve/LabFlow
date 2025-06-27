@@ -22,14 +22,6 @@ jobs:
 
       - name: Create database directory
         run: mkdir -p ./code/labflow-backend/databases
-
-      # New step: create .env from secrets
-      - name: Create .env file
-        working-directory: ./code/labflow-backend
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "API_KEY=${{ secrets.API_KEY }}" >> .env
-          # Add other env variables here as needed
           
       - name: Cache SonarQube packages
         uses: actions/cache@v4
