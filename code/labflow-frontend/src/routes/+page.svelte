@@ -2,7 +2,7 @@
 	import Login from '../components/Login.svelte';
 	// https://kit.svelte.dev/docs/images
 	import loginphoto from '$lib/assets/lab_login.jpg';
-	import logoLabflow from '$lib/assets/labflowLogo.svg';
+	import logoLabflow from '$lib/assets/labflowLogoTM.svg';
 </script>
 
 <div class="flex h-screen">
