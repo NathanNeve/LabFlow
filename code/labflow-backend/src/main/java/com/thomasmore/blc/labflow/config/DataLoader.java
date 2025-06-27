@@ -63,7 +63,6 @@ public class DataLoader implements CommandLineRunner {
             adminPassword = encoder.encode(dotenv.get(admin_password));
             nathanPassword = encoder.encode(dotenv.get(nathan_password));
             cesarPassword = encoder.encode(dotenv.get(cesar_password));
-            System.out.println("NATHAN PASSWORD: " + dotenv.get("USER_NATHAN_PASSWORD"));
         } else {
             adminPassword = adminPw;
             nathanPassword = nathanPw;
