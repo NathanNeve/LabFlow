@@ -4,6 +4,7 @@ import com.thomasmore.blc.labflow.entity.*;
 import com.thomasmore.blc.labflow.repository.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -42,6 +43,9 @@ public class DataLoader implements CommandLineRunner {
         String nathan_password = "USER_NATHAN_PASSWORD";
         String cesar_password = "USER_CESAR_PASSWORD";
 
+        // hashing encoder
+        final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
+
         // Neem de env variabelen van render.com (production)
         String adminPw = System.getenv(admin_password);
         String nathanPw = System.getenv(nathan_password);
@@ -57,9 +61,9 @@ public class DataLoader implements CommandLineRunner {
                     .ignoreIfMissing()
                     .load();
 
-            adminPassword = dotenv.get(admin_password);
-            nathanPassword = dotenv.get(nathan_password);
-            cesarPassword = dotenv.get(cesar_password);
+            adminPassword = encoder.encode(dotenv.get(admin_password));
+            nathanPassword = encoder.encode(dotenv.get(nathan_password));
+            cesarPassword = encoder.encode(dotenv.get(cesar_password));
         } else {
             adminPassword = adminPw;
             nathanPassword = nathanPw;

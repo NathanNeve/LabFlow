@@ -30,7 +30,7 @@ public class UserService {
 
     // BcryptEncoder heeft 1 parameter 'strength'
     // hoe hoger het getal, hoe meer het wachtwoord wordt gehasht, maar hoe meer compute nodig is
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
+    final  private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
 
 
     public List<User> readUsers(){
