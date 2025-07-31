@@ -2,7 +2,7 @@
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
-	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
+	import { fetchStalen, fetchStatussen, fetchAllStalen } from '$lib/fetchFunctions';
 	import { getCookie } from '$lib/globalFunctions';
 	import { id } from '../../components/Modal/store';
 
@@ -45,6 +45,8 @@
 	let statussen: string[] = [];
 	let searchCode = '';
 	let searchDate = '';
+	let page = 0;
+	let totalPages = 0;
 
 	let token: string = '';
 
@@ -84,16 +86,6 @@
 		const year = date.getFullYear();
 		return `${day}/${month}/${year}`;
 	}
-
-	onMount(async () => {
-		token = getCookie('authToken') || '';
-		const result = await fetchStalen();
-		if (result) {
-			stalen = result.stalen;
-			stalenSorted = result.stalen;
-			statussen = await fetchStatussen();
-		}
-	});
 
 	// Function om te filteren op staalcode en datum
 	function filterStalen() {
@@ -177,7 +169,7 @@
 		} catch (error) {
 			console.error('Staal kon niet worden verwijderd: ', error);
 		}
-		const result = await fetchStalen();
+		const result = await fetchAllStalen();
 		if (result) {
 			stalen = result.stalen;
 			stalenSorted = result.stalen;
@@ -271,6 +263,72 @@
 			console.error('Staal kon niet worden aangepast: ', error);
 			return;
 		}
+	}
+
+	async function load() {
+		const data = await fetchStalen(page); // Geef huidige pagina door aan de fetch functie
+		if (data) {
+			stalen = data.stalen;
+			stalenSorted = data.stalen;
+			totalPages = data.totalPages; // Set totale aantal pagina's
+			statussen = await fetchStatussen();
+		}
+	}
+
+	function nextPage() {
+		if (page < totalPages - 1) {
+			page++;
+			load();
+		}
+	}
+
+	function prevPage() {
+		if (page > 0) {
+			page--;
+			load();
+		}
+	}
+
+	function goToPage(targetPage: number) {
+		if (targetPage >= 0 && targetPage < totalPages) {
+			page = targetPage;
+			load();
+		}
+	}
+
+	function search(e: Event) {
+		e.preventDefault();
+		page = 0; // Reset naar de eerste pagina bij een nieuwe zoekopdracht
+		load();
+	}
+
+	onMount(load);
+
+	// Aantal pagina's berekenen
+	function getVisiblePages() {
+		const delta = 2; // toon 2 pagina's voor en na de huidige pagina
+		const range = [];
+		const rangeWithDots = [];
+
+		for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
+			range.push(i);
+		}
+
+		if (page - delta > 2) {
+			rangeWithDots.push(1, '...');
+		} else {
+			rangeWithDots.push(1);
+		}
+
+		rangeWithDots.push(...range);
+
+		if (page + delta < totalPages - 1) {
+			rangeWithDots.push('...', totalPages);
+		} else if (totalPages > 1) {
+			rangeWithDots.push(totalPages);
+		}
+
+		return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i); // Verwijder dubbele waarden
 	}
 </script>
 
@@ -582,6 +640,43 @@
 					{/if}
 				</div>
 			{/each}
+		</div>
+		<div class="mt-4 flex items-center justify-center space-x-1">
+			<!-- Vorige -->
+			<button
+				on:click={prevPage}
+				disabled={page === 0}
+				class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+			>
+				« Vorige
+			</button>
+
+			<!-- Pagina nummers -->
+			{#if totalPages > 0}
+				{#each getVisiblePages() as pageNum}
+					{#if pageNum === '...'}
+						<span class="px-3 py-2 text-gray-500">...</span>
+					{:else}
+						<button
+							on:click={() => typeof pageNum === 'number' && goToPage(pageNum - 1)}
+							class="px-3 py-2 rounded {typeof pageNum === 'number' && page === pageNum - 1
+								? 'bg-blue-500 text-white'
+								: 'bg-gray-200 text-gray-700 hover:bg-gray-300'}"
+						>
+							{pageNum}
+						</button>
+					{/if}
+				{/each}
+			{/if}
+
+			<!-- Volgende -->
+			<button
+				on:click={nextPage}
+				disabled={page >= totalPages - 1}
+				class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+			>
+				Volgende »
+			</button>
 		</div>
 	</div>
 </div>

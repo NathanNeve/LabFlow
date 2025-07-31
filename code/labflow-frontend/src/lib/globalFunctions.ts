@@ -33,15 +33,16 @@ export function getUserId() {
 
 // https://jasonwatmore.com/fetch-add-bearer-token-authorization-header-to-http-request#:~:text=The%20auth%20header%20with%20bearer,to%20the%20fetch()%20function.
 // https://stackoverflow.com/questions/51264913/how-to-add-authorization-token-in-incoming-http-request-header
-export async function fetchAll(token: string, subject: string) {
+export async function fetchAll(token: string, subject: string, params: string = '') {
     // deze header is de jwt token nodig voor authenticatie
     const headers = {
         "Authorization": "Bearer " + token
     };
 
-    const response = await fetch(`${backend_path}/api/${subject}`, { headers })
+    const url = params ? `${backend_path}/api/${subject}?${params}` : `${backend_path}/api/${subject}`;
+    const response = await fetch(url, { headers })
         .then(response => response.json());
-        return response;
+    return response;
 }
 
 // voor users

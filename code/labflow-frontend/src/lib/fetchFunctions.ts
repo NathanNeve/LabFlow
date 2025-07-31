@@ -1,6 +1,6 @@
 import { getCookie, fetchAll, fetchAllWithoutPrefix } from '$lib/globalFunctions';
 import { goto } from '$app/navigation';
-import type { Eenheid, TestCategorie } from './types/dbTypes';
+import type { Eenheid, TestCategorie, Staal } from './types/dbTypes';
 
 const token = getCookie('authToken') ?? '';
 let testcategorieën: TestCategorie[] = [];
@@ -36,8 +36,41 @@ export async function loadEenheden() {
     }
 }
 
-// fetchen van stalen
-export async function fetchStalen() {
+// fetch alle stalen
+export async function fetchStalen(page = 0, size = 25) {
+    if (token) {
+        try {
+            // Build query parameters for pagination
+            const params = `page=${page}&size=${size}&sort=id,desc`;
+            
+            // Use your existing fetchAll function with pagination parameters
+            const stalen = await fetchAll(token, 'staal', params);
+            
+            const filteredStalen = stalen.content;
+            console.log(filteredStalen);
+            return { 
+                stalen: filteredStalen, 
+                filteredStalen,
+                totalPages: stalen.totalPages,
+                totalElements: stalen.totalElements,
+                currentPage: stalen.number,
+                isFirst: stalen.first,
+                isLast: stalen.last,
+                size: stalen.size
+            };
+        } catch (error) {
+            console.error("Stalen konden niet gefetched worden:", error);
+            return null;
+        }
+    } else {
+        console.error("JWT error: token missing of invalid");
+        goto('/');
+        return null;
+    }
+}
+
+// fetch alle stalen
+export async function fetchAllStalen() {
     if (token) {
         try {
             const stalen = await fetchAll(token, 'stalen');
