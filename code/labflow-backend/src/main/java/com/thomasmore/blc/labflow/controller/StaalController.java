@@ -34,9 +34,14 @@ public class StaalController {
     @GetMapping("/staal")
     public Page<Staal> getPaginatedStalen(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "25") int size) {
-        return staalService.readAmount(page, size);
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String date
+    ) {
+        return staalService.readAmount(page, size, search, status, date);
     }
+
 
     // update
     @PutMapping("/updatestaal/{id}")

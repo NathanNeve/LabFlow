@@ -8,16 +8,22 @@ import com.thomasmore.blc.labflow.entity.User;
 import com.thomasmore.blc.labflow.repository.StaalRepository;
 import com.thomasmore.blc.labflow.repository.TestRepository;
 import com.thomasmore.blc.labflow.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.Year;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StaalService {
@@ -31,7 +37,7 @@ public class StaalService {
 
     // Create
     public void createStaal(Staal staal) {
-        // loopen door elke test
+        // lopen door elke test
         if (staalRepository.findByStaalCode(staal.getStaalCode()) == null) {
             for (StaalTest registeredTest : staal.getRegisteredTests()) {
                 // testobject ophalen en koppelen met staal
@@ -52,14 +58,38 @@ public class StaalService {
     }
 
     // Read a specified amount (used for pagination)
-    public Page<Staal> readAmount(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return staalRepository.findAllByOrderByStaalCodeDesc(pageable);
+    public Page<Staal> readAmount(int page, int size, String search, String status, String dateStr) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("staalCode").descending());
+
+        Specification<Staal> spec = Specification.where(null);
+
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("staalCode")), "%" + search.toLowerCase() + "%"));
+        }
+
+        if (status != null && !status.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("status"), status));
+        }
+
+        if (dateStr != null && !dateStr.isBlank()) {
+            try {
+                LocalDate date = LocalDate.parse(dateStr);
+                spec = spec.and((root, query, cb) ->
+                        cb.equal(root.get("dateField"), date));
+            } catch (DateTimeParseException e) {
+                // Optionally log or handle the error
+            }
+        }
+
+        return staalRepository.findAll(spec, pageable);
     }
 
     // Update
     public ResponseEntity<Staal> update(Long id, Staal staal) {
-        Staal existingStaal = staalRepository.findById(id);
+        Staal existingStaal = staalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + id));
         User user = userRepository.findById(staal.getUser().getId());
         if (existingStaal != null) {
 
@@ -96,7 +126,8 @@ public class StaalService {
 
     // Delete
     public ResponseEntity<Integer> delete(Long id) {
-        Staal existingStaal = staalRepository.findById(id);
+        Staal existingStaal = staalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + id));
         if (existingStaal != null) {
             staalRepository.delete(existingStaal);
             return new ResponseEntity<>(staalRepository.findAll().size(), HttpStatus.OK);
@@ -106,7 +137,7 @@ public class StaalService {
     }
 
     // Get by id
-    public Staal readById(Long id) {
+    public Optional<Staal> readById(Long id) {
         return staalRepository.findById(id);
     }
 
