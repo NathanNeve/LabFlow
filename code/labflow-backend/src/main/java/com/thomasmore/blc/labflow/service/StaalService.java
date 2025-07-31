@@ -9,6 +9,9 @@ import com.thomasmore.blc.labflow.repository.StaalRepository;
 import com.thomasmore.blc.labflow.repository.TestRepository;
 import com.thomasmore.blc.labflow.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,12 @@ public class StaalService {
     // Read all
     public List<Staal> read() {
         return staalRepository.findAllByOrderByStaalCodeDesc();
+    }
+
+    // Read a specified amount (used for pagination)
+    public Page<Staal> readAmount(int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return staalRepository.findAllByOrderByStaalCodeDesc(pageable);
     }
 
     // Update
