@@ -9,6 +9,7 @@ import com.thomasmore.blc.labflow.repository.StaalRepository;
 import com.thomasmore.blc.labflow.repository.TestRepository;
 import com.thomasmore.blc.labflow.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -64,8 +66,26 @@ public class StaalService {
         Specification<Staal> spec = Specification.where(null);
 
         if (search != null && !search.isBlank()) {
-            spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("staalCode")), "%" + search.toLowerCase() + "%"));
+            spec = spec.and((root, query, cb) -> {
+                Path<?> staalCodePath = root.get("staalCode");
+
+                if (staalCodePath.getJavaType().equals(String.class)) {
+                    // If staalCode is a String, use LIKE for partial search
+                    return cb.like(cb.lower(root.get("staalCode")), "%" + search.toLowerCase() + "%");
+                } else if (staalCodePath.getJavaType().equals(Long.class)) {
+                    // If staalCode is a Long, try to parse and search exactly
+                    try {
+                        Long searchAsLong = Long.parseLong(search);
+                        return cb.equal(root.get("staalCode"), searchAsLong);
+                    } catch (NumberFormatException e) {
+                        // Return false condition to avoid error (no match)
+                        return cb.disjunction(); // Equivalent to `false`
+                    }
+                } else {
+                    // Unsupported type
+                    return cb.disjunction();
+                }
+            });
         }
 
         if (status != null && !status.isBlank()) {
@@ -76,10 +96,13 @@ public class StaalService {
         if (dateStr != null && !dateStr.isBlank()) {
             try {
                 LocalDate date = LocalDate.parse(dateStr);
+                LocalDateTime startOfDay = date.atStartOfDay();
+                LocalDateTime endOfDay = date.atTime(23, 59, 59, 999999999);
+
                 spec = spec.and((root, query, cb) ->
-                        cb.equal(root.get("dateField"), date));
+                        cb.between(root.get("aanmaakDatum"), startOfDay, endOfDay));
             } catch (DateTimeParseException e) {
-                // Optionally log or handle the error
+                System.out.println("Invalid date format: " + dateStr);
             }
         }
 
