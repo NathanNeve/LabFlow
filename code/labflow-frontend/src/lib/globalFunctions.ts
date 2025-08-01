@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import type { DecodedToken } from "$lib/types";
+import type { DecodedToken } from "$lib/types/types";
 const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 // helper functie om de jwt token te decoden
@@ -71,7 +71,7 @@ export function getCookie(name: string) {
     }
 
     // Als er geen cookie is, ga naar de login pagina (dit zorgt voor een refresh goto('/') niet)
-    window.location.href = '/';
+    //window.location.href = '/';
     return null;
 }
 

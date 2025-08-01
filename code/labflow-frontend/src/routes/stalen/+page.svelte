@@ -74,7 +74,7 @@
 		};
 		editStaalErrorMessage = '';
 	}
-
+	/*
 	onMount(async () => {
 		token = getCookie('authToken') || '';
 		const result = await fetchStalen();
@@ -83,7 +83,7 @@
 			stalenSorted = result.stalen;
 			statussen = await fetchStatussen();
 		}
-	});
+	});*/
 
 	// Function om te filteren op staalcode en datum
 	function filterStalen() {

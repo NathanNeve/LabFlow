@@ -15,22 +15,16 @@
 			headers: {
 				'Content-Type': 'application/json'
 			},
+			credentials: 'include',
 			body: JSON.stringify({ email, wachtwoord })
 		});
 
-		let result;
-
-		try {
-			result = await response.json();
-			const authToken = result.token;
-			// zonder httpOnly & sameSite is het onveilig
-			document.cookie = `authToken=${authToken};path=/;SameSite=Strict`;
-			if (document.cookie && authToken) {
-				goto('stalen');
-			}
-		} catch (error) {
-			console.error(error);
+		if (response.ok) {
+			goto('stalen');
+		} else {
 			displayError = true;
+			console.error('Login failed:', response.status, response.statusText);
+			return;
 		}
 	};
 

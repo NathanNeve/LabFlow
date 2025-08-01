@@ -28,6 +28,7 @@ public class UserController {
         return userService.register(user);
     }
 
+    // login function for users
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user){
         return userService.verify(user);

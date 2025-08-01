@@ -17,7 +17,7 @@ export async function loadTestCategorieën() {
         }
     } else {
         console.error("jwt error");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -32,7 +32,7 @@ export async function loadEenheden() {
         }
     } else {
         console.error("jwt error");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -48,7 +48,7 @@ export async function fetchStalen() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -63,7 +63,7 @@ export async function fetchStaal_StaalCode(staalCode: string) {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -78,7 +78,7 @@ export async function fetchUsers() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -93,7 +93,7 @@ export async function fetchRollen() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -108,7 +108,7 @@ export async function fetchTests() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -123,7 +123,7 @@ export async function fetchTestcategorieën() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -138,7 +138,7 @@ export async function fetchEenheden() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 
@@ -153,7 +153,7 @@ export async function fetchReferentiewaarden() {
         }
     } else {
         console.error("JWT error: token missing of invalid");
-        goto('/');
+        //goto('/');
     }
 }
 

@@ -5,14 +5,13 @@ import com.thomasmore.blc.labflow.entity.User;
 import com.thomasmore.blc.labflow.repository.UserRepository;
 // transactional zorgt ervoor dat een methode met meerdere database interacties volgens het ACID principe werkt
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +42,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // authentication of user
+    // IMPORTANT NOTE: this should not give back a json, it should give back a Cookie that is auto-set by the browser
     public ResponseEntity<?> verify(User user) {
         try {
             Authentication authentication =
@@ -50,15 +51,26 @@ public class UserService {
 
             if (authentication.isAuthenticated()) {
                 String token = jwtService.generateToken(user);
+
+                // create a Cookie with the JWT token
+                // Note: In production application, you would set the HttpOnly and Secure flags on the cookie
+                ResponseCookie cookie = ResponseCookie.from(("token"), token)
+                        .httpOnly(true) // prevents JavaScript access to the cookie
+                        .secure(false) // ensures the cookie is sent over HTTPS only (change in production)
+                        .path("/") // cookie is valid for the entire application
+                        .maxAge(7 * 24 * 60 * 60) // cookie expires in 7 days
+                        .sameSite("Strict") // prevents CSRF attacks
+                        .build();
+
                 // Stop token in een JSON format
                 return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(Map.of("token", token));
+                        .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                        .body("Cookie set successfully");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Problem with Authentication");
     }
 
     // delete
