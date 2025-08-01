@@ -2,8 +2,7 @@
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
-	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
-	import { getCookie } from '$lib/globalFunctions';
+	import { fetchStalen } from '$lib/fetchFunctions';
 	import { id } from '../../components/Modal/store';
 
 	// @ts-ignore

@@ -1,18 +1,8 @@
-import { jwtDecode } from "jwt-decode";
-import type { DecodedToken } from "$lib/types/types";
 const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
-// helper functie om de jwt token te decoden
-function decodeToken() {
-    const token = getCookie('authToken');
-    if (token) {
-        return jwtDecode<DecodedToken>(token);
-    }
-    return null;
-}
-
 // functie voor het ophalen van de rol van de gebruiker uit de jwt token
-export function getRolNaam_FromToken() {
+// THIS SHOULD BE CHANGED TO OTHER WAY OF GETTING ROLE & USER ID
+/* export function getRolNaam_FromToken() {
     const token = decodeToken();
     let rol: string | undefined;
     if (token) {
@@ -29,52 +19,39 @@ export function getUserId() {
         userId = token.userId;
     }
     return userId;
-}
+} */
 
 // https://jasonwatmore.com/fetch-add-bearer-token-authorization-header-to-http-request#:~:text=The%20auth%20header%20with%20bearer,to%20the%20fetch()%20function.
 // https://stackoverflow.com/questions/51264913/how-to-add-authorization-token-in-incoming-http-request-header
-export async function fetchAll(token: string, subject: string) {
-    // deze header is de jwt token nodig voor authenticatie
-    const headers = {
-        "Authorization": "Bearer " + token
+// general fetch function (ability to set: request type, subject, body and if the prefix is needed)
+export async function generalFetch(
+    request_type: 'GET' | 'POST' | 'PUT' | 'DELETE', 
+    subject: string, 
+    prefix: boolean = true, 
+    id?: string | number,
+    body?: any
+) {
+    // Setup url based on the provided parameters
+    const url = `${backend_path}/${prefix ? 'api/' : ''}${subject}${id ? `/${id}` : ''}`;
+    
+    // Setup request parameters
+    const options: RequestInit = {
+        method: request_type,
+        credentials: 'include',
     };
-
-    const response = await fetch(`${backend_path}/api/${subject}`, { headers })
-        .then(response => response.json());
-        return response;
-}
-
-// voor users
-export async function fetchAllWithoutPrefix(token: string, subject: string) {
-    const headers = {
-        "Authorization": "Bearer " + token
-    };
-
-    const response = await fetch(`${backend_path}/${subject}`, { headers })
-        .then(response => response.json());
-        return response;
-}
-
-// https://stackoverflow.com/questions/10730362/get-cookie-by-name 
-export function getCookie(name: string) {
-    if (typeof document === "undefined") {
-        console.warn("getCookie called in a non-browser environment.");
-        return null;
+    
+    // Add body (if added)
+    if (body && (request_type === 'POST' || request_type === 'PUT')) {
+        options.headers = {
+            'Content-Type': 'application/json',
+        };
+        options.body = JSON.stringify(body);
     }
-
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-
-    if (parts.length === 2) {
-        const part = parts.pop();
-        if (part) return part.split(';').shift();
-    }
-
-    // Als er geen cookie is, ga naar de login pagina (dit zorgt voor een refresh goto('/') niet)
-    //window.location.href = '/';
-    return null;
+    
+    // do the request
+    const response = await fetch(url, options).then(response => response.json());
+    return response;
 }
-
 
 // formateren van date
 export function formatDate(dateString: string): string {
