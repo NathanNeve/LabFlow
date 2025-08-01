@@ -1,6 +1,7 @@
 import { getCookie, fetchAll, fetchAllWithoutPrefix } from '$lib/globalFunctions';
 import { goto } from '$app/navigation';
-import type { Eenheid, TestCategorie, Staal } from './types/dbTypes';
+import type { Eenheid, TestCategorie } from './types/dbTypes';
+import type { StalenSearchParams } from './types/searchTypes';
 
 const token = getCookie('authToken') ?? '';
 let testcategorieën: TestCategorie[] = [];
@@ -37,13 +38,23 @@ export async function loadEenheden() {
 }
 
 // fetch alle stalen
-export async function fetchStalen(page = 0, size = 25) {
+export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearchParams = {}) {
     if (token) {
         try {
-            // Build query parameters for pagination
-            const params = `page=${page}&size=${size}&sort=id,desc`;
+            // Build query parameters for pagination and search
+            let params = `page=${page}&size=${size}&sort=id,desc`;
             
-            // Use your existing fetchAll function with pagination parameters
+            // Add search parameters if they exist
+            if (searchParams.searchCode) {
+                params += `&search=${encodeURIComponent(searchParams.searchCode)}`;
+            }
+            if (searchParams.searchDate) {
+                params += `&date=${encodeURIComponent(searchParams.searchDate)}`;
+            }
+            if (searchParams.filteredStatus) {
+                params += `&status=${encodeURIComponent(searchParams.filteredStatus)}`;
+            }
+            
             const stalen = await fetchAll(token, 'staal', params);
             
             const filteredStalen = stalen.content;
