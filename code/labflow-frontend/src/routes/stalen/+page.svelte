@@ -2,7 +2,7 @@
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
-	import { fetchStalen } from '$lib/fetchFunctions';
+	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
 	import { id } from '../../components/Modal/store';
 
 	// @ts-ignore
@@ -73,16 +73,15 @@
 		};
 		editStaalErrorMessage = '';
 	}
-	/*
+
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const result = await fetchStalen();
 		if (result) {
 			stalen = result.stalen;
 			stalenSorted = result.stalen;
 			statussen = await fetchStatussen();
 		}
-	});*/
+	});
 
 	// Function om te filteren op staalcode en datum
 	function filterStalen() {

@@ -1,12 +1,13 @@
 <script>
-    import { isOpen, id } from "./store.js";
-    import { getContext, onMount } from "svelte";
-    const modalId = getContext("modalId");
+	import { id } from './store.js';
+	import { getContext, onMount } from 'svelte';
+	const modalId = getContext('modalId');
 
-    onMount(() => {
-        $id = modalId;
-    });
+	onMount(() => {
+		$id = modalId;
+	});
 </script>
+
 <span>
-    <slot />
+	<slot />
 </span>

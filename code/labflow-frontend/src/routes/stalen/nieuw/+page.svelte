@@ -1,8 +1,7 @@
 <script lang="ts">
 	import Nav from '../../../components/nav.svelte';
 	import { goto } from '$app/navigation';
-	import { getCookie, fetchAll } from '$lib/globalFunctions';
-	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+	import { generalFetch, getRolNaam_FromToken } from '$lib/globalFunctions';
 	import { getUserId } from '$lib/globalFunctions';
 	import { onMount } from 'svelte';
 
@@ -32,8 +31,6 @@
 	import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
 	import { loadTestCategorieën, loadEenheden } from '$lib/fetchFunctions';
 	import { fetchStaal_StaalCode } from '$lib/fetchFunctions';
-	import Staal from '../../../components/Staal.svelte';
-	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	// types
@@ -52,7 +49,6 @@
 	let tests: Test[] = [];
 	let testsSorted: Test[] = [];
 	let searchCode = '';
-	let token: string = '';
 
 	// nieuwe staalcode
 	let nieuweStaalCode: string = '';
@@ -102,7 +98,6 @@
 	let geselecteerdeTests: string[] = [];
 
 	onMount(() => {
-		token = getCookie('authToken') || '';
 		loadTests();
 	});
 
@@ -118,18 +113,18 @@
 	// verkrijgen nieuwe staalcode op "/api/newStaalCode"
 	// als we in de session storage een staalcode hebben, binden we deze zijn waarden aan de variabelen
 	async function loadTests() {
-		if (token != null && sampleCode == '') {
+		if (sampleCode == '') {
 			try {
-				tests = await fetchAll(token, 'tests');
+				tests = await generalFetch('GET', 'tests', true);
 				testsSorted = tests;
-				nieuweStaalCode = await fetchAll(token, 'newStaalCode');
+				nieuweStaalCode = await generalFetch('GET', 'newStaalCode', true);
 				loading = false;
 			} catch (error) {
 				console.error('testen kon niet gefetched worden:', error);
 			}
-		} else if (token != null && sampleCode != '') {
+		} else {
 			try {
-				tests = await fetchAll(token, 'tests');
+				tests = await generalFetch('GET', 'tests', true);
 				const test = sampleCode ? await fetchStaal_StaalCode(sampleCode) : null;
 				testsSorted = tests;
 				// binden van de bestaande staalwaarden aan de variabelen
@@ -149,9 +144,6 @@
 			} catch (error) {
 				console.error('testen kon niet gefetched worden:', error);
 			}
-		} else {
-			console.error('jwt error');
-			goto('/');
 		}
 	}
 
@@ -240,9 +232,9 @@
 		try {
 			await fetch(`${backend_path}/api/createtest`, {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
 					testCode: testCode,
@@ -258,7 +250,7 @@
 		} catch (error) {
 			console.error('test kon niet worden aangemaakt: ', error);
 		}
-		tests = await fetchAll(token, 'tests'); // tests refreshen, triggert een refresh
+		tests = await generalFetch('GET', 'tests', true); // tests refreshen, triggert een refresh
 		testsSorted = tests;
 		return ($id = null);
 	}
@@ -337,9 +329,9 @@
 			await fetch(` ${backend_path}/api/createstaal`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					staalCode: nieuweStaalCode,
 					patientAchternaam: naam,
@@ -420,9 +412,9 @@
 			await fetch(`${backend_path}/api/updatestaal/${staalId}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					staalCode: nieuweStaalCode,
 					patientAchternaam: naam,
@@ -480,9 +472,9 @@
 			await fetch(`${backend_path}/api/createtestcategorie`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					naam: categorienaam,
 					kleur: hex
@@ -499,9 +491,7 @@
 		try {
 			await fetch(`${backend_path}/api/deletetest/${id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
+				credentials: 'include'
 			});
 		} catch (error) {
 			console.error('Test kon niet worden verwijderd: ', error);
@@ -549,9 +539,9 @@
 			const response = await fetch(`${backend_path}/api/updatetest/${test.id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					testCode: test.testCode,
 					naam: test.naam,

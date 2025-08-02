@@ -1,5 +1,5 @@
 <script>
-	import { isOpen, id } from './store.js';
+	import { id } from './store.js';
 	import { getContext } from 'svelte';
 
 	const modalId = getContext('modalId');

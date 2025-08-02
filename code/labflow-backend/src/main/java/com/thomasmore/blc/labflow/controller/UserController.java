@@ -34,6 +34,12 @@ public class UserController {
         return userService.verify(user);
     }
 
+    // logout function for users
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return userService.logout();
+    }
+
     @DeleteMapping("/deleteuser/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         return userService.delete(id);

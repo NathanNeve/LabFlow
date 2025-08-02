@@ -6,15 +6,30 @@
 	// @ts-ignore
 	import GoOrganization from 'svelte-icons/go/GoOrganization.svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	const rol = getRolNaam_FromToken();
 
-	function eraseCookie() {
-		// https://stackoverflow.com/questions/2144386/how-to-delete-a-cookie
-		document.cookie = 'authToken=;expires=' + new Date(0).toUTCString();
-	}
-
 	function logout() {
+		// remove user data from session storage
+		sessionStorage.removeItem('Role');
+		sessionStorage.removeItem('UserId');
+
+		// request logout -> sends expired cookie to delete session cookie
+		fetch(`${backend_path}/logout`, {
+			method: 'POST',
+			credentials: 'include'
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Logout failed');
+				}
+			})
+			.catch((error) => {
+				console.error('Logout error:', error);
+			});
+
+		// redirect to home page
 		goto('/');
 	}
 </script>
@@ -33,7 +48,6 @@
 				class="text-xs underline"
 				on:click={() => {
 					logout();
-					eraseCookie();
 				}}
 				type="button"
 			>

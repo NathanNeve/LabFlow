@@ -84,6 +84,22 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Problem with Authentication");
     }
 
+    // logout function for users
+    public ResponseEntity<?> logout() {
+        // create a Cookie with an empty value to clear the token in the browser
+        ResponseCookie cookie = ResponseCookie.from(("token"), "")
+                .httpOnly(true) // prevents JavaScript access to the cookie
+                .secure(false) // ensures the cookie is sent over HTTPS only (change in production)
+                .path("/") // cookie is valid for the entire application
+                .maxAge(-1) // cookie expires immediately
+                .sameSite("Strict") // prevents CSRF attacks
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body("successfully logged out");
+    }
+
     // delete
     public ResponseEntity<Integer> delete(Long id) {
         User deleteUser = userRepository.findById(id);

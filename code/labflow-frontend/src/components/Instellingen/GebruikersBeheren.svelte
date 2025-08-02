@@ -10,14 +10,11 @@
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte';
 	import { onMount } from 'svelte';
 	import { fetchUsers } from '$lib/fetchFunctions';
-	import { getCookie } from '$lib/globalFunctions';
 	import { fetchRollen } from '$lib/fetchFunctions';
 	import { getUserId } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Rol, User } from '$lib/types/dbTypes';
-
-	let token: string = '';
 
 	let users: User[] = [];
 	let usersSorted: User[] = [];
@@ -26,7 +23,6 @@
 	const userId = getUserId();
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const resultUsers = await fetchUsers();
 		if (resultUsers) {
 			[users, usersSorted] = [resultUsers, resultUsers].map((userList: User[]) =>
@@ -65,12 +61,14 @@
 			return;
 		} else {
 			try {
-				const response = await fetch(`${backend_path}/deleteuser/${id}`, {
+				await fetch(`${backend_path}/deleteuser/${id}`, {
 					method: 'DELETE',
 					headers: {
-						'Content-Type': 'application/json',
-						Authorization: 'Bearer ' + token
-					}
+						'Content-Type': 'application/json'
+					},
+					credentials: 'include'
+				}).catch((error) => {
+					errorMessageGebruikerDELETE = 'Gebruiker kon niet worden verwijderd: ' + error;
 				});
 				const result = await fetchUsers();
 				if (result) {
@@ -137,9 +135,9 @@
 			await fetch(`${backend_path}/register`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					voorNaam: voornaam,
 					achterNaam: achternaam,
@@ -216,9 +214,9 @@
 				await fetch(`${backend_path}/updateuser/${id}`, {
 					method: 'PUT',
 					headers: {
-						'Content-Type': 'application/json',
-						Authorization: 'Bearer ' + token
+						'Content-Type': 'application/json'
 					},
+					credentials: 'include',
 					body: JSON.stringify({
 						wachtwoord: newWachtwoord,
 						email: user.email,
@@ -234,9 +232,9 @@
 				await fetch(`${backend_path}/updateuserwithoutpassword/${id}`, {
 					method: 'PUT',
 					headers: {
-						'Content-Type': 'application/json',
-						Authorization: 'Bearer ' + token
+						'Content-Type': 'application/json'
 					},
+					credentials: 'include',
 					body: JSON.stringify({
 						email: user.email,
 						voorNaam: user.voorNaam,

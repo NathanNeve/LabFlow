@@ -10,13 +10,9 @@
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte';
 	// @ts-ignore
 	import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
-	import { getCookie } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Eenheid } from '$lib/types/dbTypes';
-
-
-	let token: string = '';
 
 	let errorMessageEenheid = '';
 	let searchCode = '';
@@ -24,7 +20,6 @@
 	let eenhedenSorted: Eenheid[] = [];
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const fetchedEenheden = await fetchEenheden();
 		if (fetchedEenheden) {
 			[eenheden, eenhedenSorted] = [fetchedEenheden, fetchedEenheden];
@@ -51,9 +46,7 @@
 		try {
 			const response = await fetch(`${backend_path}/api/deleteeenheid/${id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
+				credentials: 'include'
 			});
 
 			if (response.ok) {
@@ -104,9 +97,9 @@
 			await fetch(`${backend_path}/api/createeenheid`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					naam: naam,
 					afkorting: afkorting
@@ -159,9 +152,9 @@
 			await fetch(`${backend_path}/api/updateeenheid/${id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					naam: eenheid.naam,
 					afkorting: eenheid.afkorting

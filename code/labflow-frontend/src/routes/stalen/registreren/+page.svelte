@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Nav from '../../../components/nav.svelte';
 	import { goto } from '$app/navigation';
-	import { getCookie, fetchAll, formatDate, formatSex } from '$lib/globalFunctions';
+	import { formatDate, formatSex, generalFetch } from '$lib/globalFunctions';
 	// @ts-ignore
 	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
 	// @ts-ignore
@@ -25,12 +25,10 @@
 
 	let tests: any[] = [];
 	let openNoteId: string | null = null;
-	let done: boolean = false;
 	let staal: any = {};
 	let staalId: string = '';
 	let testCategories: any[] = [];
 	let selectedCategory: any = {};
-	let token: string = '';
 	let downloaded: boolean = false;
 
 	// update variables
@@ -41,25 +39,20 @@
 
 	// alle tests categorieën ophalen die bij de testen horen
 	async function loadData() {
-		if (token != null) {
-			try {
-				staal = await fetchAll(token, `staal/${sampleCode}`);
-				// assign id to staalId
-				staalId = staal.id;
-				// Extract unique test categories
-				extractUniqueTestCategories(staal.registeredTests);
-				// put all tests assigned to a 'staal' in the tests array
-				tests = staal.registeredTests;
+		try {
+			staal = await generalFetch('GET', 'staal', true, sampleCode);
+			// assign id to staalId
+			staalId = staal.id;
+			// Extract unique test categories
+			extractUniqueTestCategories(staal.registeredTests);
+			// put all tests assigned to a 'staal' in the tests array
+			tests = staal.registeredTests;
 
-				// check completion status after loading data
-				checkAllDoneForCategory(selectedCategory.id);
-				checkAllTestsDone();
-			} catch (error) {
-				console.error('data kon niet gefetched worden:', error);
-			}
-		} else {
-			console.error('jwt error');
-			goto('/login');
+			// check completion status after loading data
+			checkAllDoneForCategory(selectedCategory.id);
+			checkAllTestsDone();
+		} catch (error) {
+			console.error('data kon niet gefetched worden:', error);
 		}
 	}
 
@@ -109,12 +102,7 @@
 				};
 			}
 
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer ' + token
-			};
-
-			const response = await fetch(`${backend_path}/api/updatestaaltest/${staalId}/${testId}`, {
+			/*const response = await gen(`${backend_path}/api/updatestaaltest/${staalId}/${testId}`, {
 				method: 'PUT',
 				headers: headers,
 				body: JSON.stringify(body)
@@ -123,6 +111,20 @@
 				throw new Error(`Error: ${response.statusText}`);
 			}
 			const data = await response;
+			loadData();
+			return data; */
+
+			const response = await generalFetch(
+				'PUT',
+				`updatestaaltest/${staalId}/${testId}`,
+				true,
+				undefined,
+				body
+			);
+			if (!response.ok) {
+				throw new Error(`Error: ${response.statusText}`);
+			}
+			const data = await response.json();
 			loadData();
 			return data;
 		} catch (error) {
@@ -142,23 +144,20 @@
 				failed: tests.find((test) => test.test.id == testId).failed
 			};
 
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer ' + token
-			};
-
-			const response = await fetch(`${backend_path}/api/updatestaaltest/${staalId}/${testId}`, {
-				method: 'PUT',
-				headers: headers,
-				body: JSON.stringify(body)
-			});
+			const response = await generalFetch(
+				'PUT',
+				`updatestaaltest/${staalId}/${testId}`,
+				true,
+				undefined,
+				body
+			);
 
 			if (!response.ok) {
 				throw new Error(`Error: ${response.statusText}`);
 			}
 
 			const data = await response.json();
-
+			loadData();
 			return data;
 		} catch (error) {
 			console.error('update error: ', error);
@@ -186,18 +185,12 @@
 				failed: test.failed // Update the failed status
 			};
 
-			const headers = {
-				'Content-Type': 'application/json',
-				Authorization: 'Bearer ' + token
-			};
-
-			const response = await fetch(
-				`${backend_path}/api/updatestaaltest/${staalId}/${test.test.id}`,
-				{
-					method: 'PUT',
-					headers: headers,
-					body: JSON.stringify(body)
-				}
+			const response = await generalFetch(
+				'PUT',
+				`updatestaaltest/${staalId}/${test.test.id}`,
+				true,
+				undefined,
+				body
 			);
 
 			if (!response.ok) {
@@ -206,6 +199,7 @@
 
 			const data = await response.json();
 			loadData();
+			return data;
 		} catch (error) {
 			loadData();
 			console.error('Failed to update test status:', error);
@@ -223,38 +217,23 @@
 	}
 
 	onMount(() => {
-		token = getCookie('authToken') || '';
 		staalCodeStore.subscribe((value) => {
 			sampleCode = value;
 		});
-
 		loadData().then(() => checkAllTestsDone());
 	});
-
-	// aanpassen status van staal naar KLAAR
-	async function setStatusStaal() {
-		let sampleCode: string | undefined;
-		staalCodeStore.subscribe((value) => {
-			sampleCode = value;
-		});
-
-		await fetch(`${backend_path}/api/updatestaalstatus/KLAAR/${sampleCode}`, {
-			method: 'PATCH',
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
-		});
-	}
 
 	// pdf downloaden
 	async function getPdf(staalId: string) {
 		try {
-			const response = await fetch(`${backend_path}/api/pdf/generateresults/${staalId}`, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token}`
-				}
-			});
+			// const response = await fetch(`${backend_path}/api/pdf/generateresults/${staalId}`, {
+			// 	method: 'GET',
+			// 	headers: {
+			// 		Authorization: `Bearer ${token}`
+			// 	}
+			// });
+
+			const response = await generalFetch('GET', `pdf/generateresults/${staalId}`, true);
 
 			if (!response.ok) {
 				console.error('Failed to fetch PDF:', response.statusText);

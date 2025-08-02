@@ -11,19 +11,15 @@
 	import { loadTestCategorieën } from '../../lib/fetchFunctions';
 	import { onMount } from 'svelte';
 	import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
-	import { getCookie } from '../../lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { TestCategorie } from '$lib/types/dbTypes';
 
-
 	let searchCode = '';
-	let token: string = '';
 	let categorieën: TestCategorie[] = [];
 	let categorieënSorted: TestCategorie[] = [];
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const result = await loadTestCategorieën();
 		if (result) {
 			categorieën = result;
@@ -49,9 +45,7 @@
 		try {
 			const response = await fetch(`${backend_path}/api/testcategorie/${id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
+				credentials: 'include'
 			});
 
 			if (response.ok) {
@@ -112,9 +106,9 @@
 			const response = await fetch(`${backend_path}/api/createtestcategorie`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					naam: categorienaam,
 					kleur: hex,
@@ -174,9 +168,9 @@
 			await fetch(`${backend_path}/api/testCategorieen/${id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					naam: categorie.naam,
 					kleur: categorie.kleur,

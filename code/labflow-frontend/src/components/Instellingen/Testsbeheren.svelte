@@ -17,7 +17,6 @@
 	import GoLink from 'svelte-icons/go/GoLink.svelte';
 	// @ts-ignore
 	import FaSave from 'svelte-icons/fa/FaSave.svelte';
-	import { getCookie } from '$lib/globalFunctions';
 	import Modal from './modalReferentiewaarden/Modal.svelte';
 	import { writable, get } from 'svelte/store';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
@@ -25,8 +24,6 @@
 	import type { Eenheid, Referentiewaarde, Test, TestCategorie } from '$lib/types/dbTypes';
 
 	let showModal = writable(false);
-
-	let token: string = '';
 
 	let tests: Test[] = [];
 	let testsSorted: Test[] = [];
@@ -38,7 +35,6 @@
 
 	// volgorde is belangrijk, eerst eenheden en categorieën ophalen, daarna tests
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const fetchedEenheden = await fetchEenheden();
 		if (fetchedEenheden) {
 			eenheden = fetchedEenheden;
@@ -85,9 +81,7 @@
 		try {
 			await fetch(`${backend_path}/api/deletetest/${id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
+				credentials: 'include'
 			});
 		} catch (error) {
 			console.error('Test kon niet worden verwijderd: ', error);
@@ -160,9 +154,9 @@
 			const response = await fetch(`${backend_path}/api/createtest`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					testCode: testCode,
 					naam: naam,
@@ -266,9 +260,9 @@
 			await fetch(`${backend_path}/api/updatetest/${id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					id: test.id,
 					testCode: test.testCode,

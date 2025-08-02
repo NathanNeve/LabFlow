@@ -4,7 +4,6 @@
 	export let showModal = false;
 	import { writable } from 'svelte/store';
 	import MultiSelect from 'svelte-multiselect';
-	import { getCookie } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	let dialog: HTMLDialogElement;
@@ -17,7 +16,6 @@
 		showModal = false;
 	}
 
-	const token = getCookie('authToken') || '';
 	export let waarden: any[] = [];
 	export let selectedValues = writable([]);
 
@@ -34,9 +32,9 @@
 			await fetch(`${backend_path}/api/createreferentiewaarde`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					waarde: waarde
 				})

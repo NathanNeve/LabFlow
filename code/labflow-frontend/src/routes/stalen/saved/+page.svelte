@@ -6,10 +6,7 @@
 	import FaSave from 'svelte-icons/fa/FaSave.svelte';
 	import { goto } from '$app/navigation';
 	import { staalCodeStore } from '$lib/store';
-	import { getCookie } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
-
-	const token = getCookie('authToken') || '';
 
 	async function setStatusStaal() {
 		let sampleCode: string | undefined;
@@ -19,9 +16,7 @@
 
 		await fetch(`${backend_path}/api/updatestaalstatus/GEREGISTREERD/${sampleCode}`, {
 			method: 'PATCH',
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
+			credentials: 'include'
 		});
 	}
 </script>

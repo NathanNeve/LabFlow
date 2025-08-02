@@ -10,21 +10,15 @@
 	import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
 	import { onMount } from 'svelte';
 	import { fetchStalen } from '$lib/fetchFunctions';
-	import { getCookie } from '$lib/globalFunctions';
 	import { getUserId } from '$lib/globalFunctions';
+	import type { Staal } from '$lib/types/dbTypes';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
-	// types
-	import Staal from '../Staal.svelte';
-
-
-	let token: string = '';
 	let searchCode = '';
 
 	let stalen: Staal[] = [];
 	let stalenSorted: Staal[] = [];
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		const result = await fetchStalen();
 		if (result) {
 			[stalen, stalenSorted] = [result.stalen, result.stalen];
@@ -51,13 +45,11 @@
 	}
 
 	///// DELETE staal /////
-	async function deleteStaal(id: string) {
+	async function deleteStaal(id: number) {
 		try {
 			await fetch(`${backend_path}/api/deletestaal/${id}`, {
 				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
+				credentials: 'include'
 			});
 		} catch (error) {
 			console.error('Staal kon niet worden verwijderd: ', error);
@@ -148,9 +140,9 @@
 			const response = await fetch(`${backend_path}/api/createstaal`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					staalCode: StaalCode,
 					patientAchternaam: patientAchternaam,
@@ -198,8 +190,8 @@
 
 	let errorMessageStaalPUT = '';
 
-	async function updateStaal(id: string) {
-		const staal = stalen.find((s) => s.id === id);
+	async function updateStaal(id: number) {
+		const staal = stalen.find((s) => s.id == id);
 		if (!staal) return;
 
 		let isValid = true;
@@ -215,7 +207,7 @@
 			laborantNaam: false,
 			laborantRnummer: false
 		};
-		if (!staal.StaalCode) {
+		if (!staal.staalCode) {
 			errorVeldenStaalPUT.staalcode = true;
 			isValid = false;
 		}
@@ -254,9 +246,9 @@
 			await fetch(`${backend_path}/api/updatestaal/${id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					staalCode: staal.staalCode,
 					aanmaakDatum: staal.aanmaakDatum,

@@ -2,7 +2,7 @@
 	import Nav from '../../../components/nav.svelte';
 	import LabelCart from './../../../components/LabelCart.svelte';
 	import { goto } from '$app/navigation';
-	import { getCookie, fetchAll, formatDate, formatSex } from '$lib/globalFunctions';
+	import { formatDate, formatSex, generalFetch } from '$lib/globalFunctions';
 	// @ts-ignore
 	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
 	// @ts-ignore
@@ -32,23 +32,17 @@
 
 	let staalId: number;
 	let testCategories: TestCategorie[] = [];
-	let token: string = getCookie('authToken') || '';
 
 	// alle tests categorieën ophalen die bij de testen horen
 	async function loadData() {
-		if (token != null) {
-			try {
-				staal = await fetchAll(token, `staal/${sampleCode}`);
-				// assign id to staalId
-				staalId = staal.id;
-				// Extract unique test categories
-				await extractUniqueTestCategories(staal.registeredTests);
-			} catch (error) {
-				console.error('data kon niet gefetched worden:', error);
-			}
-		} else {
-			console.error('jwt error');
-			goto('/login');
+		try {
+			staal = await generalFetch('GET', `staal`, true, sampleCode);
+			// assign id to staalId
+			staalId = staal.id;
+			// Extract unique test categories
+			await extractUniqueTestCategories(staal.registeredTests);
+		} catch (error) {
+			console.error('data kon niet gefetched worden:', error);
 		}
 	}
 
@@ -71,16 +65,9 @@
 	let pdfUrl = ''; // URL to display the PDF in the iframe
 
 	async function fetchPdf() {
-		if (!token) {
-			console.error('User is not authenticated');
-			goto('/login');
-		}
-
 		const response = await fetch(`${backend_path}/api/pdf/generatelabel/${staalId}`, {
 			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${token}`
-			}
+			credentials: 'include'
 		});
 
 		if (response.ok) {
@@ -96,9 +83,7 @@
 		try {
 			const response = await fetch(`${backend_path}/api/pdf/generatelabel/${staalId}`, {
 				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token}`
-				}
+				credentials: 'include'
 			});
 
 			if (!response.ok) {
@@ -144,9 +129,7 @@
 		try {
 			const response = await fetch(`${backend_path}/api/printer/labels/${staalId}/${amount}`, {
 				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token}`
-				}
+				credentials: 'include'
 			});
 
 			if (!response.ok) {
@@ -197,7 +180,6 @@
 	}
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		await loadData();
 		await fetchPdf();
 
