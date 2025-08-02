@@ -13,6 +13,9 @@ public class User {
 
     private String wachtwoord;
 
+    @Nullable
+    private String refreshToken;
+
     private String email;
 
     @Nullable
@@ -38,8 +41,9 @@ public class User {
     }
 
     // constructor met alle argumenten
-    public User(String wachtwoord, String email, @Nullable String voorNaam,@Nullable String achterNaam, Rol rol) {
+    public User(String wachtwoord, @Nullable String refresh_token, String email, @Nullable String voorNaam,@Nullable String achterNaam, Rol rol) {
         this.wachtwoord = wachtwoord;
+        this.refreshToken = refresh_token;
         this.email = email;
         this.voorNaam = voorNaam;
         this.achterNaam = achterNaam;
@@ -61,6 +65,10 @@ public class User {
 
     public void setWachtwoord(String wachtwoord) {
         this.wachtwoord = wachtwoord;
+    }
+
+    public void setRefreshToken(@Nullable String refresh_token) {
+        this.refreshToken = refresh_token;
     }
 
     public String getEmail() {

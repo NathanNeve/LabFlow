@@ -2,24 +2,16 @@ const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 // functie voor het ophalen van de rol van de gebruiker uit de jwt token
 // THIS SHOULD BE CHANGED TO OTHER WAY OF GETTING ROLE & USER ID
-/* export function getRolNaam_FromToken() {
-    const token = decodeToken();
-    let rol: string | undefined;
-    if (token) {
-        rol = token.rol;
-    }
-    return rol;
+
+
+export function getRolNaam_FromToken() {
+    return sessionStorage.getItem('Role') || '';
 }
 
 // functie voor het ophalen van de id van de gebruiker uit de jwt token
 export function getUserId() {
-    const token = decodeToken();
-    let userId: string | undefined;
-    if (token) {
-        userId = token.userId;
-    }
-    return userId;
-} */
+    return sessionStorage.getItem('UserId') || '';
+}
 
 // https://jasonwatmore.com/fetch-add-bearer-token-authorization-header-to-http-request#:~:text=The%20auth%20header%20with%20bearer,to%20the%20fetch()%20function.
 // https://stackoverflow.com/questions/51264913/how-to-add-authorization-token-in-incoming-http-request-header

@@ -2,6 +2,7 @@
 	import Button from './Button.svelte';
 	import Input from './Input.svelte';
 	import { goto } from '$app/navigation'; // https://www.okupter.com/blog/sveltekit-goto
+	import type { User } from '$lib/types/dbTypes';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	let email = '';
@@ -20,6 +21,12 @@
 		});
 
 		if (response.ok) {
+			// auto fetch user id and role
+
+			const user: User = await response.json();
+			sessionStorage.setItem('Role', JSON.stringify(user.rol.naam));
+			sessionStorage.setItem('UserId', JSON.stringify(user.id));
+			// then redirect to stalen page
 			goto('stalen');
 		} else {
 			displayError = true;

@@ -50,7 +50,15 @@ public class UserService {
                     authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getWachtwoord()));
 
             if (authentication.isAuthenticated()) {
+                User fullUser = userRepository.findByEmail(user.getEmail());
                 String token = jwtService.generateToken(user);
+
+                System.out.println("Generated JWT token: " + token);
+
+                fullUser.setRefreshToken(token); // store the JWT token in the user object, if needed
+                userRepository.save(fullUser); // save the user with the new token
+
+                System.out.println("User authenticated successfully: " + user.getEmail());
 
                 // create a Cookie with the JWT token
                 // Note: In production application, you would set the HttpOnly and Secure flags on the cookie
@@ -62,12 +70,15 @@ public class UserService {
                         .sameSite("Strict") // prevents CSRF attacks
                         .build();
 
+                // return the user with a blank password and the JWT token in a cookie
+                fullUser.setWachtwoord("This is not for your eyes! You naughty hacker!");
                 // Stop token in een JSON format
                 return ResponseEntity.ok()
                         .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                        .body("Cookie set successfully");
+                        .body(fullUser);
             }
         } catch (Exception e) {
+            System.out.println("Authentication failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Problem with Authentication");
