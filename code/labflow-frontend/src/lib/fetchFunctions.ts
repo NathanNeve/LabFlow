@@ -41,10 +41,10 @@ export async function loadEenheden() {
 export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearchParams = {}) {
     if (token) {
         try {
-            // Build query parameters for pagination and search
+            // query parameters voor paginering en zoeken op datum, code en status
             let params = `page=${page}&size=${size}&sort=id,desc`;
             
-            // Add search parameters if they exist
+            // voeg parameters toe als ze zijn opgegeven
             if (searchParams.searchCode) {
                 params += `&search=${encodeURIComponent(searchParams.searchCode)}`;
             }
@@ -80,23 +80,7 @@ export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearc
     }
 }
 
-// fetch alle stalen
-export async function fetchAllStalen() {
-    if (token) {
-        try {
-            const stalen = await fetchAll(token, 'stalen');
-            const filteredStalen = stalen;
-            return { stalen, filteredStalen };
-        } catch (error) {
-            console.error("Stalen konden niet gefetched worden:", error);
-        }
-    } else {
-        console.error("JWT error: token missing of invalid");
-        goto('/');
-    }
-}
-
-// fetchen van stalen
+// fetchen van 1 staal op basis van staalCode
 export async function fetchStaal_StaalCode(staalCode: string) {
     if (token) {
         try {

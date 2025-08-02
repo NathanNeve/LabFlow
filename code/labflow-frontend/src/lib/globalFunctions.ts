@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import type { DecodedToken } from "$lib/types";
+import type { DecodedToken } from './types/types';
 const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 // helper functie om de jwt token te decoden

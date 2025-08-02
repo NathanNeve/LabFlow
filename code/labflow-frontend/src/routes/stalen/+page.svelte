@@ -284,12 +284,7 @@
 		}
 	}
 
-	// Simplified load function that loads statuses and initial data
-	async function load() {
-		statussen = await fetchStatussen();
-		await loadStalen();
-	}
-
+	// functies voor paginering
 	function nextPage() {
 		if (page < totalPages - 1) {
 			page++;
@@ -310,14 +305,6 @@
 			loadStalen();
 		}
 	}
-
-	// Remove the old search function since we're now using real-time filtering
-	// function search(e: Event) {
-	//     e.preventDefault();
-	//     applyFilters();
-	// }
-
-	onMount(load);
 
 	// Aantal pagina's berekenen
 	function getVisiblePages() {
@@ -345,6 +332,14 @@
 
 		return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i); // Verwijder dubbele waarden
 	}
+
+	// Initiele load van data, haalt statussen en stalen op
+	async function load() {
+		statussen = await fetchStatussen();
+		await loadStalen();
+	}
+
+	onMount(load);
 </script>
 
 <Nav />
