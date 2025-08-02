@@ -31,6 +31,7 @@ public class StaalController {
     }
 
     // read paginated, default worden de eerste 25 stalen gegeven
+    // optionele parameters om te filteren op staalcode, status of aanmaakdatum
     @GetMapping("/staal")
     public Page<Staal> getPaginatedStalen(
             @RequestParam(defaultValue = "0") int page,

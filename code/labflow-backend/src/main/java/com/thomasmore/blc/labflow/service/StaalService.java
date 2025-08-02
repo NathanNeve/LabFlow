@@ -59,13 +59,17 @@ public class StaalService {
         return staalRepository.findAllByOrderByStaalCodeDesc();
     }
 
-    // Read a specified amount (used for pagination)
+    // Read Paginated Stalen
     public Page<Staal> readAmount(int page, int size, String search, String status, String dateStr) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("staalCode").descending());
 
         Specification<Staal> spec = Specification.where(null);
 
         if (search != null && !search.isBlank()) {
+            // lambda functie om specificaties mee te bouwen
+            // root representeert wat we queryen, in dit geval staal
+            // query kan gebruikt worden om bv te joinen op een andere klasse
+            // cb 'criteriabuilder' gebruiken we om expressies en predicates mee te bouwen
             spec = spec.and((root, query, cb) -> {
                 Path<?> staalCodePath = root.get("staalCode");
 
