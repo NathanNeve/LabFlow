@@ -226,14 +226,10 @@
 	// pdf downloaden
 	async function getPdf(staalId: string) {
 		try {
-			// const response = await fetch(`${backend_path}/api/pdf/generateresults/${staalId}`, {
-			// 	method: 'GET',
-			// 	headers: {
-			// 		Authorization: `Bearer ${token}`
-			// 	}
-			// });
-
-			const response = await generalFetch('GET', `pdf/generateresults/${staalId}`, true);
+			const response = await fetch(`${backend_path}/api/pdf/generateresults/${staalId}`, {
+				method: 'GET',
+				credentials: 'include'
+			});
 
 			if (!response.ok) {
 				console.error('Failed to fetch PDF:', response.statusText);

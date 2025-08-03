@@ -34,10 +34,10 @@ export async function generalFetch(
     
     // Add body (if added)
     if (body && (request_type === 'POST' || request_type === 'PUT')) {
-        options.headers = {
-            'Content-Type': 'application/json',
-        };
-        options.body = JSON.stringify(body);
+            options.headers = {
+                'Content-Type': 'application/json',
+            };
+            options.body = JSON.stringify(body);
     }
     
     // do the request
