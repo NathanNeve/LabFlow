@@ -13,6 +13,7 @@
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Eenheid } from '$lib/types/dbTypes';
+	import { generalFetch } from '$lib/globalFunctions';
 
 	let errorMessageEenheid = '';
 	let searchCode = '';
@@ -44,20 +45,12 @@
 	let deleteError = '';
 	async function deleteEenheid(id: number) {
 		try {
-			const response = await fetch(`${backend_path}/api/deleteeenheid/${id}`, {
-				method: 'DELETE',
-				credentials: 'include'
-			});
+			await generalFetch('DELETE', 'deleteeenheid', true, id);
 
-			if (response.ok) {
-				deleteError = '';
-				const result = await fetchEenheden();
-				if (result) {
-					[eenheden, eenhedenSorted] = [result, result];
-				}
-			} else {
-				deleteError =
-					'Eenheid kon niet worden verwijderd omdat deze gelinked is aan één of meerdere tests.';
+			deleteError = '';
+			const result = await fetchEenheden();
+			if (result) {
+				[eenheden, eenhedenSorted] = [result, result];
 			}
 		} catch (error) {
 			console.error('Eenheid kon niet worden verwijderd: ', error);
@@ -94,16 +87,9 @@
 			return;
 		}
 		try {
-			await fetch(`${backend_path}/api/createeenheid`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					naam: naam,
-					afkorting: afkorting
-				})
+			await generalFetch('POST', 'createeenheid', true, undefined, {
+				naam: naam,
+				afkorting: afkorting
 			});
 			naam = '';
 			afkorting = '';
@@ -149,16 +135,20 @@
 			return;
 		}
 		try {
-			await fetch(`${backend_path}/api/updateeenheid/${id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					naam: eenheid.naam,
-					afkorting: eenheid.afkorting
-				})
+			// await fetch(`${backend_path}/api/updateeenheid/${id}`, {
+			// 	method: 'PUT',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	credentials: 'include',
+			// 	body: JSON.stringify({
+			// 		naam: eenheid.naam,
+			// 		afkorting: eenheid.afkorting
+			// 	})
+			// });
+			await generalFetch('PUT', 'updateeenheid', true, id, {
+				naam: eenheid.naam,
+				afkorting: eenheid.afkorting
 			});
 			errorMessageEenheidPUT = '';
 		} catch (error) {

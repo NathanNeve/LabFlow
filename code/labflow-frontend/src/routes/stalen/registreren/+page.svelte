@@ -102,18 +102,6 @@
 				};
 			}
 
-			/*const response = await gen(`${backend_path}/api/updatestaaltest/${staalId}/${testId}`, {
-				method: 'PUT',
-				headers: headers,
-				body: JSON.stringify(body)
-			});
-			if (!response.ok) {
-				throw new Error(`Error: ${response.statusText}`);
-			}
-			const data = await response;
-			loadData();
-			return data; */
-
 			const response = await generalFetch(
 				'PUT',
 				`updatestaaltest/${staalId}/${testId}`,

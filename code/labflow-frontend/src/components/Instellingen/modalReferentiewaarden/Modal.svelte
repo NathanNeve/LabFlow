@@ -4,7 +4,7 @@
 	export let showModal = false;
 	import { writable } from 'svelte/store';
 	import MultiSelect from 'svelte-multiselect';
-	const backend_path = import.meta.env.VITE_BACKEND_PATH;
+	import { generalFetch } from '$lib/globalFunctions';
 
 	let dialog: HTMLDialogElement;
 
@@ -29,16 +29,7 @@
 		}
 		errorWaarde = false;
 		try {
-			await fetch(`${backend_path}/api/createreferentiewaarde`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					waarde: waarde
-				})
-			});
+			generalFetch('POST', 'createreferentiewaarde', true, undefined, { waarde: waarde });
 			waarden = waarden.concat({
 				id: waarden.length + 1,
 				waarde: waarde,

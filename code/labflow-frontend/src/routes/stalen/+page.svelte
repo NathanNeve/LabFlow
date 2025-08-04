@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
-	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+	import { generalFetch, getRolNaam_FromToken } from '$lib/globalFunctions';
 	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
 	import { id } from '../../components/Modal/store';
 
@@ -33,7 +33,7 @@
 	let bgColor = 'bg-blue-400';
 	let pointerEvent = 'pointer-events-auto';
 	const rol = getRolNaam_FromToken();
-	if (rol !== 'admin') {
+	if (rol !== '"admin"') {
 		bgColor = 'bg-gray-400';
 		pointerEvent = 'pointer-events-none';
 	}
@@ -158,12 +158,13 @@
 	// delete staal
 	async function deleteStaal(id: number) {
 		try {
-			await fetch(`${backend_path}/api/deletestaal/${id}`, {
-				method: 'DELETE',
-				headers: {
-					Authorization: 'Bearer ' + token
-				}
-			});
+			// await fetch(`${backend_path}/api/deletestaal/${id}`, {
+			// 	method: 'DELETE',
+			// 	headers: {
+			// 		Authorization: 'Bearer ' + token
+			// 	}
+			// });
+			await generalFetch('DELETE', 'deletestaal', true, id);
 		} catch (error) {
 			console.error('Staal kon niet worden verwijderd: ', error);
 		}
@@ -231,13 +232,14 @@
 			editStaalErrorMessage = 'Vul alle verplichte velden in.';
 			return;
 		}
+		// keep this normal fetch, generalFetch does not give back response object (no access to status)
 		try {
 			const response = await fetch(`${backend_path}/api/updatestaal/${staal.id}`, {
 				method: 'PUT',
 				headers: {
-					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					'Content-Type': 'application/json'
 				},
+				credentials: 'include',
 				body: JSON.stringify({
 					staalCode: staal.staalCode,
 					patientVoornaam: staal.patientVoornaam,
@@ -279,7 +281,7 @@
 		</a>
 
 		<a
-			href={rol === 'admin' ? '/instellingen' : '#'}
+			href={rol == '"admin"' ? '/instellingen' : '#'}
 			class="{bgColor} flex flex-col items-center justify-center w-56 h-56 rounded-2xl {pointerEvent}"
 		>
 			<div class="w-28 h-28 text-white flex items-center justify-center">

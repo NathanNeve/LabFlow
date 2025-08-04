@@ -230,22 +230,15 @@
 			return;
 		}
 		try {
-			await fetch(`${backend_path}/api/createtest`, {
-				method: 'POST',
-				credentials: 'include',
-				headers: {
-					'Content-Type': 'application/json'
+			await generalFetch('POST', 'createtest', true, undefined, {
+				testCode: testCode,
+				naam: testNaam,
+				eenheid: {
+					id: eenheid
 				},
-				body: JSON.stringify({
-					testCode: testCode,
-					naam: testNaam,
-					eenheid: {
-						id: eenheid
-					},
-					testcategorie: {
-						id: testcategorie
-					}
-				})
+				testcategorie: {
+					id: testcategorie
+				}
 			});
 		} catch (error) {
 			console.error('test kon niet worden aangemaakt: ', error);
@@ -326,25 +319,18 @@
 		}
 
 		try {
-			await fetch(` ${backend_path}/api/createstaal`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
+			await generalFetch('POST', 'createstaal', true, undefined, {
+				staalCode: nieuweStaalCode,
+				patientAchternaam: naam,
+				patientVoornaam: voornaam,
+				patientGeslacht: geslacht,
+				patientGeboorteDatum: geboortedatum,
+				laborantNaam: laborantNaam,
+				laborantRnummer: laborantRnummer,
+				user: {
+					id: userId
 				},
-				credentials: 'include',
-				body: JSON.stringify({
-					staalCode: nieuweStaalCode,
-					patientAchternaam: naam,
-					patientVoornaam: voornaam,
-					patientGeslacht: geslacht,
-					patientGeboorteDatum: geboortedatum,
-					laborantNaam: laborantNaam,
-					laborantRnummer: laborantRnummer,
-					user: {
-						id: userId
-					},
-					registeredTests: geselecteerdeTestsArray
-				})
+				registeredTests: geselecteerdeTestsArray
 			});
 			// doorgeven van aangemaakte staalcode naar volgend scherm
 			staalCodeStore.set(nieuweStaalCode);
@@ -409,25 +395,18 @@
 			return; // wachten voor volgende click
 		}
 		try {
-			await fetch(`${backend_path}/api/updatestaal/${staalId}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
+			await generalFetch('PUT', 'updatestaal', true, staalId, {
+				staalCode: nieuweStaalCode,
+				patientAchternaam: naam,
+				patientVoornaam: voornaam,
+				patientGeslacht: geslacht,
+				patientGeboorteDatum: geboortedatum,
+				laborantNaam: laborantNaam,
+				laborantRnummer: laborantRnummer,
+				user: {
+					id: 2
 				},
-				credentials: 'include',
-				body: JSON.stringify({
-					staalCode: nieuweStaalCode,
-					patientAchternaam: naam,
-					patientVoornaam: voornaam,
-					patientGeslacht: geslacht,
-					patientGeboorteDatum: geboortedatum,
-					laborantNaam: laborantNaam,
-					laborantRnummer: laborantRnummer,
-					user: {
-						id: 2
-					},
-					registeredTests: geselecteerdeTestsArray
-				})
+				registeredTests: geselecteerdeTestsArray
 			});
 			// doorgeven van aangemaakte staalcode naar volgend scherm
 			staalCodeStore.set(nieuweStaalCode);
@@ -469,16 +448,9 @@
 		}
 
 		try {
-			await fetch(`${backend_path}/api/createtestcategorie`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					naam: categorienaam,
-					kleur: hex
-				})
+			await generalFetch('POST', 'createtestcategorie', true, undefined, {
+				naam: categorienaam,
+				kleur: hex
 			});
 		} catch (error) {
 			console.error('categorie kon niet worden aangemaakt: ', error);
@@ -489,10 +461,7 @@
 	// crud buttons voor admin
 	async function deleteTest(id: number) {
 		try {
-			await fetch(`${backend_path}/api/deletetest/${id}`, {
-				method: 'DELETE',
-				credentials: 'include'
-			});
+			await generalFetch('DELETE', 'deletetest', true, id);
 		} catch (error) {
 			console.error('Test kon niet worden verwijderd: ', error);
 		}
@@ -536,6 +505,8 @@
 			return;
 		}
 		try {
+			// don't use generalFetch here, because we need the response status
+			// and generalFetch does not return the response object
 			const response = await fetch(`${backend_path}/api/updatetest/${test.id}`, {
 				method: 'PUT',
 				headers: {
@@ -742,7 +713,7 @@
 
 				<!-- knoppen en modals voor aanmaken cat & test -->
 				<div class="flex flex-row justify-end space-x-2 w-1/3">
-					{#if rol === 'admin'}
+					{#if rol === '"admin"'}
 						<Modal>
 							<Content>
 								<h1 class="font-bold text-xl mb-4">Categorie Aanmaken</h1>
@@ -941,7 +912,7 @@
 					</div>
 
 					<!-- Admin-only CRUD buttons -->
-					{#if rol === 'admin'}
+					{#if rol === '"admin"'}
 						<div class="col-span-1 flex justify-end space-x-2">
 							<!-- Edit Button -->
 							<Modal>

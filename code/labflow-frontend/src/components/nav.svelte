@@ -6,31 +6,32 @@
 	// @ts-ignore
 	import GoOrganization from 'svelte-icons/go/GoOrganization.svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+	import { onMount } from 'svelte';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
-	const rol = getRolNaam_FromToken();
+	let rol: string;
 
-	function logout() {
-		// remove user data from session storage
-		sessionStorage.removeItem('Role');
-		sessionStorage.removeItem('UserId');
+	onMount(() => {
+		rol = getRolNaam_FromToken();
+		console.log('Rol:', rol);
+	});
 
+	async function logout() {
 		// request logout -> sends expired cookie to delete session cookie
-		fetch(`${backend_path}/logout`, {
-			method: 'POST',
-			credentials: 'include'
+		await fetch(`${backend_path}/logout`, {
+			method: 'POST'
 		})
 			.then((response) => {
-				if (!response.ok) {
-					throw new Error('Logout failed');
-				}
+				// remove user data from session storage
+				sessionStorage.removeItem('Role');
+				sessionStorage.removeItem('UserId');
+
+				// redirect to home page
+				goto('/');
 			})
 			.catch((error) => {
-				console.error('Logout error:', error);
+				console.error('Logout failed:', error);
 			});
-
-		// redirect to home page
-		goto('/');
 	}
 </script>
 
@@ -38,10 +39,10 @@
 	<img src={logoLabflow} alt="logo Labflow & Thomas More" class="h-10" />
 	<div class="w-28 h-10 flex justify-between items-center">
 		<div class="flex flex-col justify-between h-full">
-			{#if rol === 'student'}
+			{#if rol == '"student"'}
 				<p class="text-sm">student</p>
 			{/if}
-			{#if rol === 'admin'}
+			{#if rol == '"admin"'}
 				<p class="text-sm">admin</p>
 			{/if}
 			<button
@@ -55,10 +56,10 @@
 			</button>
 		</div>
 		<div class="w-8 h-8 p-1 bg-slate-400 rounded-full flex items-center justify-center mr-1">
-			{#if rol === 'student'}
+			{#if rol == '"student"'}
 				<GoPerson />
 			{/if}
-			{#if rol === 'admin'}
+			{#if rol == '"admin"'}
 				<GoOrganization />
 			{/if}
 		</div>

@@ -22,6 +22,7 @@
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Eenheid, Referentiewaarde, Test, TestCategorie } from '$lib/types/dbTypes';
+	import { generalFetch } from '$lib/globalFunctions';
 
 	let showModal = writable(false);
 
@@ -79,10 +80,11 @@
 	///// DELETE test /////
 	async function deleteTest(id: number) {
 		try {
-			await fetch(`${backend_path}/api/deletetest/${id}`, {
-				method: 'DELETE',
-				credentials: 'include'
-			});
+			// await fetch(`${backend_path}/api/deletetest/${id}`, {
+			// 	method: 'DELETE',
+			// 	credentials: 'include'
+			// });
+			await generalFetch('DELETE', 'deletetest', true, id);
 		} catch (error) {
 			console.error('Test kon niet worden verwijderd: ', error);
 		}
@@ -151,23 +153,34 @@
 		);
 
 		try {
-			const response = await fetch(`${backend_path}/api/createtest`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
+			// const response = await fetch(`${backend_path}/api/createtest`, {
+			// 	method: 'POST',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	credentials: 'include',
+			// 	body: JSON.stringify({
+			// 		testCode: testCode,
+			// 		naam: naam,
+			// 		eenheid: {
+			// 			id: eenheid
+			// 		},
+			// 		testcategorie: {
+			// 			id: testcategorie
+			// 		},
+			// 		referentiewaardes: referentiewaardesPOSTMapped
+			// 	})
+			// });
+			await generalFetch('POST', 'createtest', true, undefined, {
+				testCode: testCode,
+				naam: naam,
+				eenheid: {
+					id: eenheid
 				},
-				credentials: 'include',
-				body: JSON.stringify({
-					testCode: testCode,
-					naam: naam,
-					eenheid: {
-						id: eenheid
-					},
-					testcategorie: {
-						id: testcategorie
-					},
-					referentiewaardes: referentiewaardesPOSTMapped
-				})
+				testcategorie: {
+					id: testcategorie
+				},
+				referentiewaardes: referentiewaardesPOSTMapped
 			});
 			testCode = '';
 			naam = '';
@@ -179,9 +192,9 @@
 			if (result) {
 				[tests, testsSorted] = [result, result];
 			}
-			if (response.status === 409) {
-				errorMessageTestPOST = 'Testcode bestaat al.';
-			}
+			// if (response.status === 409) {
+			// 	errorMessageTestPOST = 'Testcode bestaat al.';
+			// }
 		} catch (error) {
 			console.error('Test kon niet worden aangemaakt: ', error);
 		}
@@ -257,20 +270,28 @@
 		);
 
 		try {
-			await fetch(`${backend_path}/api/updatetest/${id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					id: test.id,
-					testCode: test.testCode,
-					naam: test.naam,
-					eenheid: { id: test.eenheid.id },
-					testcategorie: { id: test.testcategorie.id },
-					referentiewaardes: referentiewaardesPUTMapped
-				})
+			// await fetch(`${backend_path}/api/updatetest/${id}`, {
+			// 	method: 'PUT',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	credentials: 'include',
+			// 	body: JSON.stringify({
+			// 		id: test.id,
+			// 		testCode: test.testCode,
+			// 		naam: test.naam,
+			// 		eenheid: { id: test.eenheid.id },
+			// 		testcategorie: { id: test.testcategorie.id },
+			// 		referentiewaardes: referentiewaardesPUTMapped
+			// 	})
+			// });
+			await generalFetch('PUT', 'updatetest', true, id, {
+				id: test.id,
+				testCode: test.testCode,
+				naam: test.naam,
+				eenheid: { id: test.eenheid.id },
+				testcategorie: { id: test.testcategorie.id },
+				referentiewaardes: referentiewaardesPUTMapped
 			});
 		} catch (error) {
 			console.error('Error during PUT request:', error);

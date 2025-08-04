@@ -5,6 +5,7 @@ const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 
 export function getRolNaam_FromToken() {
+    console.log('getRolNaam_FromToken called: ', sessionStorage.getItem('Role'));
     return sessionStorage.getItem('Role') || '';
 }
 
@@ -41,7 +42,15 @@ export async function generalFetch(
     }
     
     // do the request
-    const response = await fetch(url, options).then(response => response.json());
+    const response = await fetch(url, options);
+    const text = await response.text();
+
+    try {
+        return text ? JSON.parse(text) : null;
+    } catch (error) {
+        console.error('Error parsing JSON:', error);
+    }
+
     return response;
 }
 

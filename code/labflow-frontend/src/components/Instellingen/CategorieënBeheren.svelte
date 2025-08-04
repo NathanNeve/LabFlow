@@ -14,6 +14,7 @@
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { TestCategorie } from '$lib/types/dbTypes';
+	import { generalFetch } from '$lib/globalFunctions';
 
 	let searchCode = '';
 	let categorieën: TestCategorie[] = [];
@@ -43,23 +44,12 @@
 	let deleteError = '';
 	async function deleteCategorie(id: number) {
 		try {
-			const response = await fetch(`${backend_path}/api/testcategorie/${id}`, {
-				method: 'DELETE',
-				credentials: 'include'
-			});
+			await generalFetch('DELETE', 'testcategorie', true, id);
 
-			if (response.ok) {
-				// If deletion is successful, reset error message and reload categories
-				deleteError = '';
-				const result = await loadTestCategorieën();
-				if (result) {
-					[categorieën, categorieënSorted] = [result, result];
-				}
-			} else {
-				// If the server responds with an error (e.g., cannot delete because of linked tests)
-				const errorMessage = await response.text();
-				deleteError =
-					'Categorie kon niet worden verwijderd omdat deze gelinked is aan één of meerdere tests.';
+			deleteError = '';
+			const result = await loadTestCategorieën();
+			if (result) {
+				[categorieën, categorieënSorted] = [result, result];
 			}
 		} catch (error) {
 			console.error('Categorie kon niet worden verwijderd: ', error);
@@ -103,17 +93,10 @@
 		}
 
 		try {
-			const response = await fetch(`${backend_path}/api/createtestcategorie`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					naam: categorienaam,
-					kleur: hex,
-					kleurnaam: kleurnaam
-				})
+			const response = await generalFetch('POST', 'createtestcategorie', true, undefined, {
+				naam: categorienaam,
+				kleur: hex,
+				kleurnaam: kleurnaam
 			});
 			categorienaam = '';
 			hex = '';
@@ -165,17 +148,10 @@
 			return;
 		}
 		try {
-			await fetch(`${backend_path}/api/testCategorieen/${id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					naam: categorie.naam,
-					kleur: categorie.kleur,
-					kleurnaam: categorie.kleurnaam
-				})
+			await generalFetch('PUT', 'testCategorieen', true, id, {
+				naam: categorie.naam,
+				kleur: categorie.kleur,
+				kleurnaam: categorie.kleurnaam
 			});
 		} catch (error) {
 			console.error('Categorie kon niet worden aangepast: ', error);

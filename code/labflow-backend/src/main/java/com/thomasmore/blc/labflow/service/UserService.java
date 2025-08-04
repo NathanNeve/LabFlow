@@ -87,17 +87,20 @@ public class UserService {
     // logout function for users
     public ResponseEntity<?> logout() {
         // create a Cookie with an empty value to clear the token in the browser
-        ResponseCookie cookie = ResponseCookie.from(("token"), "")
-                .httpOnly(true) // prevents JavaScript access to the cookie
-                .secure(false) // ensures the cookie is sent over HTTPS only (change in production)
-                .path("/") // cookie is valid for the entire application
-                .maxAge(-1) // cookie expires immediately
-                .sameSite("Strict") // prevents CSRF attacks
-                .build();
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body("successfully logged out");
+        try {
+            ResponseCookie logoutCookie = ResponseCookie.from("token", "")
+                    .httpOnly(true) // prevents JavaScript access to the cookie
+                    .secure(false) // ensures the cookie is sent over HTTPS only (change in production)
+                    .path("/") // cookie is valid for the entire application
+                    .maxAge(0) // set max age to 0 to delete the cookie
+                    .sameSite("Strict") // prevents CSRF attacks
+                    .build();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, logoutCookie.toString())
+                    .body("User logged out successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during logout: " + e.getMessage());
+        }
     }
 
     // delete

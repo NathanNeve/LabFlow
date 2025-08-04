@@ -11,7 +11,7 @@
 	import { onMount } from 'svelte';
 	import { fetchUsers } from '$lib/fetchFunctions';
 	import { fetchRollen } from '$lib/fetchFunctions';
-	import { getUserId } from '$lib/globalFunctions';
+	import { generalFetch, getUserId } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Rol, User } from '$lib/types/dbTypes';
@@ -61,15 +61,7 @@
 			return;
 		} else {
 			try {
-				await fetch(`${backend_path}/deleteuser/${id}`, {
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					credentials: 'include'
-				}).catch((error) => {
-					errorMessageGebruikerDELETE = 'Gebruiker kon niet worden verwijderd: ' + error;
-				});
+				await generalFetch('DELETE', 'deleteuser', false, id);
 				const result = await fetchUsers();
 				if (result) {
 					[users, usersSorted] = [result, result];
@@ -132,21 +124,14 @@
 		}
 
 		try {
-			await fetch(`${backend_path}/register`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					voorNaam: voornaam,
-					achterNaam: achternaam,
-					email: email,
-					wachtwoord: wachtwoord,
-					rol: {
-						id: rol
-					}
-				})
+			await generalFetch('POST', 'register', false, undefined, {
+				voorNaam: voornaam,
+				achterNaam: achternaam,
+				email: email,
+				wachtwoord: wachtwoord,
+				rol: {
+					id: rol
+				}
 			});
 			voornaam = '';
 			achternaam = '';
@@ -211,38 +196,55 @@
 		try {
 			// If newWachtwoord is provided and not empty, update with new password
 			if (newWachtwoord && newWachtwoord.trim() !== '') {
-				await fetch(`${backend_path}/updateuser/${id}`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					credentials: 'include',
-					body: JSON.stringify({
-						wachtwoord: newWachtwoord,
-						email: user.email,
-						voorNaam: user.voorNaam,
-						achterNaam: user.achterNaam,
-						rol: {
-							id: user.rol.id
-						}
-					})
+				// await fetch(`${backend_path}/updateuser/${id}`, {
+				// 	method: 'PUT',
+				// 	headers: {
+				// 		'Content-Type': 'application/json'
+				// 	},
+				// 	credentials: 'include',
+				// 	body: JSON.stringify({
+				// 		wachtwoord: newWachtwoord,
+				// 		email: user.email,
+				// 		voorNaam: user.voorNaam,
+				// 		achterNaam: user.achterNaam,
+				// 		rol: {
+				// 			id: user.rol.id
+				// 		}
+				// 	})
+				// });
+				await generalFetch('PUT', 'updateuser', false, id, {
+					wachtwoord: newWachtwoord,
+					email: user.email,
+					voorNaam: user.voorNaam,
+					achterNaam: user.achterNaam,
+					rol: {
+						id: user.rol.id
+					}
 				});
 			} else {
 				// If no new password, update other fields without changing the password
-				await fetch(`${backend_path}/updateuserwithoutpassword/${id}`, {
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					credentials: 'include',
-					body: JSON.stringify({
-						email: user.email,
-						voorNaam: user.voorNaam,
-						achterNaam: user.achterNaam,
-						rol: {
-							id: user.rol.id
-						}
-					})
+				// await fetch(`${backend_path}/updateuserwithoutpassword/${id}`, {
+				// 	method: 'PUT',
+				// 	headers: {
+				// 		'Content-Type': 'application/json'
+				// 	},
+				// 	credentials: 'include',
+				// 	body: JSON.stringify({
+				// 		email: user.email,
+				// 		voorNaam: user.voorNaam,
+				// 		achterNaam: user.achterNaam,
+				// 		rol: {
+				// 			id: user.rol.id
+				// 		}
+				// 	})
+				// });
+				await generalFetch('PUT', 'updateuserwithoutpassword', false, id, {
+					email: user.email,
+					voorNaam: user.voorNaam,
+					achterNaam: user.achterNaam,
+					rol: {
+						id: user.rol.id
+					}
 				});
 			}
 

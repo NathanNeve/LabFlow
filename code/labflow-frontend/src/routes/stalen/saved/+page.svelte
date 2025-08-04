@@ -14,6 +14,7 @@
 			sampleCode = value;
 		});
 
+		// leave normal fetch as is, generalFetch does not support PATCH method
 		await fetch(`${backend_path}/api/updatestaalstatus/GEREGISTREERD/${sampleCode}`, {
 			method: 'PATCH',
 			credentials: 'include'

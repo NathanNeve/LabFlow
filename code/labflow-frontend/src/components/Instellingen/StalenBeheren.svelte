@@ -10,7 +10,7 @@
 	import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
 	import { onMount } from 'svelte';
 	import { fetchStalen } from '$lib/fetchFunctions';
-	import { getUserId } from '$lib/globalFunctions';
+	import { generalFetch, getUserId } from '$lib/globalFunctions';
 	import type { Staal } from '$lib/types/dbTypes';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	let searchCode = '';
@@ -47,10 +47,11 @@
 	///// DELETE staal /////
 	async function deleteStaal(id: number) {
 		try {
-			await fetch(`${backend_path}/api/deletestaal/${id}`, {
-				method: 'DELETE',
-				credentials: 'include'
-			});
+			// await fetch(`${backend_path}/api/deletestaal/${id}`, {
+			// 	method: 'DELETE',
+			// 	credentials: 'include'
+			// });
+			await generalFetch('DELETE', 'deletestaal', true, id);
 		} catch (error) {
 			console.error('Staal kon niet worden verwijderd: ', error);
 		}
@@ -137,24 +138,36 @@
 			return;
 		}
 		try {
-			const response = await fetch(`${backend_path}/api/createstaal`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					staalCode: StaalCode,
-					patientAchternaam: patientAchternaam,
-					patientVoornaam: patientVoornaam,
-					patientGeslacht: patientGeslacht,
-					patientGeboorteDatum: patientGeboorteDatum,
-					laborantNaam: laborantNaam,
-					laborantRnummer: laborantRnummer,
-					user: {
-						id: userId
-					}
-				})
+			// const response = await fetch(`${backend_path}/api/createstaal`, {
+			// 	method: 'POST',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	credentials: 'include',
+			// 	body: JSON.stringify({
+			// 		staalCode: StaalCode,
+			// 		patientAchternaam: patientAchternaam,
+			// 		patientVoornaam: patientVoornaam,
+			// 		patientGeslacht: patientGeslacht,
+			// 		patientGeboorteDatum: patientGeboorteDatum,
+			// 		laborantNaam: laborantNaam,
+			// 		laborantRnummer: laborantRnummer,
+			// 		user: {
+			// 			id: userId
+			// 		}
+			// 	})
+			// });
+			const response = await generalFetch('POST', 'createstaal', true, undefined, {
+				staalCode: StaalCode,
+				patientAchternaam: patientAchternaam,
+				patientVoornaam: patientVoornaam,
+				patientGeslacht: patientGeslacht,
+				patientGeboorteDatum: patientGeboorteDatum,
+				laborantNaam: laborantNaam,
+				laborantRnummer: laborantRnummer,
+				user: {
+					id: userId
+				}
 			});
 			StaalCode = '';
 			patientAchternaam = '';
@@ -243,25 +256,38 @@
 			return;
 		}
 		try {
-			await fetch(`${backend_path}/api/updatestaal/${id}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				credentials: 'include',
-				body: JSON.stringify({
-					staalCode: staal.staalCode,
-					aanmaakDatum: staal.aanmaakDatum,
-					laborantNaam: staal.laborantNaam,
-					laborantRnummer: staal.laborantRnummer,
-					patientAchternaam: staal.patientAchternaam,
-					patientVoornaam: staal.patientVoornaam,
-					patientGeslacht: staal.patientGeslacht,
-					patientGeboorteDatum: staal.patientGeboorteDatum,
-					user: {
-						id: staal.user.id
-					}
-				})
+			// await fetch(`${backend_path}/api/updatestaal/${id}`, {
+			// 	method: 'PUT',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	credentials: 'include',
+			// 	body: JSON.stringify({
+			// 		staalCode: staal.staalCode,
+			// 		aanmaakDatum: staal.aanmaakDatum,
+			// 		laborantNaam: staal.laborantNaam,
+			// 		laborantRnummer: staal.laborantRnummer,
+			// 		patientAchternaam: staal.patientAchternaam,
+			// 		patientVoornaam: staal.patientVoornaam,
+			// 		patientGeslacht: staal.patientGeslacht,
+			// 		patientGeboorteDatum: staal.patientGeboorteDatum,
+			// 		user: {
+			// 			id: staal.user.id
+			// 		}
+			// 	})
+			// });
+			await generalFetch('PUT', 'updatestaal', true, id, {
+				staalCode: staal.staalCode,
+				aanmaakDatum: staal.aanmaakDatum,
+				laborantNaam: staal.laborantNaam,
+				laborantRnummer: staal.laborantRnummer,
+				patientAchternaam: staal.patientAchternaam,
+				patientVoornaam: staal.patientVoornaam,
+				patientGeslacht: staal.patientGeslacht,
+				patientGeboorteDatum: staal.patientGeboorteDatum,
+				user: {
+					id: staal.user.id
+				}
 			});
 			errorMessageStaalPUT = '';
 		} catch (error) {
