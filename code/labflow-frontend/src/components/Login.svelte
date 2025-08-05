@@ -26,7 +26,7 @@
 			// zonder httpOnly & sameSite is het onveilig
 			document.cookie = `authToken=${authToken};path=/;SameSite=Strict`;
 			if (document.cookie && authToken) {
-				goto('stalen');
+				goto('menu');
 			}
 		} catch (error) {
 			console.error(error);

@@ -906,181 +906,185 @@
 			</div>
 
 			<!-- tabel met alle tests -->
-			{#each testsSorted as test, index}
-				<div
-					class="grid grid-cols-12 gap-4 h-16 items-center px-3 border-b border-gray-300 {isNaN(
-						parseInt(test?.testCode)
-					)
-						? 'bg-blue-50'
-						: ''}"
-				>
-					<div class="col-span-1">
-						<!-- Checkbox for selecting tests -->
-						<input
-							type="checkbox"
-							on:change={() => toggleTestSelectie(test.testCode)}
-							checked={geselecteerdeTests.includes(test.testCode)}
-							class="w-5 h-5 mt-2 appearance-none border-2 border-gray-300 rounded-md checked:bg-blue-600 checked:border-transparent focus:outline-none"
-						/>
-					</div>
-					<div class="col-span-2">
-						<p class="text-gray-400">Testcode</p>
-						<p>{test?.testCode || ''}</p>
-					</div>
-					<div class="col-span-4">
-						<p class="text-gray-400">Naam</p>
-						<p class="truncate">{test?.naam || ''}</p>
-					</div>
-					<div class="col-span-2">
-						{#if !isNaN(parseInt(test?.testCode))}
-							<p class="text-gray-400">Categorie</p>
-							<p class="font-bold" style="color:{test?.testcategorie.kleur}">
-								{test?.testcategorie.naam || ''}
-							</p>
-						{/if}
-					</div>
-
-					<div class="col-span-2">
-						{#if !isNaN(parseInt(test?.testCode))}
-							<p class="text-gray-400">Eenheid</p>
-							<p class="truncate">
-								{test?.eenheid.afkorting || ''}{#if test?.eenheid.naam !== 'not available'}: {test
-										?.eenheid.naam || ''}{/if}
-							</p>
-						{/if}
-					</div>
-
-					<!-- Admin-only CRUD buttons -->
-					{#if rol === 'admin'}
-						<div class="col-span-1 flex justify-end space-x-2">
-							<!-- Edit Button -->
-							<Modal>
-								<Trigger>
-									<button
-										type="button"
-										class="h-10 w-10 bg-blue-400 p-2 rounded-lg text-white"
-										on:click={async () => {
-											openModalTestId = test.id;
-
-											const fetchedTestcategorieën = await loadTestCategorieën();
-											const fetchedEenheden = await loadEenheden();
-											if (fetchedTestcategorieën) testcategorieën = fetchedTestcategorieën;
-											if (fetchedEenheden) eenheden = fetchedEenheden;
-										}}
-									>
-										<FaRegEdit />
-									</button>
-								</Trigger>
-								{#if openModalTestId === test.id}
-									<Content>
-										<h1 class="font-bold text-xl mb-4">Test Aanpassen - {test.naam}</h1>
-										{#if editTestErrorMessage}
-											<div class="text-red-500 mb-2">{editTestErrorMessage}</div>
-										{/if}
-										<div class="flex flex-row space-x-4">
-											<div class="flex flex-col w-1/2">
-												<label for="testCode-{test.id}">Testcode</label>
-												<input
-													type="text"
-													id="testCode-{test.id}"
-													name="testCode"
-													bind:value={test.testCode}
-													class="rounded-lg text-black bg-gray-200 h-12 pl-3
-                                                {editTestError.testCode
-														? 'border-2 border-red-500'
-														: ''}"
-												/>
-											</div>
-											<div class="flex flex-col w-1/2">
-												<label for="eenheid-{test.id}">Eenheid</label>
-												<select
-													id="eenheid-{test.id}"
-													name="eenheid"
-													bind:value={test.eenheid.id}
-													class="rounded-lg text-black bg-gray-200 h-12 pl-3
-                                                {editTestError.eenheid
-														? 'border-2 border-red-500'
-														: ''}"
-												>
-													<option value="" disabled>Selecteer een eenheid</option>
-													{#each eenheden as eenheid}
-														<option value={eenheid.id}>{eenheid.naam} ({eenheid.afkorting})</option>
-													{/each}
-												</select>
-											</div>
-										</div>
-										<div class="flex flex-row space-x-4 my-4">
-											<div class="flex flex-col w-1/2">
-												<label for="testNaam-{test.id}">Naam</label>
-												<input
-													type="text"
-													id="testNaam-{test.id}"
-													name="testNaam"
-													bind:value={test.naam}
-													class="rounded-lg text-black bg-gray-200 h-12 pl-3
-                                                {editTestError.naam
-														? 'border-2 border-red-500'
-														: ''}"
-												/>
-											</div>
-											<div class="flex flex-col w-1/2">
-												<label for="testcategorie-{test.id}">Categorie</label>
-												<select
-													id="testcategorie-{test.id}"
-													name="testcategorie"
-													bind:value={test.testcategorie.id}
-													class="rounded-lg text-black bg-gray-200 h-12 pl-3
-                                                {editTestError.testcategorie
-														? 'border-2 border-red-500'
-														: ''}"
-												>
-													<option value="" disabled>Selecteer een categorie</option>
-													{#each testcategorieën as categorie}
-														<option value={categorie.id}>{categorie.naam}</option>
-													{/each}
-												</select>
-											</div>
-										</div>
-
-										<button
-											type="button"
-											class="bg-green-500 rounded-lg p-3 text-black h-12 flex flex-row items-center justify-center flex-grow w-56 font-bold text-lg"
-											on:click={async () => await editTest(test)}
-										>
-											Opslaan
-											<div class="w-5 h-5 ml-5"><IoMdCheckmarkCircle /></div>
-										</button>
-									</Content>
-								{/if}
-							</Modal>
-
-							<!-- Delete button -->
-							{#if test.confirmDelete}
-								<button
-									type="button"
-									on:click={() => deleteTest(test?.id)}
-									class="h-10 w-10 bg-red-500 p-2 rounded-lg text-white"
-								>
-									<FaTrashAlt />
-								</button>
-							{:else}
-								<button
-									type="button"
-									on:click={() => {
-										testsSorted.forEach((t, i) => {
-											if (i !== index) t.confirmDelete = false;
-										});
-										test.confirmDelete = true;
-									}}
-									class="h-10 w-10 bg-red-300 p-2 rounded-lg text-white"
-								>
-									<GoX />
-								</button>
+			<div class="overflow-auto h-[calc(100vh-330px)]">
+				{#each testsSorted as test, index}
+					<div
+						class="grid grid-cols-12 gap-4 h-16 items-center px-3 border-b border-gray-300 {isNaN(
+							parseInt(test?.testCode)
+						)
+							? 'bg-blue-50'
+							: ''}"
+					>
+						<div class="col-span-1">
+							<!-- Checkbox for selecting tests -->
+							<input
+								type="checkbox"
+								on:change={() => toggleTestSelectie(test.testCode)}
+								checked={geselecteerdeTests.includes(test.testCode)}
+								class="w-5 h-5 mt-2 appearance-none border-2 border-gray-300 rounded-md checked:bg-blue-600 checked:border-transparent focus:outline-none"
+							/>
+						</div>
+						<div class="col-span-2">
+							<p class="text-gray-400">Testcode</p>
+							<p>{test?.testCode || ''}</p>
+						</div>
+						<div class="col-span-4">
+							<p class="text-gray-400">Naam</p>
+							<p class="truncate">{test?.naam || ''}</p>
+						</div>
+						<div class="col-span-2">
+							{#if !isNaN(parseInt(test?.testCode))}
+								<p class="text-gray-400">Categorie</p>
+								<p class="font-bold" style="color:{test?.testcategorie.kleur}">
+									{test?.testcategorie.naam || ''}
+								</p>
 							{/if}
 						</div>
-					{/if}
-				</div>
-			{/each}
+
+						<div class="col-span-2">
+							{#if !isNaN(parseInt(test?.testCode))}
+								<p class="text-gray-400">Eenheid</p>
+								<p class="truncate">
+									{test?.eenheid.afkorting || ''}{#if test?.eenheid.naam !== 'not available'}: {test
+											?.eenheid.naam || ''}{/if}
+								</p>
+							{/if}
+						</div>
+
+						<!-- Admin-only CRUD buttons -->
+						{#if rol === 'admin'}
+							<div class="col-span-1 flex justify-end space-x-2">
+								<!-- Edit Button -->
+								<Modal>
+									<Trigger>
+										<button
+											type="button"
+											class="h-10 w-10 bg-blue-400 p-2 rounded-lg text-white"
+											on:click={async () => {
+												openModalTestId = test.id;
+
+												const fetchedTestcategorieën = await loadTestCategorieën();
+												const fetchedEenheden = await loadEenheden();
+												if (fetchedTestcategorieën) testcategorieën = fetchedTestcategorieën;
+												if (fetchedEenheden) eenheden = fetchedEenheden;
+											}}
+										>
+											<FaRegEdit />
+										</button>
+									</Trigger>
+									{#if openModalTestId === test.id}
+										<Content>
+											<h1 class="font-bold text-xl mb-4">Test Aanpassen - {test.naam}</h1>
+											{#if editTestErrorMessage}
+												<div class="text-red-500 mb-2">{editTestErrorMessage}</div>
+											{/if}
+											<div class="flex flex-row space-x-4">
+												<div class="flex flex-col w-1/2">
+													<label for="testCode-{test.id}">Testcode</label>
+													<input
+														type="text"
+														id="testCode-{test.id}"
+														name="testCode"
+														bind:value={test.testCode}
+														class="rounded-lg text-black bg-gray-200 h-12 pl-3
+                                                {editTestError.testCode
+															? 'border-2 border-red-500'
+															: ''}"
+													/>
+												</div>
+												<div class="flex flex-col w-1/2">
+													<label for="eenheid-{test.id}">Eenheid</label>
+													<select
+														id="eenheid-{test.id}"
+														name="eenheid"
+														bind:value={test.eenheid.id}
+														class="rounded-lg text-black bg-gray-200 h-12 pl-3
+                                                {editTestError.eenheid
+															? 'border-2 border-red-500'
+															: ''}"
+													>
+														<option value="" disabled>Selecteer een eenheid</option>
+														{#each eenheden as eenheid}
+															<option value={eenheid.id}
+																>{eenheid.naam} ({eenheid.afkorting})</option
+															>
+														{/each}
+													</select>
+												</div>
+											</div>
+											<div class="flex flex-row space-x-4 my-4">
+												<div class="flex flex-col w-1/2">
+													<label for="testNaam-{test.id}">Naam</label>
+													<input
+														type="text"
+														id="testNaam-{test.id}"
+														name="testNaam"
+														bind:value={test.naam}
+														class="rounded-lg text-black bg-gray-200 h-12 pl-3
+                                                {editTestError.naam
+															? 'border-2 border-red-500'
+															: ''}"
+													/>
+												</div>
+												<div class="flex flex-col w-1/2">
+													<label for="testcategorie-{test.id}">Categorie</label>
+													<select
+														id="testcategorie-{test.id}"
+														name="testcategorie"
+														bind:value={test.testcategorie.id}
+														class="rounded-lg text-black bg-gray-200 h-12 pl-3
+                                                {editTestError.testcategorie
+															? 'border-2 border-red-500'
+															: ''}"
+													>
+														<option value="" disabled>Selecteer een categorie</option>
+														{#each testcategorieën as categorie}
+															<option value={categorie.id}>{categorie.naam}</option>
+														{/each}
+													</select>
+												</div>
+											</div>
+
+											<button
+												type="button"
+												class="bg-green-500 rounded-lg p-3 text-black h-12 flex flex-row items-center justify-center flex-grow w-56 font-bold text-lg"
+												on:click={async () => await editTest(test)}
+											>
+												Opslaan
+												<div class="w-5 h-5 ml-5"><IoMdCheckmarkCircle /></div>
+											</button>
+										</Content>
+									{/if}
+								</Modal>
+
+								<!-- Delete button -->
+								{#if test.confirmDelete}
+									<button
+										type="button"
+										on:click={() => deleteTest(test?.id)}
+										class="h-10 w-10 bg-red-500 p-2 rounded-lg text-white"
+									>
+										<FaTrashAlt />
+									</button>
+								{:else}
+									<button
+										type="button"
+										on:click={() => {
+											testsSorted.forEach((t, i) => {
+												if (i !== index) t.confirmDelete = false;
+											});
+											test.confirmDelete = true;
+										}}
+										class="h-10 w-10 bg-red-300 p-2 rounded-lg text-white"
+									>
+										<GoX />
+									</button>
+								{/if}
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
 		</div>
 	</div>
 </div>

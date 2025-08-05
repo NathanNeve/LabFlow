@@ -8,13 +8,24 @@ import com.thomasmore.blc.labflow.entity.User;
 import com.thomasmore.blc.labflow.repository.StaalRepository;
 import com.thomasmore.blc.labflow.repository.TestRepository;
 import com.thomasmore.blc.labflow.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StaalService {
@@ -28,7 +39,7 @@ public class StaalService {
 
     // Create
     public void createStaal(Staal staal) {
-        // loopen door elke test
+        // lopen door elke test
         if (staalRepository.findByStaalCode(staal.getStaalCode()) == null) {
             for (StaalTest registeredTest : staal.getRegisteredTests()) {
                 // testobject ophalen en koppelen met staal
@@ -48,9 +59,64 @@ public class StaalService {
         return staalRepository.findAllByOrderByStaalCodeDesc();
     }
 
+    // Read Paginated Stalen
+    public Page<Staal> readAmount(int page, int size, String search, String status, String dateStr) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("staalCode").descending());
+
+        Specification<Staal> spec = Specification.where(null);
+
+        if (search != null && !search.isBlank()) {
+            // lambda functie om specificaties mee te bouwen
+            // root representeert wat we queryen, in dit geval staal
+            // query kan gebruikt worden om bv te joinen op een andere klasse
+            // cb 'criteriabuilder' gebruiken we om expressies en predicates mee te bouwen
+            spec = spec.and((root, query, cb) -> {
+                Path<?> staalCodePath = root.get("staalCode");
+
+                if (staalCodePath.getJavaType().equals(String.class)) {
+                    // If staalCode is a String, use LIKE for partial search
+                    return cb.like(cb.lower(root.get("staalCode")), "%" + search.toLowerCase() + "%");
+                } else if (staalCodePath.getJavaType().equals(Long.class)) {
+                    // If staalCode is a Long, try to parse and search exactly
+                    try {
+                        Long searchAsLong = Long.parseLong(search);
+                        return cb.equal(root.get("staalCode"), searchAsLong);
+                    } catch (NumberFormatException e) {
+                        // Return false condition to avoid error (no match)
+                        return cb.disjunction(); // Equivalent to `false`
+                    }
+                } else {
+                    // Unsupported type
+                    return cb.disjunction();
+                }
+            });
+        }
+
+        if (status != null && !status.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("status"), status));
+        }
+
+        if (dateStr != null && !dateStr.isBlank()) {
+            try {
+                LocalDate date = LocalDate.parse(dateStr);
+                LocalDateTime startOfDay = date.atStartOfDay();
+                LocalDateTime endOfDay = date.atTime(23, 59, 59, 999999999);
+
+                spec = spec.and((root, query, cb) ->
+                        cb.between(root.get("aanmaakDatum"), startOfDay, endOfDay));
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date format: " + dateStr);
+            }
+        }
+
+        return staalRepository.findAll(spec, pageable);
+    }
+
     // Update
     public ResponseEntity<Staal> update(Long id, Staal staal) {
-        Staal existingStaal = staalRepository.findById(id);
+        Staal existingStaal = staalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + id));
         User user = userRepository.findById(staal.getUser().getId());
         if (existingStaal != null) {
 
@@ -87,7 +153,8 @@ public class StaalService {
 
     // Delete
     public ResponseEntity<Integer> delete(Long id) {
-        Staal existingStaal = staalRepository.findById(id);
+        Staal existingStaal = staalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + id));
         if (existingStaal != null) {
             staalRepository.delete(existingStaal);
             return new ResponseEntity<>(staalRepository.findAll().size(), HttpStatus.OK);
@@ -97,7 +164,7 @@ public class StaalService {
     }
 
     // Get by id
-    public Staal readById(Long id) {
+    public Optional<Staal> readById(Long id) {
         return staalRepository.findById(id);
     }
 

@@ -1,3 +1,5 @@
+// in deze file worden types gedefinieerd van de entiteiten in onze database
+
 export interface User {
     id: number;
     email: string;
