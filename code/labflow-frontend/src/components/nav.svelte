@@ -16,12 +16,13 @@
 		console.log('Rol:', rol);
 	});
 
-	async function logout() {
+	const logout = async () => {
 		// request logout -> sends expired cookie to delete session cookie
-		await fetch(`${backend_path}/logout`, {
-			method: 'POST'
+		await fetch(`${backend_path}/logout-user`, {
+			method: 'POST',
+			credentials: 'include' // include cookies in the request
 		})
-			.then((response) => {
+			.then(() => {
 				// remove user data from session storage
 				sessionStorage.removeItem('Role');
 				sessionStorage.removeItem('UserId');
@@ -32,7 +33,7 @@
 			.catch((error) => {
 				console.error('Logout failed:', error);
 			});
-	}
+	};
 </script>
 
 <div class="py-5 px-10 flex justify-between items-center">
@@ -45,15 +46,7 @@
 			{#if rol == '"admin"'}
 				<p class="text-sm">admin</p>
 			{/if}
-			<button
-				class="text-xs underline"
-				on:click={() => {
-					logout();
-				}}
-				type="button"
-			>
-				Uitloggen
-			</button>
+			<button class="text-xs underline" on:click={logout} type="button"> Uitloggen </button>
 		</div>
 		<div class="w-8 h-8 p-1 bg-slate-400 rounded-full flex items-center justify-center mr-1">
 			{#if rol == '"student"'}

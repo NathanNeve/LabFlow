@@ -4,7 +4,10 @@ import com.thomasmore.blc.labflow.entity.Test;
 import com.thomasmore.blc.labflow.entity.User;
 import com.thomasmore.blc.labflow.repository.UserRepository;
 // transactional zorgt ervoor dat een methode met meerdere database interacties volgens het ACID principe werkt
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,10 +88,10 @@ public class UserService {
     }
 
     // logout function for users
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> deleteCookie() {
         // create a Cookie with an empty value to clear the token in the browser
         try {
-            ResponseCookie logoutCookie = ResponseCookie.from("token", "")
+            ResponseCookie logoutCookie = ResponseCookie.from("token", null)
                     .httpOnly(true) // prevents JavaScript access to the cookie
                     .secure(false) // ensures the cookie is sent over HTTPS only (change in production)
                     .path("/") // cookie is valid for the entire application

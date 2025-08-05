@@ -4,6 +4,8 @@ import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
 import com.thomasmore.blc.labflow.entity.Test;
 import com.thomasmore.blc.labflow.entity.User;
 import com.thomasmore.blc.labflow.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +37,10 @@ public class UserController {
     }
 
     // logout function for users
-    @PostMapping("/logout")
+    @PostMapping("/logout-user")
     public ResponseEntity<?> logout() {
-        return userService.logout();
+        System.out.println("Logging out user");
+        return userService.deleteCookie();
     }
 
     @DeleteMapping("/deleteuser/{id}")

@@ -16,6 +16,7 @@
 			headers: {
 				'Content-Type': 'application/json'
 			},
+			credentials: 'include', // include cookies in the request
 			body: JSON.stringify({ email, wachtwoord })
 		});
 
