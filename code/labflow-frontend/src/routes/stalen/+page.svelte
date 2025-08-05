@@ -32,6 +32,10 @@
 	onMount(() => {
 		// Initialize the id store to null
 		rol = getRolNaam_FromToken();
+		if (rol !== '"admin"') {
+			bgColor = 'bg-gray-400';
+			pointerEvent = 'pointer-events-none';
+		}
 	});
 
 	let openModalTestId: number | null = null;
@@ -39,10 +43,6 @@
 	// achtergrond en klikbaar maken van instellingen gebaseerd op rol
 	let bgColor = 'bg-blue-400';
 	let pointerEvent = 'pointer-events-auto';
-	if (rol !== '"admin"') {
-		bgColor = 'bg-gray-400';
-		pointerEvent = 'pointer-events-none';
-	}
 
 	// fetchen van stalen
 	let stalen: Staal[] = [];
@@ -50,8 +50,6 @@
 	let statussen: string[] = [];
 	let searchCode = '';
 	let searchDate = '';
-
-	let token: string = '';
 
 	let editStaalError = {
 		staalCode: false,

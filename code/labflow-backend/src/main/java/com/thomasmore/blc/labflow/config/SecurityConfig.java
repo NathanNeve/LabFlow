@@ -45,7 +45,7 @@ public class SecurityConfig {
         // disable csrf (stateless applicatie heeft dit niet nodig)
         http.csrf(AbstractHttpConfigurer::disable);
         // cors moet aanstaan met onze configuratie, in bean hieronder te zien
-        http.cors(Customizer.withDefaults());
+        //http.cors(Customizer.withDefaults());
 
         // alle requests moeten geauthenticeerd zijn behalve login
         http.authorizeHttpRequests(request -> request
@@ -65,7 +65,6 @@ public class SecurityConfig {
         // build geeft ons het object "securityfilterchain" terug
         return http.build();
     }
-
 
     // bean voor het configureren van CORS
     @Bean

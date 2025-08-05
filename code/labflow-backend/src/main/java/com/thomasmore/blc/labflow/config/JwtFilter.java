@@ -32,7 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
     ApplicationContext context;
 
     // enige methode die geïmplementeerd moet worden
-    @Override
+    /*@Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // van de client krijgen we een request met authheader in dit format: "Bearer jwttokenbestaandeuitveelkarakters"
         String authHeader = request.getHeader("Authorization");
@@ -67,8 +67,8 @@ public class JwtFilter extends OncePerRequestFilter {
         // voer filter uit en gaat naar de volgende filter
         filterChain.doFilter(request, response);
     }
-}
-    /*@Override
+}*/
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // Haal de JWT uit een cookie in plaats van de Authorization header.
         String token = null;
@@ -78,12 +78,18 @@ public class JwtFilter extends OncePerRequestFilter {
         if (request.getCookies() != null) {
             // Loop door de cookies om de juiste te vinden.
             for (Cookie cookie : request.getCookies()) {
-                // Pas "jwt-token" aan naar de naam van jouw cookie.
-                if ("jwt-token".equals(cookie.getName())) {
+                if ("token".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break; // Stop met zoeken zodra de cookie is gevonden.
                 }
             }
+        } else if ("/login".equals(request.getRequestURI())) {
+            // Allow requests to /login without a cookie
+            filterChain.doFilter(request, response);
+            return;
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return; // Stop further processing
         }
 
         // De logica hieronder blijft grotendeels hetzelfde.
@@ -113,4 +119,4 @@ public class JwtFilter extends OncePerRequestFilter {
         // Voer filter uit en gaat naar de volgende filter.
         filterChain.doFilter(request, response);
     }
-}*/
+}
