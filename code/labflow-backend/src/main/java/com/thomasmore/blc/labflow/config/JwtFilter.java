@@ -4,6 +4,7 @@ import com.thomasmore.blc.labflow.service.JWTService;
 import com.thomasmore.blc.labflow.service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,3 +68,49 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+    /*@Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Haal de JWT uit een cookie in plaats van de Authorization header.
+        String token = null;
+        String email = null;
+
+        // Controleer of de cookies bestaan in de request.
+        if (request.getCookies() != null) {
+            // Loop door de cookies om de juiste te vinden.
+            for (Cookie cookie : request.getCookies()) {
+                // Pas "jwt-token" aan naar de naam van jouw cookie.
+                if ("jwt-token".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break; // Stop met zoeken zodra de cookie is gevonden.
+                }
+            }
+        }
+
+        // De logica hieronder blijft grotendeels hetzelfde.
+        // De check op "Bearer " is verwijderd, omdat een cookie meestal alleen de token zelf bevat.
+        if (token != null) {
+            // Methode om email uit de token te halen in jwtService.
+            email = jwtService.extractEmail(token);
+        }
+
+        // Email mag niet null zijn, en mag nog niet geauthenticeerd zijn.
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            // Haalt de UserDetails op uit de context om na te gaan of het emailadres in de database zit.
+            UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(email);
+
+            // Controleert of het emailadres in de database staat met behulp van de JWT-token validatie.
+            if (jwtService.validateToken(token, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                // Koppelt de authenticatiedetails aan de authToken.
+                // Dit zorgt ervoor dat de token weet van de request-informatie.
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // Stelt de beveiligingscontext in met de nieuwe authenticatietoken.
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        // Voer filter uit en gaat naar de volgende filter.
+        filterChain.doFilter(request, response);
+    }
+}*/

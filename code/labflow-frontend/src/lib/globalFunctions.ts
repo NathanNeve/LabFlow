@@ -1,3 +1,5 @@
+import { goto } from "$app/navigation";
+
 const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 // functie voor het ophalen van de rol van de gebruiker uit de jwt token
@@ -43,6 +45,11 @@ export async function generalFetch(
     // do the request
     const response = await fetch(url, options);
     const text = await response.text();
+
+    if (response.status == 401) {
+        console.error('Unauthorized access - redirecting to login');
+        goto('/');
+    }
 
     try {
         return text ? JSON.parse(text) : null;
