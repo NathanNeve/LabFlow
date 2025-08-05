@@ -43,8 +43,8 @@
 	}
 
 	// voor het inladen van crud voor admins
-	const rol = getRolNaam_FromToken();
-	let userId = getUserId();
+	let rol: string = '';
+	let userId = '';
 
 	let tests: Test[] = [];
 	let testsSorted: Test[] = [];
@@ -99,6 +99,8 @@
 
 	onMount(() => {
 		loadTests();
+		rol = getRolNaam_FromToken();
+		userId = getUserId();
 	});
 
 	// neem de id van de store

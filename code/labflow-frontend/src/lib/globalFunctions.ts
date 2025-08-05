@@ -5,7 +5,6 @@ const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 
 export function getRolNaam_FromToken() {
-    console.log('getRolNaam_FromToken called: ', sessionStorage.getItem('Role'));
     return sessionStorage.getItem('Role') || '';
 }
 

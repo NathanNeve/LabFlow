@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { id } from './store.js';
 	import { getContext, onMount } from 'svelte';
 	const modalId = getContext('modalId');

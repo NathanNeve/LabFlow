@@ -27,12 +27,18 @@
 	// types
 	import type { Staal } from '$lib/types/dbTypes';
 
+	let rol: string = '';
+
+	onMount(() => {
+		// Initialize the id store to null
+		rol = getRolNaam_FromToken();
+	});
+
 	let openModalTestId: number | null = null;
 
 	// achtergrond en klikbaar maken van instellingen gebaseerd op rol
 	let bgColor = 'bg-blue-400';
 	let pointerEvent = 'pointer-events-auto';
-	const rol = getRolNaam_FromToken();
 	if (rol !== '"admin"') {
 		bgColor = 'bg-gray-400';
 		pointerEvent = 'pointer-events-none';
