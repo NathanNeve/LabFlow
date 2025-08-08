@@ -55,11 +55,18 @@
 		// mappen van referentiewaarden overeenkomstig de waarden die in de multiselect moeten komen
 		if (fetchedReferentiewaardes) {
 			referentiewaardes = fetchedReferentiewaardes;
-			waarden = referentiewaardes.map((item) => ({
-				id: item.id,
-				label: item.waarde,
-				waarde: item.waarde
-			}));
+			// we willen geen dubbele referentiewaarden, dus we gebruiken een Map om unieke waarden te bewaren
+			const uniqueWaardenMap = new Map();				
+			for (const item of referentiewaardes) {
+				if (!uniqueWaardenMap.has(item.waarde)) {
+					uniqueWaardenMap.set(item.waarde, {
+						id: item.id,
+						label: item.waarde,
+						waarde: item.waarde
+					});
+				}
+			}
+			waarden = Array.from(uniqueWaardenMap.values());
 		}
 	});
 
