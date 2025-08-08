@@ -420,7 +420,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Kell +/-", test65));
 
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test66));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test67));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test68));
 
         // Hemostase (citraat)
@@ -431,7 +430,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("man 0-5", test221));
         referentiewaardeRepository.save(new Referentiewaarde("vrouw 0-7", test221));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test222));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test223));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test224));
 
         // Serologie Viraal (serum)
@@ -440,17 +438,6 @@ public class DataLoader implements CommandLineRunner {
 
         // Serologie Bacterieel (serum)
         referentiewaardeRepository.save(new Referentiewaarde("positief >200", test270));
-
-        // Flow cytometrie (EDTA)
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test727));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test728));
-
-        // Genetica
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test729));
-
-        // Metabole aandoeningen
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test730));
-
         // Biochemie - Suikers
         referentiewaardeRepository.save(new Referentiewaarde("70-105", test100));
         referentiewaardeRepository.save(new Referentiewaarde("4-6%", test103));
@@ -498,7 +485,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Alfa-2 globulinen: 7.4-12.6%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Bèta globulinen: 7.5-12.9%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Gamma globulinen: 8-15.8%", test162));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test163));
 
         referentiewaardeRepository.save(new Referentiewaarde("<5", test164)); // CRP
         referentiewaardeRepository.save(new Referentiewaarde("30-100", test210)); // Vit. D3 (25-OH)

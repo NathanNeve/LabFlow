@@ -11,5 +11,5 @@ public interface ReferentiewaardeRepository extends JpaRepository<Referentiewaar
 
     void removeReferentiewaardeById(Long id);
 
-
+    Referentiewaarde findReferentiewaardeByWaarde(String s);
 }
