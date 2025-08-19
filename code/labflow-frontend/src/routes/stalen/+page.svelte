@@ -3,6 +3,11 @@
 	import { onMount } from 'svelte';
 	import { fetchStalen } from '$lib/fetchFunctions';
 	import { id } from '../../components/Modal/store';
+	import {
+		formatDateToDDMMYYYY,
+		formatDateForBackend,
+		getVisiblePages
+	} from '$lib/utils/stalenHelpers';
 
 	// @ts-ignore
 	import GoX from 'svelte-icons/go/GoX.svelte';
@@ -77,22 +82,6 @@
 			registeredTests: false
 		};
 		editStaalErrorMessage = '';
-	}
-
-	// functie om de datum te formatteren naar dd/mm/yyyy
-	function formatDateToDDMMYYYY(dateStr: string): string {
-		if (!dateStr) return '';
-		const date = new Date(dateStr);
-		const day = String(date.getDate()).padStart(2, '0');
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const year = date.getFullYear();
-		return `${day}/${month}/${year}`;
-	}
-
-	// Backend verwacht YYYY-MM-DD format (ISO date)
-	function formatDateForBackend(dateStr: string): string {
-		if (!dateStr) return '';
-		return dateStr;
 	}
 
 	function verwijderZoek() {
@@ -304,33 +293,6 @@
 			page = targetPage;
 			loadStalen();
 		}
-	}
-
-	// Aantal pagina's berekenen
-	function getVisiblePages() {
-		const delta = 2; // toon 2 pagina's voor en na de huidige pagina
-		const range = [];
-		const rangeWithDots = [];
-
-		for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
-			range.push(i);
-		}
-
-		if (page - delta > 2) {
-			rangeWithDots.push(1, '...');
-		} else {
-			rangeWithDots.push(1);
-		}
-
-		rangeWithDots.push(...range);
-
-		if (page + delta < totalPages - 1) {
-			rangeWithDots.push('...', totalPages);
-		} else if (totalPages > 1) {
-			rangeWithDots.push(totalPages);
-		}
-
-		return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i); // Verwijder dubbele waarden
 	}
 
 	// Initiele load van data, haalt statussen en stalen op
@@ -658,7 +620,7 @@
 
 			<!-- Pagina nummers -->
 			{#if totalPages > 0}
-				{#each getVisiblePages() as pageNum}
+				{#each getVisiblePages(page, totalPages) as pageNum}
 					{#if pageNum === '...'}
 						<span class="px-3 py-2 text-gray-500">...</span>
 					{:else}
