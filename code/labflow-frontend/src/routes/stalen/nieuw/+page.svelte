@@ -12,10 +12,7 @@
 	import FaRegEdit from 'svelte-icons/fa/FaRegEdit.svelte';
 	// @ts-ignore
 	import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
-	// @ts-ignore
-	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
-	// @ts-ignore
-	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte';
+
 	// @ts-ignore
 	import GoX from 'svelte-icons/go/GoX.svelte';
 	import { staalCodeStore } from '$lib/store';
@@ -32,12 +29,12 @@
 	import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
 	import { loadTestCategorieën, loadEenheden } from '$lib/fetchFunctions';
 	import { fetchStaal_StaalCode } from '$lib/fetchFunctions';
-	import Staal from '../../../components/Staal.svelte';
-	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	// types
 	import type { Test, TestCategorie, Eenheid } from '$lib/types/dbTypes';
+	import ButtonTerug from '../../../components/buttons/button_terug.svelte';
+	import ButtonVerder from '../../../components/buttons/button_verder.svelte';
 	// wrapper for array of testcodes (strings)
 	interface TestCodeWrapper {
 		test: {
@@ -696,23 +693,8 @@
 
 			<!-- navigatie volgende en terug -->
 			<div class="pb-5 flex flex-row space-x-2 justify-end w-3/12">
-				<button
-					on:click={() => {
-						goto('/stalen');
-					}}
-					class="bg-gray-400 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					<div class="w-5 h-5 mr-2"><FaArrowLeft /></div>
-					Terug
-				</button>
-				<!-- staat tijdelijk naar volgende pagina omdat ik nog niet weet hoe César zijn pagina heet -->
-				<button
-					on:click={postOrPut}
-					class="bg-blue-600 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					Volgende
-					<div class="w-5 h-5 ml-2"><FaArrowRight /></div>
-				</button>
+				<ButtonTerug height="5rem" width="10rem" />
+				<ButtonVerder height="5rem" width="10rem" on:click={postOrPut} />
 			</div>
 		</div>
 

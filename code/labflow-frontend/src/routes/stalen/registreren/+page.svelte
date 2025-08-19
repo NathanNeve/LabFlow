@@ -2,8 +2,7 @@
 	import Nav from '../../../components/nav.svelte';
 	import { goto } from '$app/navigation';
 	import { getCookie, fetchAll, formatDate, formatSex } from '$lib/globalFunctions';
-	// @ts-ignore
-	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
+	import ButtonTerug from '../../../components/buttons/button_terug.svelte';
 	// @ts-ignore
 	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte';
 	// @ts-ignore
@@ -330,16 +329,7 @@
 
 			<!-- navigatie volgende en terug -->
 			<div class="pb-5 flex flex-row space-x-2 justify-end w-3/12">
-				<button
-					on:click={() => {
-						goto('/stalen');
-					}}
-					class="bg-gray-400 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					<div class="w-5 h-5 mr-2"><FaArrowLeft /></div>
-					Home
-				</button>
-				<!-- staat tijdelijk naar volgende pagina omdat ik nog niet weet hoe César zijn pagina heet -->
+				<ButtonTerug width="12rem" height="5rem" text="Home" label="/stalen" />
 				<button
 					on:click={() => {
 						if (downloaded) {

@@ -1,12 +1,14 @@
 <script lang="ts">
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
-	import { fetchStalen } from '$lib/fetchFunctions';
+	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
+	import { getRolNaam_FromToken, getCookie } from '$lib/globalFunctions';
 	import { id } from '../../components/Modal/store';
 	import {
 		formatDateToDDMMYYYY,
 		formatDateForBackend,
-		getVisiblePages
+		getVisiblePages,
+		createEditStaalError
 	} from '$lib/utils/stalenHelpers';
 
 	// @ts-ignore
@@ -22,7 +24,6 @@
 	import Modal from '../../components/Modal/Modal.svelte';
 	import Trigger from '../../components/Modal/Trigger.svelte';
 	import Content from '../../components/Modal/Content.svelte';
-	import { getCookie } from '$lib/globalFunctions';
 	import { staalCodeStore } from '$lib/store';
 	import { goto } from '$app/navigation';
 
@@ -34,16 +35,6 @@
 	// buttons
 	import ButtonNieuweStaal from '../../components/buttons/button_plus_large.svelte';
 	import ButtonInstellingen from '../../components/buttons/button_settings_large.svelte';
-
-	export let data;
-	// pull values from load() in +page.ts
-	let { rol, statussen, stalen, totalPages, totalElements } = data as {
-		rol: string;
-		statussen: string[];
-		stalen: StaalUI[];
-		totalPages: number;
-		totalElements: number;
-	};
 
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
@@ -57,30 +48,10 @@
 
 	const token = getCookie('authToken') ?? '';
 
-	let editStaalError = {
-		staalCode: false,
-		patientVoornaam: false,
-		patientAchternaam: false,
-		patientGeboorteDatum: false,
-		patientGeslacht: false,
-		laborantNaam: false,
-		laborantRnummer: false,
-		user: false,
-		registeredTests: false
-	};
+	let editStaalError = createEditStaalError();
 
 	function resetErrors() {
-		editStaalError = {
-			staalCode: false,
-			patientVoornaam: false,
-			patientAchternaam: false,
-			patientGeboorteDatum: false,
-			patientGeslacht: false,
-			laborantNaam: false,
-			laborantRnummer: false,
-			user: false,
-			registeredTests: false
-		};
+		editStaalError = createEditStaalError();
 		editStaalErrorMessage = '';
 	}
 
@@ -183,61 +154,31 @@
 	}
 
 	// edit staal
+	const requiredFields: (keyof typeof editStaalError)[] = [
+		'staalCode',
+		'patientVoornaam',
+		'patientAchternaam',
+		'patientGeboorteDatum',
+		'patientGeslacht',
+		'laborantNaam',
+		'laborantRnummer',
+		'user',
+		'registeredTests'
+	];
+
 	let editStaalErrorMessage = '';
 	async function editStaal(staal: StaalUI) {
-		editStaalError = {
-			staalCode: false,
-			patientVoornaam: false,
-			patientAchternaam: false,
-			patientGeboorteDatum: false,
-			patientGeslacht: false,
-			laborantNaam: false,
-			laborantRnummer: false,
-			user: false,
-			registeredTests: false
-		};
+		editStaalError = createEditStaalError();
 		let isValid = true;
-		const regex = /^[RU]\d{7}$/;
 
-		if (!staal.staalCode) {
-			editStaalError.staalCode = true;
-			isValid = false;
-		}
-		if (!staal.patientVoornaam) {
-			editStaalError.patientVoornaam = true;
-			isValid = false;
-		}
-		if (!staal.patientAchternaam) {
-			editStaalError.patientAchternaam = true;
-			isValid = false;
-		}
-		if (!staal.patientGeboorteDatum) {
-			editStaalError.patientGeboorteDatum = true;
-			isValid = false;
-		}
-		if (!staal.patientGeslacht) {
-			editStaalError.patientGeslacht = true;
-			isValid = false;
-		}
-		if (!staal.laborantNaam) {
-			editStaalError.laborantNaam = true;
-			isValid = false;
-		}
-		if (!staal.laborantRnummer || !regex.test(staal.laborantRnummer)) {
-			editStaalError.laborantRnummer = true;
-			isValid = false;
-		}
-		if (!staal.user) {
-			editStaalError.user = true;
-			isValid = false;
-		}
-		if (!staal.registeredTests) {
-			editStaalError.registeredTests = true;
-			isValid = false;
-		}
-		if (!isValid) {
-			editStaalErrorMessage = 'Vul alle verplichte velden in.';
-			return;
+		for (const field of requiredFields) {
+			if (
+				!staal[field] ||
+				(field === 'laborantRnummer' && !/^[RU]\d{7}$/.test(staal[field] as string))
+			) {
+				editStaalError[field as keyof typeof editStaalError] = true;
+				isValid = false;
+			}
 		}
 		try {
 			const response = await fetch(`${backend_path}/api/updatestaal/${staal.id}`, {
@@ -296,7 +237,25 @@
 	}
 
 	// Initiele load van data, haalt statussen en stalen op
-	async function load() {}
+	let rol = '';
+	let statussen: string[] = [];
+	let stalen: any[] = [];
+	let totalPages = 0;
+	let totalElements = 0;
+
+	async function load() {
+		const token = getCookie('authToken') ?? '';
+		rol = getRolNaam_FromToken() ?? '';
+
+		// fetch statussen
+		statussen = await fetchStatussen();
+
+		// fetch initial stalen
+		const res = await fetchStalen(0, 25, {});
+		stalen = res?.stalen ?? [];
+		totalPages = res?.totalPages ?? 0;
+		totalElements = res?.totalElements ?? 0;
+	}
 
 	onMount(load);
 </script>

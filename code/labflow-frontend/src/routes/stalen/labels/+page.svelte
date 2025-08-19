@@ -3,10 +3,9 @@
 	import LabelCart from './../../../components/LabelCart.svelte';
 	import { goto } from '$app/navigation';
 	import { getCookie, fetchAll, formatDate, formatSex } from '$lib/globalFunctions';
-	// @ts-ignore
-	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
-	// @ts-ignore
-	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte';
+	import ButtonTerug from '../../../components/buttons/button_terug.svelte';
+	import ButtonVerder from '../../../components/buttons/button_verder.svelte';
+
 	// @ts-ignore
 	import FaCloudDownloadAlt from 'svelte-icons/fa/FaCloudDownloadAlt.svelte';
 	import { staalCodeStore } from '$lib/store';
@@ -252,25 +251,8 @@
 
 			<!-- navigatie volgende en terug -->
 			<div class="pb-5 flex flex-row space-x-2 justify-end w-3/12">
-				<button
-					on:click={() => {
-						goto('/stalen');
-					}}
-					class="bg-gray-400 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					<div class="w-5 h-5 mr-2"><FaArrowLeft /></div>
-					Annuleren
-				</button>
-				<!-- staat tijdelijk naar volgende pagina omdat ik nog niet weet hoe César zijn pagina heet -->
-				<button
-					on:click={() => {
-						goto('/stalen/saved');
-					}}
-					class="bg-blue-600 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					Volgende
-					<div class="w-5 h-5 ml-2"><FaArrowRight /></div>
-				</button>
+				<ButtonTerug width="12rem" height="5rem" label="/stalen" text="Annuleren" />
+				<ButtonVerder width="12rem" height="5rem" label="/stalen/saved" text="Volgende" />
 			</div>
 		</div>
 		<!-- bottom section -->

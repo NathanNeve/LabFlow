@@ -13,21 +13,6 @@ export function formatDateForBackend(dateStr: string): string {
     return dateStr;
 }
 
-// Error reset template
-export function getEmptyEditStaalError() {
-    return {
-        staalCode: false,
-        patientVoornaam: false,
-        patientAchternaam: false,
-        patientGeboorteDatum: false,
-        patientGeslacht: false,
-        laborantNaam: false,
-        laborantRnummer: false,
-        user: false,
-        registeredTests: false
-    };
-}
-
 // Pagination calculation (pure function, does not rely on Svelte state)
 export function getVisiblePages(page: number, totalPages: number, delta = 2) {
     const range = [];
@@ -52,4 +37,18 @@ export function getVisiblePages(page: number, totalPages: number, delta = 2) {
     }
 
     return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i);
+}
+
+export function createEditStaalError() {
+	return {
+		staalCode: false,
+		patientVoornaam: false,
+		patientAchternaam: false,
+		patientGeboorteDatum: false,
+		patientGeslacht: false,
+		laborantNaam: false,
+		laborantRnummer: false,
+		user: false,
+		registeredTests: false
+	};
 }
