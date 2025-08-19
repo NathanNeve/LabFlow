@@ -1,8 +1,7 @@
 <script lang="ts">
 	import Nav from '../../components/nav.svelte';
 	import { onMount } from 'svelte';
-	import { getRolNaam_FromToken } from '$lib/globalFunctions';
-	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
+	import { fetchStalen } from '$lib/fetchFunctions';
 	import { id } from '../../components/Modal/store';
 
 	// @ts-ignore
@@ -13,7 +12,7 @@
 	import FaRegEdit from 'svelte-icons/fa/FaRegEdit.svelte';
 	// @ts-ignore
 	import IoMdCheckmarkCircle from 'svelte-icons/io/IoMdCheckmarkCircle.svelte';
-	
+
 	// modal
 	import Modal from '../../components/Modal/Modal.svelte';
 	import Trigger from '../../components/Modal/Trigger.svelte';
@@ -21,29 +20,34 @@
 	import { getCookie } from '$lib/globalFunctions';
 	import { staalCodeStore } from '$lib/store';
 	import { goto } from '$app/navigation';
-	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	// types
-	import type { Staal } from '$lib/types/dbTypes';
+	import type { Staal as StaalBase } from '$lib/types/dbTypes';
+	type StaalUI = StaalBase & { confirmDelete?: boolean }; // extends staal type to add confirmdelete
 	import type { StalenSearchParams } from '$lib/types/searchTypes';
 
 	// buttons
 	import ButtonNieuweStaal from '../../components/buttons/button_plus_large.svelte';
 	import ButtonInstellingen from '../../components/buttons/button_settings_large.svelte';
 
+	export let data;
+	// pull values from load() in +page.ts
+	let { rol, statussen, stalen, totalPages, totalElements } = data as {
+		rol: string;
+		statussen: string[];
+		stalen: StaalUI[];
+		totalPages: number;
+		totalElements: number;
+	};
+
+	const backend_path = import.meta.env.VITE_BACKEND_PATH;
+
 	let openModalTestId: number | null = null;
 
-	// rol
-	const rol = getRolNaam_FromToken();
-
-	let stalen: Staal[] = [];
-	let statussen: string[] = [];
 	let searchCode = '';
 	let searchDate = '';
 	let filteredStatus = '';
 	let page = 0;
-	let totalPages = 0;
-	let totalElements = 0;
 	let isLoading = false;
 
 	const token = getCookie('authToken') ?? '';
@@ -162,7 +166,7 @@
 	}
 
 	// set staalcode in store en ga naar waarden registreren / afdrukken pdf
-	function setStoreGoToDependingStatus(staal: Staal) {
+	function setStoreGoToDependingStatus(staal: StaalUI) {
 		staalCodeStore.set(staal.staalCode);
 		if (staal.status === 'GEREGISTREERD' || staal.status === 'KLAAR') {
 			goto('stalen/registreren');
@@ -191,7 +195,7 @@
 
 	// edit staal
 	let editStaalErrorMessage = '';
-	async function editStaal(staal: Staal) {
+	async function editStaal(staal: StaalUI) {
 		editStaalError = {
 			staalCode: false,
 			patientVoornaam: false,
@@ -330,10 +334,7 @@
 	}
 
 	// Initiele load van data, haalt statussen en stalen op
-	async function load() {
-		statussen = await fetchStatussen();
-		await loadStalen();
-	}
+	async function load() {}
 
 	onMount(load);
 </script>

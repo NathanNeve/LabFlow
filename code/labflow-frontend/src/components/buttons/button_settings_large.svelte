@@ -8,6 +8,8 @@
 	if (rol !== 'admin') {
 		bgColor = 'bg-gray-400';
 		pointerEvent = 'pointer-events-none';
+	} else {
+		bgColor = 'hover:bg-blue-500 transition bg-blue-400';
 	}
 
 	export let label: string = 'Instellingen';
