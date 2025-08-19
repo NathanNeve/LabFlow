@@ -6,10 +6,6 @@
 	import { id } from '../../components/Modal/store';
 
 	// @ts-ignore
-	import GoPlus from 'svelte-icons/go/GoPlus.svelte';
-	// @ts-ignore
-	import IoMdSettings from 'svelte-icons/io/IoMdSettings.svelte';
-	// @ts-ignore
 	import GoX from 'svelte-icons/go/GoX.svelte';
 	// @ts-ignore
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte';
@@ -17,6 +13,7 @@
 	import FaRegEdit from 'svelte-icons/fa/FaRegEdit.svelte';
 	// @ts-ignore
 	import IoMdCheckmarkCircle from 'svelte-icons/io/IoMdCheckmarkCircle.svelte';
+	
 	// modal
 	import Modal from '../../components/Modal/Modal.svelte';
 	import Trigger from '../../components/Modal/Trigger.svelte';
@@ -25,20 +22,19 @@
 	import { staalCodeStore } from '$lib/store';
 	import { goto } from '$app/navigation';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
+
 	// types
 	import type { Staal } from '$lib/types/dbTypes';
 	import type { StalenSearchParams } from '$lib/types/searchTypes';
 
+	// buttons
+	import ButtonNieuweStaal from '../../components/buttons/button_plus_large.svelte';
+	import ButtonInstellingen from '../../components/buttons/button_settings_large.svelte';
+
 	let openModalTestId: number | null = null;
 
-	// achtergrond en klikbaar maken van instellingen gebaseerd op rol
-	let bgColor = 'bg-blue-400';
-	let pointerEvent = 'pointer-events-auto';
+	// rol
 	const rol = getRolNaam_FromToken();
-	if (rol !== 'admin') {
-		bgColor = 'bg-gray-400';
-		pointerEvent = 'pointer-events-none';
-	}
 
 	let stalen: Staal[] = [];
 	let statussen: string[] = [];
@@ -345,26 +341,8 @@
 <Nav />
 <div class="px-8 flex flex-row space-x-5">
 	<div class="flex flex-col space-y-5">
-		<a
-			on:click={() => setStore('')}
-			href="/stalen/nieuw"
-			class="bg-blue-400 flex flex-col items-center justify-center w-56 h-56 rounded-2xl"
-		>
-			<div class="w-28 h-28 text-white flex items-center justify-center">
-				<GoPlus />
-			</div>
-			<p class="text-white text-2xl text-center mt-2">Nieuwe staal</p>
-		</a>
-
-		<a
-			href={rol === 'admin' ? '/instellingen' : '#'}
-			class="{bgColor} flex flex-col items-center justify-center w-56 h-56 rounded-2xl {pointerEvent}"
-		>
-			<div class="w-28 h-28 text-white flex items-center justify-center">
-				<IoMdSettings />
-			</div>
-			<p class="text-white text-2xl text-center mt-2">Instellingen</p>
-		</a>
+		<ButtonNieuweStaal label="Nieuwe staal" />
+		<ButtonInstellingen label="Instellingen" />
 	</div>
 	<div class="bg-slate-200 w-full h-full rounded-2xl p-5">
 		<!-- filteren op code en datum -->
