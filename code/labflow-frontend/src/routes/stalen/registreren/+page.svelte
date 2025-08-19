@@ -19,7 +19,7 @@
 	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
-	// neem de id
+	// neem id
 	let sampleCode: string | undefined;
 
 	let tests: any[] = [];
