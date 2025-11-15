@@ -5,6 +5,7 @@ import com.thomasmore.blc.labflow.entity.StaalTest;
 import com.thomasmore.blc.labflow.entity.Test;
 import com.thomasmore.blc.labflow.entity.Testcategorie;
 import com.thomasmore.blc.labflow.repository.StaalRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,8 @@ public class PrinterService {
             }
 
             // staal ophalen
-            Staal staal = staalRepository.findById(staalId);
+            Staal staal = staalRepository.findById(staalId)
+                    .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + staalId));
 
             // geboortedatum formatter
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");

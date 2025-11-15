@@ -1,3 +1,5 @@
+// in deze file worden types gedefinieerd die gebruikt worden in de applicatie
+
 export interface DecodedToken {
     rol: string;
     [key: string]: any;

@@ -4,6 +4,7 @@ import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
 import com.thomasmore.blc.labflow.entity.Staal;
 import com.thomasmore.blc.labflow.service.StaalService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,20 @@ public class StaalController {
     public List<Staal> read() {
         return staalService.read();
     }
+
+    // read paginated, default worden de eerste 25 stalen gegeven
+    // optionele parameters om te filteren op staalcode, status of aanmaakdatum
+    @GetMapping("/staal")
+    public Page<Staal> getPaginatedStalen(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String date
+    ) {
+        return staalService.readAmount(page, size, search, status, date);
+    }
+
 
     // update
     @PutMapping("/updatestaal/{id}")

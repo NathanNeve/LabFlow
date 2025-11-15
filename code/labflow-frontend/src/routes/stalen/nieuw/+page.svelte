@@ -12,10 +12,7 @@
 	import FaRegEdit from 'svelte-icons/fa/FaRegEdit.svelte';
 	// @ts-ignore
 	import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
-	// @ts-ignore
-	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
-	// @ts-ignore
-	import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte';
+
 	// @ts-ignore
 	import GoX from 'svelte-icons/go/GoX.svelte';
 	import { staalCodeStore } from '$lib/store';
@@ -32,12 +29,12 @@
 	import ColorPicker, { ChromeVariant } from 'svelte-awesome-color-picker';
 	import { loadTestCategorieën, loadEenheden } from '$lib/fetchFunctions';
 	import { fetchStaal_StaalCode } from '$lib/fetchFunctions';
-	import Staal from '../../../components/Staal.svelte';
-	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 	// types
 	import type { Test, TestCategorie, Eenheid } from '$lib/types/dbTypes';
+	import ButtonTerug from '../../../components/buttons/button_terug.svelte';
+	import ButtonVerder from '../../../components/buttons/button_verder.svelte';
 	// wrapper for array of testcodes (strings)
 	interface TestCodeWrapper {
 		test: {
@@ -65,7 +62,7 @@
 	let laborantNaam = '';
 	let laborantRnummer = '';
 
-	let errrorVeldenStaal = {
+	let errorVeldenStaal = {
 		naam: false,
 		voornaam: false,
 		geslacht: false,
@@ -162,10 +159,10 @@
 		const regex = /^[RU]\d{7}$/;
 
 		if (!laborantNaam) {
-			errrorVeldenStaal.laborantNaam = true;
+			errorVeldenStaal.laborantNaam = true;
 		}
 		if (!laborantRnummer || !regex.test(laborantRnummer)) {
-			errrorVeldenStaal.laborantRnummer = true;
+			errorVeldenStaal.laborantRnummer = true;
 		}
 
 		if (laborantNaam && laborantRnummer && regex.test(laborantRnummer)) {
@@ -281,7 +278,7 @@
 	// POST: Aanmaken van een nieuwe staal
 	async function nieuweStaal() {
 		// Resetten van de errorvelden
-		errrorVeldenStaal = {
+		errorVeldenStaal = {
 			naam: false,
 			voornaam: false,
 			geslacht: false,
@@ -294,19 +291,19 @@
 		let isValid = true;
 
 		if (!naam) {
-			errrorVeldenStaal.naam = true;
+			errorVeldenStaal.naam = true;
 			isValid = false;
 		}
 		if (!voornaam) {
-			errrorVeldenStaal.voornaam = true;
+			errorVeldenStaal.voornaam = true;
 			isValid = false;
 		}
 		if (!geboortedatum) {
-			errrorVeldenStaal.geboortedatum = true;
+			errorVeldenStaal.geboortedatum = true;
 			isValid = false;
 		}
 		if (!geslacht) {
-			errrorVeldenStaal.geslacht = true;
+			errorVeldenStaal.geslacht = true;
 			isValid = false;
 		}
 		// errorMessageStaal tonen indien niet alle velden zijn ingevuld
@@ -365,63 +362,54 @@
 
 	// PUT: Aanpassen van een bestaande staal
 	async function staalAanpassen() {
-		// Resetten van de errorvelden
-		errrorVeldenStaal = {
-			naam: false,
-			voornaam: false,
-			geslacht: false,
-			geboortedatum: false,
-			laborantNaam: true,
-			laborantRnummer: true
-		};
-
-		// Validatie van de input
-		let isValid = true;
-
-		if (!naam) {
-			errrorVeldenStaal.naam = true;
-			isValid = false;
-		}
-		if (!voornaam) {
-			errrorVeldenStaal.voornaam = true;
-			isValid = false;
-		}
-		if (!geboortedatum) {
-			errrorVeldenStaal.geboortedatum = true;
-			isValid = false;
-		}
-		if (!geslacht) {
-			errrorVeldenStaal.geslacht = true;
-			isValid = false;
-		}
-		// errorMessageStaal tonen indien niet alle velden zijn ingevuld
-		if (!isValid) {
-			errorMessageStaal = 'Vul alle verplichte velden in.';
-			return;
-		}
-
-		const geselecteerdeTestsArray = Array.from(geselecteerdeTests).map((testCode) => ({
-			test: { testCode: testCode }
-		}));
-
-		// als er de test met code 'X' is geselecteerd, dan wordt de warning niet getoond
-		if (geselecteerdeTestsArray.some((test) => test.test.testCode === 'X')) {
-			isWarningAcknowledged = true;
-		} else {
-		}
-
-		if (!isWarningAcknowledged) {
-			checkWarning(geselecteerdeTestsArray);
-			isWarningAcknowledged = true; // Set de warning als al getoond is
-			errorMessageStaal = '';
-			return; // wachten voor volgende click
-		}
 		try {
+			// Reset error fields
+			errorVeldenStaal = {
+				naam: false,
+				voornaam: false,
+				geslacht: false,
+				geboortedatum: false,
+				laborantNaam: true,
+				laborantRnummer: true
+			};
+
+			// Required fields to validate
+			const requiredFields = { naam, voornaam, geboortedatum, geslacht };
+			let isValid = true;
+
+			for (const [field, value] of Object.entries(requiredFields)) {
+				if (!value) {
+					errorVeldenStaal[field as keyof typeof errorVeldenStaal] = true;
+					isValid = false;
+				}
+			}
+
+			if (!isValid) {
+				errorMessageStaal = 'Vul alle verplichte velden in.';
+				return;
+			}
+
+			// Build test array
+			const geselecteerdeTestsArray = Array.from(geselecteerdeTests, (testCode) => ({
+				test: { testCode }
+			}));
+
+			// Check if warning is needed
+			const hasOverrideTest = geselecteerdeTestsArray.some((test) => test.test.testCode === 'X');
+
+			if (!hasOverrideTest && !isWarningAcknowledged) {
+				checkWarning(geselecteerdeTestsArray);
+				isWarningAcknowledged = true;
+				errorMessageStaal = '';
+				return; // Wait for next click after showing warning
+			}
+
+			// Send update to backend
 			await fetch(`${backend_path}/api/updatestaal/${staalId}`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: `Bearer ${token}`
 				},
 				body: JSON.stringify({
 					staalCode: nieuweStaalCode,
@@ -429,21 +417,24 @@
 					patientVoornaam: voornaam,
 					patientGeslacht: geslacht,
 					patientGeboorteDatum: geboortedatum,
-					laborantNaam: laborantNaam,
-					laborantRnummer: laborantRnummer,
-					user: {
-						id: 2
-					},
+					laborantNaam,
+					laborantRnummer,
+					user: { id: 2 },
 					registeredTests: geselecteerdeTestsArray
 				})
 			});
-			// doorgeven van aangemaakte staalcode naar volgend scherm
+
+			// Store staalcode for next screen
 			staalCodeStore.set(nieuweStaalCode);
+
+			// Reset warning for next use
+			isWarningAcknowledged = false;
+
+			// Navigate to labels
+			return goto('/stalen/labels');
 		} catch (error) {
-			console.error('staal kon niet worden aangemaakt: ', error);
+			console.error('Staal kon niet worden aangemaakt:', error);
 		}
-		isWarningAcknowledged = false; // Reset de warning zodat de knop geklikt kan worden
-		return goto('/stalen/labels');
 	}
 
 	// post or put functie, afhankelijk van of er al een staalcode is in de session storage
@@ -589,7 +580,7 @@
 						id="naam"
 						name="naam"
 						bind:value={laborantNaam}
-						class="rounded-lg text-black bg-gray-200 h-12 pl-3 {errrorVeldenStaal.laborantNaam
+						class="rounded-lg text-black bg-gray-200 h-12 pl-3 {errorVeldenStaal.laborantNaam
 							? 'border-2 border-red-500'
 							: ''}"
 					/>
@@ -597,7 +588,7 @@
 				<div class="flex flex-col w-1/2">
 					<label for="r-nummer"
 						>R-Nummer <span
-							class={errrorVeldenStaal.laborantRnummer ? 'text-red-500 inline-block' : 'hidden'}
+							class={errorVeldenStaal.laborantRnummer ? 'text-red-500 inline-block' : 'hidden'}
 							>moet in format rXXXXXXX met 7 cijfers</span
 						></label
 					>
@@ -606,7 +597,7 @@
 						id="r-nummer"
 						name="r-nummer"
 						bind:value={laborantRnummer}
-						class="rounded-lg text-black bg-gray-200 h-12 pl-3 {errrorVeldenStaal.laborantRnummer
+						class="rounded-lg text-black bg-gray-200 h-12 pl-3 {errorVeldenStaal.laborantRnummer
 							? 'border-2 border-red-500'
 							: ''}"
 					/>
@@ -647,7 +638,7 @@
 						id="naam"
 						name="naam"
 						bind:value={naam}
-						class="rounded-lg text-black bg-gray-200 h-10 pl-3 {errrorVeldenStaal.naam
+						class="rounded-lg text-black bg-gray-200 h-10 pl-3 {errorVeldenStaal.naam
 							? 'border-2 border-red-500'
 							: ''}"
 					/>
@@ -659,7 +650,7 @@
 						id="voornaam"
 						name="voornaam"
 						bind:value={voornaam}
-						class="rounded-lg text-black bg-gray-200 h-10 pl-3 {errrorVeldenStaal.voornaam
+						class="rounded-lg text-black bg-gray-200 h-10 pl-3 {errorVeldenStaal.voornaam
 							? 'border-2 border-red-500'
 							: ''}"
 					/>
@@ -671,7 +662,7 @@
 						id="geboortedatum"
 						name="geboortedatum"
 						bind:value={geboortedatum}
-						class="rounded-lg text-black bg-gray-200 h-10 pl-3 px-3 {errrorVeldenStaal.geboortedatum
+						class="rounded-lg text-black bg-gray-200 h-10 pl-3 px-3 {errorVeldenStaal.geboortedatum
 							? 'border-2 border-red-500'
 							: ''}"
 					/>
@@ -681,12 +672,12 @@
 					<p class="text-gray-400">Geslacht</p>
 					<div>
 						<label
-							class="container mr-5 {errrorVeldenStaal.geslacht ? 'text-red-500 font-bold' : ''}"
+							class="container mr-5 {errorVeldenStaal.geslacht ? 'text-red-500 font-bold' : ''}"
 						>
 							<input type="radio" name="radio" bind:group={geslacht} value="M" />
 							Man
 						</label>
-						<label class="container {errrorVeldenStaal.geslacht ? 'text-red-500 font-bold' : ''}">
+						<label class="container {errorVeldenStaal.geslacht ? 'text-red-500 font-bold' : ''}">
 							<input type="radio" name="radio" bind:group={geslacht} value="V" />
 							Vrouw
 						</label>
@@ -696,23 +687,8 @@
 
 			<!-- navigatie volgende en terug -->
 			<div class="pb-5 flex flex-row space-x-2 justify-end w-3/12">
-				<button
-					on:click={() => {
-						goto('/stalen');
-					}}
-					class="bg-gray-400 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					<div class="w-5 h-5 mr-2"><FaArrowLeft /></div>
-					Terug
-				</button>
-				<!-- staat tijdelijk naar volgende pagina omdat ik nog niet weet hoe César zijn pagina heet -->
-				<button
-					on:click={postOrPut}
-					class="bg-blue-600 text-xl rounded-lg p-3 text-white h-20 w-1/2 flex flex-row items-center justify-center"
-				>
-					Volgende
-					<div class="w-5 h-5 ml-2"><FaArrowRight /></div>
-				</button>
+				<ButtonTerug height="5rem" width="10rem" />
+				<ButtonVerder height="5rem" width="10rem" on:click={postOrPut} />
 			</div>
 		</div>
 

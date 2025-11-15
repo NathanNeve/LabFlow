@@ -21,9 +21,7 @@ public class PdfGeneratorService {
     String geenNotitieString = "Geen notitie";
 
     public byte[] generateLabelPdf(Staal staal) throws DocumentException {
-
-        // maak een kleine pagina voor de labels
-        Document document = new Document(new Rectangle(210, 140)); // A7 size
+        Document document = new Document(new Rectangle(210, 140));
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         PdfWriter writer = PdfWriter.getInstance(document, out);
@@ -352,7 +350,7 @@ public class PdfGeneratorService {
 
             // afhankelijk van het aantal referentiewaardes, deze samenvoegen en toevoegen aan de tabel
             assert referentiewaardes != null;
-            if (referentiewaardes.isEmpty()) {
+            if (!referentiewaardes.isEmpty()) {
                 // stream voor tussen elke referentiewaarde een '/' te plaatsen
                 String referentieWaarden = referentiewaardes.stream()
                         .map(Referentiewaarde::getWaarde)

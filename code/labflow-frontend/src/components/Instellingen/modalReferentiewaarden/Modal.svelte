@@ -70,7 +70,6 @@
 				<strong>Kies je referentiewaardes:</strong>
 			</label>
 			<MultiSelect
-				style="height: 60px;"
 				id="referentiewaarden"
 				options={waarden}
 				bind:value={$selectedValues}
@@ -107,11 +106,11 @@
 <style>
 	dialog {
 		position: fixed;
-		top: 50%;
+		top: 60%;
 		left: 50%;
 		transform: translate(-50%, -50%);
 		max-width: 90vw;
-		max-height: 60vh;
+		max-height: 70vh;
 		width: 60em;
 		height: 100em;
 		border: none;

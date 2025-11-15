@@ -1,6 +1,7 @@
 import { getCookie, fetchAll, fetchAllWithoutPrefix } from '$lib/globalFunctions';
 import { goto } from '$app/navigation';
 import type { Eenheid, TestCategorie } from './types/dbTypes';
+import type { StalenSearchParams } from './types/searchTypes';
 
 const token = getCookie('authToken') ?? '';
 let testcategorieën: TestCategorie[] = [];
@@ -36,23 +37,50 @@ export async function loadEenheden() {
     }
 }
 
-// fetchen van stalen
-export async function fetchStalen() {
+// fetch alle stalen
+export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearchParams = {}) {
     if (token) {
         try {
-            const stalen = await fetchAll(token, 'stalen');
-            const filteredStalen = stalen;
-            return { stalen, filteredStalen };
+            // query parameters voor paginering en zoeken op datum, code en status
+            let params = `page=${page}&size=${size}&sort=id,desc`;
+            
+            // voeg parameters toe als ze zijn opgegeven
+            if (searchParams.searchCode) {
+                params += `&search=${encodeURIComponent(searchParams.searchCode)}`;
+            }
+            if (searchParams.searchDate) {
+                params += `&date=${encodeURIComponent(searchParams.searchDate)}`;
+            }
+            if (searchParams.filteredStatus) {
+                params += `&status=${encodeURIComponent(searchParams.filteredStatus)}`;
+            }
+            
+            const stalen = await fetchAll(token, 'staal', params);
+            
+            const filteredStalen = stalen.content;
+            console.log(filteredStalen);
+            return { 
+                stalen: filteredStalen, 
+                filteredStalen,
+                totalPages: stalen.totalPages,
+                totalElements: stalen.totalElements,
+                currentPage: stalen.number,
+                isFirst: stalen.first,
+                isLast: stalen.last,
+                size: stalen.size
+            };
         } catch (error) {
             console.error("Stalen konden niet gefetched worden:", error);
+            return null;
         }
     } else {
         console.error("JWT error: token missing of invalid");
         goto('/');
+        return null;
     }
 }
 
-// fetchen van stalen
+// fetchen van 1 staal op basis van staalCode
 export async function fetchStaal_StaalCode(staalCode: string) {
     if (token) {
         try {

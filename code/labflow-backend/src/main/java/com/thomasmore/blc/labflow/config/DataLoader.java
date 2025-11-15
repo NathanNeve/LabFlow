@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 public class DataLoader implements CommandLineRunner {
 
@@ -107,16 +109,36 @@ public class DataLoader implements CommandLineRunner {
 
 
         // Stalen, dit is voor development, geen echte waarden
-        Staal staal1 = new Staal(2024000001L, "César", "Van Leuffelen", java.time.LocalDate.parse("2004-07-29"), 'M', "Nathan Neve", "R1234567", user1);
-        Staal staal2 = new Staal(2024000002L, "Lucas", "Peeters", java.time.LocalDate.parse("1985-07-21"), 'M', "Sofie", "R1234567", user2);
-        Staal staal3 = new Staal(2024000003L, "Mila", "Vermeulen", java.time.LocalDate.parse("1993-02-11"), 'V', "Bart", "R1234567", user1);
-        Staal staal4 = new Staal(2024000004L, "Liam", "Claes", java.time.LocalDate.parse("1992-11-30"), 'M', "Lies", "R1234567", user2);
-        Staal staal5 = new Staal(2024000005L, "Olivia", "Dubois", java.time.LocalDate.parse("2000-01-08"), 'V', "An", "R1234567", user1);
-        Staal staal6 = new Staal(2024000006L, "Noah", "De Smet", java.time.LocalDate.parse("1987-03-16"), 'M', "Koen", "R1234567", user2);
-        Staal staal7 = new Staal(2024000007L, "Marie", "De Vries", java.time.LocalDate.parse("1991-09-25"), 'V', "Katrien", "R1234567", user1);
-        Staal staal8 = new Staal(2024000008L, "Arthur", "Van Damme", java.time.LocalDate.parse("1988-12-19"), 'M', "Jan", "R1234567", user2);
-        Staal staal9 = new Staal(2024000009L, "Charlotte", "Jacobs", java.time.LocalDate.parse("1995-04-03"), 'V', "Eva", "R1234567", user1);
-        Staal staal10 = new Staal(2024000010L, "Victor", "Maes", java.time.LocalDate.parse("1990-06-10"), 'M', "Lotte", "R1234567", user2);
+        Staal staal1 = new Staal(2024000001L, "César", "Van Leuffelen", LocalDate.parse("2004-07-29"), 'M', "Nathan Neve", "R1234567", user1);
+        Staal staal2 = new Staal(2024000002L, "Lucas", "Peeters", LocalDate.parse("1985-07-21"), 'M', "Sofie", "R1234567", user2);
+        Staal staal3 = new Staal(2024000003L, "Mila", "Vermeulen", LocalDate.parse("1993-02-11"), 'V', "Bart", "R1234567", user1);
+        Staal staal4 = new Staal(2024000004L, "Liam", "Claes", LocalDate.parse("1992-11-30"), 'M', "Lies", "R1234567", user2);
+        Staal staal5 = new Staal(2024000005L, "Olivia", "Dubois", LocalDate.parse("2000-01-08"), 'V', "An", "R1234567", user1);
+        Staal staal6 = new Staal(2024000006L, "Noah", "De Smet", LocalDate.parse("1987-03-16"), 'M', "Koen", "R1234567", user2);
+        Staal staal7 = new Staal(2024000007L, "Marie", "De Vries", LocalDate.parse("1991-09-25"), 'V', "Katrien", "R1234567", user1);
+        Staal staal8 = new Staal(2024000008L, "Arthur", "Van Damme", LocalDate.parse("1988-12-19"), 'M', "Jan", "R1234567", user2);
+        Staal staal9 = new Staal(2024000009L, "Charlotte", "Jacobs", LocalDate.parse("1995-04-03"), 'V', "Eva", "R1234567", user1);
+        Staal staal10 = new Staal(2024000010L, "Victor", "Maes", LocalDate.parse("1990-06-10"), 'M', "Lotte", "R1234567", user2);
+        Staal staal11 = new Staal(2024000011L, "Emma", "Goossens", LocalDate.parse("1996-05-14"), 'V', "Tom", "R1234567", user1);
+        Staal staal12 = new Staal(2024000012L, "Finn", "Lenaerts", LocalDate.parse("1994-02-18"), 'M', "Lien", "R1234567", user2);
+        Staal staal13 = new Staal(2024000013L, "Elise", "Van den Broeck", LocalDate.parse("2001-03-22"), 'V', "Kim", "R1234567", user1);
+        Staal staal14 = new Staal(2024000014L, "Jules", "Willems", LocalDate.parse("1989-08-07"), 'M', "Sarah", "R1234567", user2);
+        Staal staal15 = new Staal(2024000015L, "Lotte", "Hermans", LocalDate.parse("1998-09-12"), 'V', "Pieter", "R1234567", user1);
+        Staal staal16 = new Staal(2024000016L, "Mats", "Van Dijk", LocalDate.parse("1986-10-05"), 'M', "Karen", "R1234567", user2);
+        Staal staal17 = new Staal(2024000017L, "Tess", "De Clercq", LocalDate.parse("1999-11-01"), 'V', "Luc", "R1234567", user1);
+        Staal staal18 = new Staal(2024000018L, "Niels", "De Wilde", LocalDate.parse("1993-01-27"), 'M', "Els", "R1234567", user2);
+        Staal staal19 = new Staal(2024000019L, "Sara", "Desmet", LocalDate.parse("1997-07-19"), 'V', "Joachim", "R1234567", user1);
+        Staal staal20 = new Staal(2024000020L, "Simon", "Van Acker", LocalDate.parse("1984-12-30"), 'M', "Nathalie", "R1234567", user2);
+        Staal staal21 = new Staal(2024000021L, "Hanne", "De Vos", LocalDate.parse("2002-06-09"), 'V', "Stijn", "R1234567", user1);
+        Staal staal22 = new Staal(2024000022L, "Brent", "Mertens", LocalDate.parse("1990-04-25"), 'M', "Inge", "R1234567", user2);
+        Staal staal23 = new Staal(2024000023L, "Jana", "Declercq", LocalDate.parse("1995-08-13"), 'V', "Dieter", "R1234567", user1);
+        Staal staal24 = new Staal(2024000024L, "Cedric", "Lauwers", LocalDate.parse("1988-03-09"), 'M', "Annick", "R1234567", user2);
+        Staal staal25 = new Staal(2024000025L, "Lien", "Van den Eede", LocalDate.parse("1991-12-05"), 'V', "Marc", "R1234567", user1);
+        Staal staal26 = new Staal(2024000026L, "Robbe", "Smet", LocalDate.parse("1992-07-28"), 'M', "Heidi", "R1234567", user2);
+        Staal staal27 = new Staal(2024000027L, "Sofie", "Dewitte", LocalDate.parse("1996-10-15"), 'V', "Dirk", "R1234567", user1);
+        Staal staal28 = new Staal(2024000028L, "Kobe", "Van Leeuwen", LocalDate.parse("1985-05-01"), 'M', "Veerle", "R1234567", user2);
+        Staal staal29 = new Staal(2024000029L, "Annelies", "D'Haese", LocalDate.parse("1994-09-18"), 'V', "Bert", "R1234567", user1);
+        Staal staal30 = new Staal(2024000030L, "Alexander", "De Backer", LocalDate.parse("1993-06-23"), 'M', "Sabine", "R1234567", user2);
 
         staalRepository.save(staal1);
         staalRepository.save(staal2);
@@ -128,7 +150,26 @@ public class DataLoader implements CommandLineRunner {
         staalRepository.save(staal8);
         staalRepository.save(staal9);
         staalRepository.save(staal10);
-
+        staalRepository.save(staal11);
+        staalRepository.save(staal12);
+        staalRepository.save(staal13);
+        staalRepository.save(staal14);
+        staalRepository.save(staal15);
+        staalRepository.save(staal16);
+        staalRepository.save(staal17);
+        staalRepository.save(staal18);
+        staalRepository.save(staal19);
+        staalRepository.save(staal20);
+        staalRepository.save(staal21);
+        staalRepository.save(staal22);
+        staalRepository.save(staal23);
+        staalRepository.save(staal24);
+        staalRepository.save(staal25);
+        staalRepository.save(staal26);
+        staalRepository.save(staal27);
+        staalRepository.save(staal28);
+        staalRepository.save(staal29);
+        staalRepository.save(staal30);
 
         // aanmaken eenheden
         Eenheid gramPerDeciliter = new Eenheid("gram per deciliter", "g/dl");
@@ -379,7 +420,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Kell +/-", test65));
 
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test66));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test67));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test68));
 
         // Hemostase (citraat)
@@ -390,7 +430,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("man 0-5", test221));
         referentiewaardeRepository.save(new Referentiewaarde("vrouw 0-7", test221));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test222));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test223));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test224));
 
         // Serologie Viraal (serum)
@@ -399,17 +438,6 @@ public class DataLoader implements CommandLineRunner {
 
         // Serologie Bacterieel (serum)
         referentiewaardeRepository.save(new Referentiewaarde("positief >200", test270));
-
-        // Flow cytometrie (EDTA)
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test727));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test728));
-
-        // Genetica
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test729));
-
-        // Metabole aandoeningen
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test730));
-
         // Biochemie - Suikers
         referentiewaardeRepository.save(new Referentiewaarde("70-105", test100));
         referentiewaardeRepository.save(new Referentiewaarde("4-6%", test103));
@@ -457,7 +485,6 @@ public class DataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Alfa-2 globulinen: 7.4-12.6%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Bèta globulinen: 7.5-12.9%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Gamma globulinen: 8-15.8%", test162));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test163));
 
         referentiewaardeRepository.save(new Referentiewaarde("<5", test164)); // CRP
         referentiewaardeRepository.save(new Referentiewaarde("30-100", test210)); // Vit. D3 (25-OH)
