@@ -47,7 +47,7 @@
 		"jwt-decode": "^4.0.0",
 		"postcss": "^8.4.47",
 		"svelte-icons": "^2.1.0",
-		"svelte-multiselect": "^11.0.0-rc.1",
+		"svelte-multiselect": "^11.3.0",
 		"svelte-preprocess": "^6.0.3"
 	}
 }
