@@ -350,7 +350,7 @@ public class PdfGeneratorService {
 
             // afhankelijk van het aantal referentiewaardes, deze samenvoegen en toevoegen aan de tabel
             assert referentiewaardes != null;
-            if (referentiewaardes.isEmpty()) {
+            if (!referentiewaardes.isEmpty()) {
                 // stream voor tussen elke referentiewaarde een '/' te plaatsen
                 String referentieWaarden = referentiewaardes.stream()
                         .map(Referentiewaarde::getWaarde)
