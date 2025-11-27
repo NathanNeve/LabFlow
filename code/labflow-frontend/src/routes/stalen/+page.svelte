@@ -266,7 +266,7 @@
 		<ButtonNieuweStaal label="Nieuwe staal" />
 		<ButtonInstellingen label="Instellingen" />
 	</div>
-	<div class="bg-slate-200 w-full h-full rounded-2xl p-5">
+	<div class="bg-slate-200 w-full h-full rounded-2xl p-5 mb-2">
 		<!-- filteren op code en datum -->
 		<div class="flex mb-5 items-center space-x-5">
 			<!-- Search Code Input -->
@@ -339,7 +339,8 @@
 			</div>
 		{/if}
 
-		<div class="space-y-3">
+		<!-- Lijst van stalen (scroll) -->
+		<div class="space-y-3 overflow-auto h-[calc(100vh-288px)] pr-2">
 			{#each stalen as staal, index}
 				<div class="flex items-center justify-between">
 					<button
