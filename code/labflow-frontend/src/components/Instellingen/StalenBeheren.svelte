@@ -350,7 +350,7 @@
 			{/if}
 			<div class="grid grid-cols-9 space-x-3 bg-white rounded-lg h-20 items-center px-3 shadow-md">
 				<div class="col-span-1">
-					<p class="bg-white rounded-lg h-14 text-lg pl-3 w-full" />
+					<p class="bg-white rounded-lg h-14 text-lg pl-3 w-full"></p>
 				</div>
 				<div class="col-span-1">
 					<input
