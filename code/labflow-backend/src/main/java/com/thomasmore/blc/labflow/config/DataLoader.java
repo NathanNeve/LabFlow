@@ -39,6 +39,12 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        // Avoid re-seeding on every boot (important for persistent DBs)
+        // Seed only when DB is empty.
+        if (userRepository.count() > 0 || rolRepository.count() > 0 || testRepository.count() > 0) {
+            return;
+        }
+
         String admin_password = "USER_ADMIN_PASSWORD";
         String nathan_password = "USER_NATHAN_PASSWORD";
         String cesar_password = "USER_CESAR_PASSWORD";
