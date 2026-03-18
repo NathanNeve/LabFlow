@@ -5,6 +5,7 @@ import com.thomasmore.blc.labflow.repository.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -66,6 +67,12 @@ public class DataLoader implements CommandLineRunner {
             cesarPassword = cesarPw;
         }
 
+        // hashen van de wachtwoorden voor de seed-users
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
+        String adminPasswordHashed = encoder.encode(adminPassword);
+        String nathanPasswordHashed = encoder.encode(nathanPassword);
+        String cesarPasswordHashed = encoder.encode(cesarPassword);
+
 
         // aanmaken rollen
         Rol rol_admin = new Rol("admin");
@@ -75,11 +82,11 @@ public class DataLoader implements CommandLineRunner {
 
 
         // aanmaken users
-        User user0 = new User(adminPassword,
+        User user0 = new User(adminPasswordHashed,
                 "adminlabflow@digitalinnovation.be", "Admin", "DI", rol_admin);
-        User user1 = new User(nathanPassword,
+        User user1 = new User(nathanPasswordHashed,
                 "nathanneve@test.be", "Nathan", "Neve", rol_admin);
-        User user2 = new User(cesarPassword,
+        User user2 = new User(cesarPasswordHashed,
                 "césarvanleuffelen@test.be", "César", "van Leuffelen", rol_student);
         userRepository.save(user0);
         userRepository.save(user1);

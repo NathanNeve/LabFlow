@@ -413,7 +413,7 @@
 							{#if rol === 'admin'}
 								<div class="col-span-1 flex justify-end space-x-2">
 									<!-- Edit Button -->
-									<Modal>
+									<Modal id={`staal-edit-${staal.id}`}>
 										<Trigger>
 											<button
 												type="button"

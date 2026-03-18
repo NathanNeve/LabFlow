@@ -291,14 +291,14 @@
 			<!-- right section -->
 			<div class="w-2/3 flex flex-col justify-between space-y-4">
 				<!-- pdf previewer -->
-				<div class="w-full h-4/5">
-					<iframe
-						src={pdfUrl + '#toolbar=0'}
-						title="pdf label preview"
-						width="100%"
-						class="h-full rounded-xl"
-					/>
-				</div>
+			<div class="w-full h-4/5">
+				<iframe
+					src={pdfUrl + '#toolbar=0'}
+					title="pdf label preview"
+					width="100%"
+					class="h-full rounded-xl"
+				></iframe>
+			</div>
 				<!-- bedienings knoppen -->
 				<div class="w-full h-1/5 bg-slate-200 flex justify-between items-baseline">
 					<!-- left button-->

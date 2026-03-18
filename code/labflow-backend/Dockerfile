@@ -1,27 +1,36 @@
-# Use an OpenJDK 17 base image
-FROM openjdk:17-jdk-slim
+##########
+# Build stage
+##########
+FROM eclipse-temurin:21-jdk AS builder
 
-# Set the working directory inside the container
+WORKDIR /workspace
+
+# Install Maven and copy the project files into the builder image
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+COPY . .
+
+# Build the application JAR and prepare the databases directory
+RUN mvn -q -DskipTests clean package && \
+    cp target/*.jar /workspace/app.jar && \
+    mkdir -p /workspace/databases && \
+    touch /workspace/databases/labflow.db
+
+##########
+# Runtime stage (Distroless Java 21)
+##########
+FROM gcr.io/distroless/java21-debian12
+
 WORKDIR /app
 
-# Copy the project files into the container
-COPY . /app
-
-# Create the databases directory (the SQLite file will be mounted here)
-RUN mkdir -p /app/databases && touch /app/databases/labflow.db
+# Copy the built JAR and pre-created databases directory from the builder stage
+COPY --from=builder /workspace/app.jar /app/app.jar
+COPY --from=builder /workspace/databases /app/databases
 
 # Expose the port that the Spring Boot app will run on
 EXPOSE 8080
 
-# Install Maven for building the project, package the Spring Boot app, and copy the JAR file to a known location
-# Clear the package cache afterwards to reduce the image size
-RUN apt-get update && apt-get install -y maven && \
-    mvn clean package -DskipTests && \
-    cp target/*.jar /app/app.jar && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set up the entrypoint to run the JAR
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-
-# The volume for the SQLite database file (this will be mounted from the host)
+# Volume for the SQLite database file (this will be mounted from the host)
 VOLUME ["/app/databases"]
+
+# Run the application with Java 21 on Distroless
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -578,7 +578,7 @@
 <!-- popup modal voor het ingeven van de laborantgegevens die automatisch opent onmount van de pagina -->
 <!-- loading variabele zorgt ervoor dat de modal pas opent wanneer de data is ingeladen -->
 {#if !loading}
-	<Modal>
+	<Modal id="laborant-modal">
 		<ContentWithoutClose>
 			<h1 class="font-bold text-xl mb-2">laborantgegevens</h1>
 			<div class="flex space-x-4 mb-4">
@@ -612,11 +612,12 @@
 					/>
 				</div>
 			</div>
-			<button type="button" on:click={setLaborant}>
-				<button
-					class="bg-blue-500 text-xl rounded-lg p-3 text-white h-12 w-32 justify-center items-center flex"
-					>Start</button
-				>
+			<button
+				type="button"
+				on:click={setLaborant}
+				class="bg-blue-500 text-xl rounded-lg p-3 text-white h-12 w-32 justify-center items-center flex"
+			>
+				Start
 			</button>
 		</ContentWithoutClose>
 		<AutoTrigger></AutoTrigger>
@@ -753,7 +754,7 @@
 				<!-- knoppen en modals voor aanmaken cat & test -->
 				<div class="flex flex-row justify-end space-x-2 w-1/3">
 					{#if rol === 'admin'}
-						<Modal>
+						<Modal id="categorie-aanmaken-modal">
 							<Content>
 								<h1 class="font-bold text-xl mb-4">Categorie Aanmaken</h1>
 								{#if errorMessageCategorie}
@@ -810,7 +811,7 @@
 							</Trigger>
 						</Modal>
 
-						<Modal>
+						<Modal id="test-aanmaken-modal">
 							<Content>
 								<h1 class="font-bold text-xl mb-4">Test Aanmaken</h1>
 								{#if errorMessageTest}
