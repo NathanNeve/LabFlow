@@ -25,18 +25,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.18.0'
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node
+          node-version: '24'
+
       - name: Install frontend dependencies
-        working-directory: ./
-        run: npm install
+        working-directory: code/labflow-frontend
+        run: npm install --engine-strict=false
+
       - name: Build and analyze frontend (Svelte)
-        working-directory: ./
+        working-directory: code/labflow-frontend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: npm run sonar
