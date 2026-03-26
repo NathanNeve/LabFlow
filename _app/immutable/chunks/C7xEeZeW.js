@@ -1,0 +1,1 @@
+import{_ as r}from"./CwM44ZLy.js";function n(t,i){let e;typeof window<"u"&&(e=sessionStorage.getItem(t));const o=r(e?JSON.parse(e):i);return typeof window<"u"&&o.subscribe(s=>{s!==void 0&&sessionStorage.setItem(t,JSON.stringify(s))}),o}const d=n("staalCode","defaultCode");export{d as s};

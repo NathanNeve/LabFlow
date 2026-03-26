@@ -1,0 +1,1 @@
+import{a6 as a,a1 as l,$ as t,a7 as u,Q as e}from"./CwM44ZLy.js";function c(n){t===null&&a(),u&&t.l!==null?s(t).m.push(n):l(()=>{const o=e(n);if(typeof o=="function")return o})}function i(n){t===null&&a(),c(()=>()=>e(n))}function s(n){var o=n.l;return o.u??={a:[],b:[],m:[]}}export{i as a,c as o};
