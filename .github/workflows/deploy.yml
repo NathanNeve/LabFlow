@@ -26,7 +26,7 @@ jobs:
         working-directory: code/labflow-frontend
         run: npm run build
         env:
-          BASE_PATH: "/"
+          BASE_PATH: "/LabFlow"
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
