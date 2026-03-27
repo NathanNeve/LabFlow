@@ -4,12 +4,13 @@
 	"private": true,
 	"type": "module",
 	"engines": {
-		"node": ">=20.19.0"
+		"node": ">=20.19.0 <23"
 	},
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build": "svelte-kit sync && vite build",
 		"preview": "vite preview",
+		"postinstall": "svelte-kit sync",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
