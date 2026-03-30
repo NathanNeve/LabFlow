@@ -41,7 +41,7 @@
 	  "autoprefixer": "^10.4.20",
 	  "dotenv": "^16.4.7",
 	  "dotenv-cli": "^8.0.0",
-	  "jsprintmanager": "^7.0.2",
+	  "jsprintmanager": "8.0.0",
 	  "jwt-decode": "^4.0.0",
 	  "postcss": "^8.4.47",
 	  "svelte-awesome-color-picker": "^4.0.0",
