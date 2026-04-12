@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/pdf")
 public class PdfGeneratorController {
@@ -28,18 +30,21 @@ public class PdfGeneratorController {
 
     @GetMapping("/generatelabel/{id}")
     public ResponseEntity<byte[]> generateLabelPdf(@PathVariable Long id) {
+        Optional<Staal> staalOpt = staalService.readById(id);
 
-        Staal staal = staalService.readById(id);
+        if (staalOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Staal staal = staalOpt.get();
         byte[] pdfBytes;
 
-        // probeer genereren van pdf
         try {
             pdfBytes = pdfGeneratorService.generateLabelPdf(staal);
         } catch (DocumentException e) {
             return ResponseEntity.internalServerError().build();
         }
 
-        // maak header voor http voor api
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("inline", "label.pdf");
@@ -51,7 +56,12 @@ public class PdfGeneratorController {
     @GetMapping("/generateresults/{id}")
     public ResponseEntity<byte[]> generateResultsPdf(@PathVariable Long id) {
 
-        Staal staal = staalService.readById(id);
+        Optional<Staal> staalOpt = staalService.readById(id);
+        if (staalOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Staal staal = staalOpt.get();
         byte[] pdfBytes;
 
         // probeer genereren van pdf

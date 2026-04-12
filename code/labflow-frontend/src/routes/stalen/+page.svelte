@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
 	import { fetchStalen, fetchStatussen } from '$lib/fetchFunctions';
-	import { getCookie } from '$lib/globalFunctions';
 	import { id } from '../../components/Modal/store';
 
 	// @ts-ignore
@@ -22,11 +21,13 @@
 	import Modal from '../../components/Modal/Modal.svelte';
 	import Trigger from '../../components/Modal/Trigger.svelte';
 	import Content from '../../components/Modal/Content.svelte';
+	import { getCookie } from '$lib/globalFunctions';
 	import { staalCodeStore } from '$lib/store';
 	import { goto } from '$app/navigation';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 	// types
 	import type { Staal } from '$lib/types/dbTypes';
+	import type { StalenSearchParams } from '$lib/types/searchTypes';
 
 	let openModalTestId: number | null = null;
 
@@ -39,14 +40,17 @@
 		pointerEvent = 'pointer-events-none';
 	}
 
-	// fetchen van stalen
 	let stalen: Staal[] = [];
-	let stalenSorted: Staal[] = [];
 	let statussen: string[] = [];
 	let searchCode = '';
 	let searchDate = '';
+	let filteredStatus = '';
+	let page = 0;
+	let totalPages = 0;
+	let totalElements = 0;
+	let isLoading = false;
 
-	let token: string = '';
+	const token = getCookie('authToken') ?? '';
 
 	let editStaalError = {
 		staalCode: false,
@@ -75,68 +79,84 @@
 		editStaalErrorMessage = '';
 	}
 
-	onMount(async () => {
-		token = getCookie('authToken') || '';
-		const result = await fetchStalen();
-		if (result) {
-			stalen = result.stalen;
-			stalenSorted = result.stalen;
-			statussen = await fetchStatussen();
-		}
-	});
-
-	// Function om te filteren op staalcode en datum
-	function filterStalen() {
-		stalenSorted = stalen.filter((staal) => {
-			const codeMatch =
-				staal.staalCode.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.patientAchternaam.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.patientVoornaam.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.patientGeboorteDatum.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.laborantNaam.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.laborantRnummer.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				staal.aanmaakDatum.toString().toLowerCase().includes(searchCode.toLowerCase());
-			// Converteren searchdate en aanmaakdatum naar een datumobject
-			const searchDateObject = new Date(searchDate);
-			const aanmaakDatumObject = new Date(staal.aanmaakDatum);
-
-			const isValidDate = !isNaN(searchDateObject.getTime());
-
-			// Date match: vergelijken van de datums, alleen als de searchDate een geldige datum is
-			const dateMatch = isValidDate
-				? searchDateObject.toDateString() === aanmaakDatumObject.toDateString()
-				: true;
-
-			return codeMatch && dateMatch;
-		});
+	// functie om de datum te formatteren naar dd/mm/yyyy
+	function formatDateToDDMMYYYY(dateStr: string): string {
+		if (!dateStr) return '';
+		const date = new Date(dateStr);
+		const day = String(date.getDate()).padStart(2, '0');
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const year = date.getFullYear();
+		return `${day}/${month}/${year}`;
 	}
 
-	// Functie om te filteren op status
-	let filteredStatus = '';
-
-	function filterStatus() {
-		// Make sure filteredStatus is in uppercase for a consistent comparison
-		const normalizedFilteredStatus = filteredStatus.toUpperCase();
-
-		stalenSorted = stalen.filter((staal) => {
-			// Ensure staal.status is in uppercase as well
-			const normalizedStaalStatus = staal.status.toUpperCase();
-
-			// Compare the statuses directly
-			return normalizedStaalStatus === normalizedFilteredStatus;
-		});
+	// Backend verwacht YYYY-MM-DD format (ISO date)
+	function formatDateForBackend(dateStr: string): string {
+		if (!dateStr) return '';
+		return dateStr;
 	}
 
 	function verwijderZoek() {
 		searchCode = '';
-		stalenSorted = stalen;
+		loadStalen();
 	}
 
 	function deleteFilters() {
 		searchCode = '';
 		searchDate = '';
 		filteredStatus = '';
-		filterStalen();
+		page = 0;
+		loadStalen();
+	}
+
+	// Apply filters - triggert een backend call
+	function applyFilters() {
+		page = 0; // Reset naar de eerste pagina wanneer filters worden toegepast
+		loadStalen();
+	}
+
+	async function loadStalen() {
+		isLoading = true;
+		try {
+			const searchParams: StalenSearchParams = {};
+
+			if (searchCode.trim()) {
+				searchParams.searchCode = searchCode.trim();
+			}
+			if (searchDate) {
+				searchParams.searchDate = formatDateForBackend(searchDate);
+			}
+			if (filteredStatus) {
+				searchParams.filteredStatus = filteredStatus;
+			}
+
+			const data = await fetchStalen(page, 25, searchParams);
+			if (data) {
+				stalen = data.stalen;
+				totalPages = data.totalPages;
+				totalElements = data.totalElements;
+			}
+		} catch (error) {
+			console.error('Error loading stalen:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Event handlers for form inputs with debouncing
+	let searchTimeout: ReturnType<typeof setTimeout>;
+	function handleSearchInput() {
+		clearTimeout(searchTimeout);
+		searchTimeout = setTimeout(() => {
+			applyFilters();
+		}, 500); // 500ms debounce
+	}
+
+	function handleDateChange() {
+		applyFilters();
+	}
+
+	function handleStatusChange() {
+		applyFilters();
 	}
 
 	// set store
@@ -166,13 +186,10 @@
 					Authorization: 'Bearer ' + token
 				}
 			});
+			// reload na verwijderen
+			await loadStalen();
 		} catch (error) {
 			console.error('Staal kon niet worden verwijderd: ', error);
-		}
-		const result = await fetchStalen();
-		if (result) {
-			stalen = result.stalen;
-			stalenSorted = result.stalen;
 		}
 	}
 
@@ -257,13 +274,72 @@
 			if (data === 409) {
 				editStaalErrorMessage = 'De staalcode bestaat al.';
 			} else {
-				return ($id = null);
+				$id = null;
+				// Reload current page after edit
+				await loadStalen();
 			}
 		} catch (error) {
 			console.error('Staal kon niet worden aangepast: ', error);
 			return;
 		}
 	}
+
+	// functies voor paginering
+	function nextPage() {
+		if (page < totalPages - 1) {
+			page++;
+			loadStalen();
+		}
+	}
+
+	function prevPage() {
+		if (page > 0) {
+			page--;
+			loadStalen();
+		}
+	}
+
+	function goToPage(targetPage: number) {
+		if (targetPage >= 0 && targetPage < totalPages) {
+			page = targetPage;
+			loadStalen();
+		}
+	}
+
+	// Aantal pagina's berekenen
+	function getVisiblePages() {
+		const delta = 2; // toon 2 pagina's voor en na de huidige pagina
+		const range = [];
+		const rangeWithDots = [];
+
+		for (let i = Math.max(2, page - delta); i <= Math.min(totalPages - 1, page + delta); i++) {
+			range.push(i);
+		}
+
+		if (page - delta > 2) {
+			rangeWithDots.push(1, '...');
+		} else {
+			rangeWithDots.push(1);
+		}
+
+		rangeWithDots.push(...range);
+
+		if (page + delta < totalPages - 1) {
+			rangeWithDots.push('...', totalPages);
+		} else if (totalPages > 1) {
+			rangeWithDots.push(totalPages);
+		}
+
+		return rangeWithDots.filter((v, i, arr) => arr.indexOf(v) === i); // Verwijder dubbele waarden
+	}
+
+	// Initiele load van data, haalt statussen en stalen op
+	async function load() {
+		statussen = await fetchStatussen();
+		await loadStalen();
+	}
+
+	onMount(load);
 </script>
 
 <Nav />
@@ -290,7 +366,7 @@
 			<p class="text-white text-2xl text-center mt-2">Instellingen</p>
 		</a>
 	</div>
-	<div class="bg-slate-200 w-full h-full rounded-2xl p-5">
+	<div class="bg-slate-200 w-full h-full rounded-2xl p-5 mb-2">
 		<!-- filteren op code en datum -->
 		<div class="flex mb-5 items-center space-x-5">
 			<!-- Search Code Input -->
@@ -301,7 +377,7 @@
 					name="searchCode"
 					placeholder="Zoeken"
 					bind:value={searchCode}
-					on:input={filterStalen}
+					on:input={handleSearchInput}
 					class="h-14 rounded-l-lg text-black pl-3 flex-grow border border-gray-300"
 				/>
 				<button
@@ -318,10 +394,10 @@
 					id="searchStatus"
 					name="searchStatus"
 					bind:value={filteredStatus}
-					on:change={filterStatus}
+					on:change={handleStatusChange}
 					class="w-full h-14 rounded-lg text-black px-3 border border-gray-300"
 				>
-					<option value="" disabled>Status</option>
+					<option value="">Alle statussen</option>
 					{#each statussen as status}
 						<option value={status}>{status.toLowerCase()}</option>
 					{/each}
@@ -341,7 +417,7 @@
 					id="searchDate"
 					name="searchDate"
 					bind:value={searchDate}
-					on:input={filterStalen}
+					on:change={handleDateChange}
 					class="flex-grow h-14 rounded-r-lg text-black px-3 border border-gray-300"
 				/>
 			</div>
@@ -356,8 +432,16 @@
 			</button>
 		</div>
 
-		<div class="space-y-3">
-			{#each stalenSorted as staal, index}
+		<!-- Loading indicator -->
+		{#if isLoading}
+			<div class="flex justify-center items-center h-32">
+				<div class="text-gray-600 text-lg">Laden...</div>
+			</div>
+		{/if}
+
+		<!-- Lijst van stalen (scroll) -->
+		<div class="space-y-3 overflow-auto h-[calc(100vh-288px)] pr-2">
+			{#each stalen as staal, index}
 				<div class="flex items-center justify-between">
 					<button
 						type="button"
@@ -383,7 +467,7 @@
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Aanmaakdatum</p>
-							<p>{new Date(staal?.aanmaakDatum).toLocaleDateString() || ''}</p>
+							<p>{formatDateToDDMMYYYY(staal?.aanmaakDatum)}</p>
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Naam</p>
@@ -399,7 +483,7 @@
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Geboortedatum</p>
-							<p>{new Date(staal?.patientGeboorteDatum).toLocaleDateString() || ''}</p>
+							<p>{formatDateToDDMMYYYY(staal?.patientGeboorteDatum)}</p>
 						</div>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400 font-bold">Laborant</p>
@@ -481,7 +565,7 @@
 															>
 																<input
 																	type="radio"
-																	name="radio"
+																	name="radio-{staal.id}"
 																	bind:group={staal.patientGeslacht}
 																	value="M"
 																/>
@@ -494,7 +578,7 @@
 															>
 																<input
 																	type="radio"
-																	name="radio"
+																	name="radio-{staal.id}"
 																	bind:group={staal.patientGeslacht}
 																	value="V"
 																/>
@@ -558,7 +642,7 @@
 										<button
 											type="button"
 											on:click={() => {
-												stalenSorted.forEach((s, i) => {
+												stalen.forEach((s, i) => {
 													if (i !== index) s.confirmDelete = false;
 												});
 												staal.confirmDelete = true;
@@ -575,5 +659,59 @@
 				</div>
 			{/each}
 		</div>
+
+		<!-- Show message when no results -->
+		{#if !isLoading && stalen.length === 0}
+			<div class="flex justify-center items-center h-32">
+				<div class="text-gray-600 text-lg">Geen stalen gevonden</div>
+			</div>
+		{/if}
+
+		<!-- Pagination -->
+		<div class="mt-4 flex items-center justify-center space-x-1">
+			<!-- Vorige -->
+			<button
+				on:click={prevPage}
+				disabled={page === 0 || isLoading}
+				class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+			>
+				« Vorige
+			</button>
+
+			<!-- Pagina nummers -->
+			{#if totalPages > 0}
+				{#each getVisiblePages() as pageNum}
+					{#if pageNum === '...'}
+						<span class="px-3 py-2 text-gray-500">...</span>
+					{:else}
+						<button
+							on:click={() => typeof pageNum === 'number' && goToPage(pageNum - 1)}
+							disabled={isLoading}
+							class="px-3 py-2 rounded {typeof pageNum === 'number' && page === pageNum - 1
+								? 'bg-blue-500 text-white'
+								: 'bg-gray-200 text-gray-700 hover:bg-gray-300'} disabled:opacity-50 disabled:cursor-not-allowed"
+						>
+							{pageNum}
+						</button>
+					{/if}
+				{/each}
+			{/if}
+
+			<!-- Volgende -->
+			<button
+				on:click={nextPage}
+				disabled={page >= totalPages - 1 || isLoading}
+				class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+			>
+				Volgende »
+			</button>
+		</div>
+
+		<!-- Results info -->
+		{#if totalElements > 0}
+			<div class="mt-2 text-center text-gray-600 text-sm">
+				Pagina {page + 1} van {totalPages} - {totalElements} resultaten
+			</div>
+		{/if}
 	</div>
 </div>
