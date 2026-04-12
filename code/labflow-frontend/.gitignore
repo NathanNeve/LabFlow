@@ -1,9 +1,12 @@
-node_modules
+node_modules/
 
 # Output
 .output
 .vercel
-/.svelte-kit
+.netlify/
+.svelte-kit/
+build/
+dist/
 
 # OS
 .DS_Store
@@ -14,9 +17,16 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+!.env.test.*
 
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 .scannerwork
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

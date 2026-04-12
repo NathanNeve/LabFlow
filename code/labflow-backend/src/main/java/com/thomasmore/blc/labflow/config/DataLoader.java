@@ -6,6 +6,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -42,7 +43,11 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
+        // Avoid re-seeding on every boot (important for persistent DBs)
+        // Seed only when DB is empty.
+        if (userRepository.count() > 0 || rolRepository.count() > 0 || testRepository.count() > 0) {
+            return;
+        }
 
         String admin_password = "USER_ADMIN_PASSWORD";
         String nathan_password = "USER_NATHAN_PASSWORD";
@@ -71,6 +76,12 @@ public class DataLoader implements CommandLineRunner {
             cesarPassword = cesarPw;
         }
 
+        // hashen van de wachtwoorden voor de seed-users
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(4);
+        String adminPasswordHashed = encoder.encode(adminPassword);
+        String nathanPasswordHashed = encoder.encode(nathanPassword);
+        String cesarPasswordHashed = encoder.encode(cesarPassword);
+
 
         // aanmaken rollen
         Rol rol_admin = new Rol("admin");
@@ -80,11 +91,11 @@ public class DataLoader implements CommandLineRunner {
 
 
         // aanmaken users
-        User user0 = new User(adminPassword,
+        User user0 = new User(adminPasswordHashed,
                 "adminlabflow@digitalinnovation.be", "Admin", "DI", rol_admin);
-        User user1 = new User(nathanPassword,
+        User user1 = new User(nathanPasswordHashed,
                 "nathanneve@test.be", "Nathan", "Neve", rol_admin);
-        User user2 = new User(cesarPassword,
+        User user2 = new User(cesarPasswordHashed,
                 "césarvanleuffelen@test.be", "César", "van Leuffelen", rol_student);
         userRepository.save(user0);
         userRepository.save(user1);

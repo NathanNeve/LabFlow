@@ -74,7 +74,10 @@ public class SecurityConfig {
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:5173",
-                "https://2425-tm-blc-001-labflow.pages.dev"
+                "https://2425-tm-blc-001-labflow.pages.dev",
+                "http://localhost:4173",
+                "https://labflow.testspot.eu",
+                "https://labflow-os.vercel.app/"
         ));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");

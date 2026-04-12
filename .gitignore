@@ -4,3 +4,6 @@
 
 # Ignore IDE workspace files
 workspace.xml
+
+# Ignore my a todo list i made
+todo-v2.md
