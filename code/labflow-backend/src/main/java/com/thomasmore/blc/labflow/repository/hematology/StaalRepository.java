@@ -1,13 +1,12 @@
-package com.thomasmore.blc.labflow.repository;
+package com.thomasmore.blc.labflow.repository.hematology;
 
-import com.thomasmore.blc.labflow.entity.Staal;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface StaalRepository extends JpaRepository<Staal, Long>, JpaSpecificationExecutor<Staal> {

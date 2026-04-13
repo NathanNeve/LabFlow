@@ -16,6 +16,7 @@
 	import FaCloudDownloadAlt from 'svelte-icons/fa/FaCloudDownloadAlt.svelte';
 
 	import { staalCodeStore } from '$lib/store';
+	import { get } from 'svelte/store';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
@@ -39,27 +40,37 @@
 	let status: boolean = false;
 	let allDone: boolean = false;
 
+	function authToken(): string {
+		return getCookie('authToken') || '';
+	}
+
 	// alle tests categorieën ophalen die bij de testen horen
 	async function loadData() {
-		if (token != null) {
-			try {
-				staal = await fetchAll(token, `staal/${sampleCode}`);
-				// assign id to staalId
-				staalId = staal.id;
-				// Extract unique test categories
-				extractUniqueTestCategories(staal.registeredTests);
-				// put all tests assigned to a 'staal' in the tests array
-				tests = staal.registeredTests;
-
-				// check completion status after loading data
-				checkAllDoneForCategory(selectedCategory.id);
-				checkAllTestsDone();
-			} catch (error) {
-				console.error('data kon niet gefetched worden:', error);
-			}
-		} else {
+		token = authToken();
+		if (!token) {
 			console.error('jwt error');
 			goto('/login');
+			return;
+		}
+		const codeRaw = get(staalCodeStore);
+		const code =
+			codeRaw !== undefined && codeRaw !== null ? String(codeRaw).trim() : '';
+		if (!code || code === 'undefined' || code === 'null') {
+			console.error('Geen geldige staalcode in sessie.');
+			goto('/stalen');
+			return;
+		}
+		try {
+			staal = await fetchAll(token, `staal/${encodeURIComponent(code)}`);
+			staalId = staal.id;
+			extractUniqueTestCategories(staal.registeredTests);
+			tests = staal.registeredTests;
+
+			checkAllDoneForCategory(selectedCategory.id);
+			checkAllTestsDone();
+		} catch (error) {
+			console.error('data kon niet gefetched worden:', error);
+			goto('/stalen');
 		}
 	}
 
@@ -223,7 +234,6 @@
 	}
 
 	onMount(() => {
-		token = getCookie('authToken') || '';
 		staalCodeStore.subscribe((value) => {
 			sampleCode = value;
 		});
@@ -233,15 +243,13 @@
 
 	// aanpassen status van staal naar KLAAR
 	async function setStatusStaal() {
-		let sampleCode: string | undefined;
-		staalCodeStore.subscribe((value) => {
-			sampleCode = value;
-		});
+		const code = String(get(staalCodeStore) ?? '').trim();
+		if (!code) return;
 
-		await fetch(`${backend_path}/api/updatestaalstatus/KLAAR/${sampleCode}`, {
+		await fetch(`${backend_path}/api/updatestaalstatus/KLAAR/${encodeURIComponent(code)}`, {
 			method: 'PATCH',
 			headers: {
-				Authorization: `Bearer ${token}`
+				Authorization: `Bearer ${authToken()}`
 			}
 		});
 	}
@@ -252,7 +260,7 @@
 			const response = await fetch(`${backend_path}/api/pdf/generateresults/${staalId}`, {
 				method: 'GET',
 				headers: {
-					Authorization: `Bearer ${token}`
+					Authorization: `Bearer ${authToken()}`
 				}
 			});
 

@@ -1,14 +1,15 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.Staal;
-import com.thomasmore.blc.labflow.entity.StaalTest;
-import com.thomasmore.blc.labflow.entity.Test;
-import com.thomasmore.blc.labflow.entity.Testcategorie;
-import com.thomasmore.blc.labflow.repository.StaalRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
+import com.thomasmore.blc.labflow.entity.hematology.Test;
+import com.thomasmore.blc.labflow.entity.hematology.Testcategorie;
+import com.thomasmore.blc.labflow.repository.hematology.StaalRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 * */
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class PrinterService {
     @Autowired
     private StaalRepository staalRepository;

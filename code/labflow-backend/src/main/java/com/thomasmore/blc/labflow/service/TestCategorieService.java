@@ -1,18 +1,20 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.Testcategorie;
-import com.thomasmore.blc.labflow.repository.TestCategorieRepository;
-import com.thomasmore.blc.labflow.repository.TestRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Testcategorie;
+import com.thomasmore.blc.labflow.repository.hematology.TestCategorieRepository;
+import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class TestCategorieService {
     @Autowired
     private TestCategorieRepository testCategorieRepository;

@@ -1,6 +1,6 @@
 package com.thomasmore.blc.labflow.controller;
 
-import com.thomasmore.blc.labflow.entity.Eenheid;
+import com.thomasmore.blc.labflow.entity.hematology.Eenheid;
 import com.thomasmore.blc.labflow.service.EenheidService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

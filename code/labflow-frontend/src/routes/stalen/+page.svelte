@@ -50,8 +50,6 @@
 	let totalElements = 0;
 	let isLoading = false;
 
-	const token = getCookie('authToken') ?? '';
-
 	let editStaalError = {
 		staalCode: false,
 		patientVoornaam: false,
@@ -183,7 +181,7 @@
 			await fetch(`${backend_path}/api/deletestaal/${id}`, {
 				method: 'DELETE',
 				headers: {
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + (getCookie('authToken') ?? '')
 				}
 			});
 			// reload na verwijderen
@@ -255,7 +253,7 @@
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + (getCookie('authToken') ?? '')
 				},
 				body: JSON.stringify({
 					staalCode: staal.staalCode,

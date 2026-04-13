@@ -1,4 +1,4 @@
-package com.thomasmore.blc.labflow.entity;
+package com.thomasmore.blc.labflow.entity.auth;
 
 import jakarta.persistence.*;
 import org.springframework.lang.Nullable;

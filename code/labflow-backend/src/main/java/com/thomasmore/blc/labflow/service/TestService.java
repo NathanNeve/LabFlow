@@ -1,19 +1,21 @@
 package com.thomasmore.blc.labflow.service;
 
 import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
-import com.thomasmore.blc.labflow.entity.Referentiewaarde;
-import com.thomasmore.blc.labflow.entity.Test;
-import com.thomasmore.blc.labflow.repository.ReferentiewaardeRepository;
-import com.thomasmore.blc.labflow.repository.TestRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Referentiewaarde;
+import com.thomasmore.blc.labflow.entity.hematology.Test;
+import com.thomasmore.blc.labflow.repository.hematology.ReferentiewaardeRepository;
+import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class TestService {
     @Autowired
     private TestRepository testRepository;

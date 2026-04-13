@@ -1,4 +1,4 @@
-package com.thomasmore.blc.labflow.entity;
+package com.thomasmore.blc.labflow.entity.hematology;
 
 import jakarta.persistence.*;
 

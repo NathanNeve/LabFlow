@@ -1,6 +1,6 @@
-package com.thomasmore.blc.labflow.repository;
+package com.thomasmore.blc.labflow.repository.hematology;
 
-import com.thomasmore.blc.labflow.entity.Test;
+import com.thomasmore.blc.labflow.entity.hematology.Test;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,9 @@
-package com.thomasmore.blc.labflow.entity;
+package com.thomasmore.blc.labflow.entity.hematology;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -29,10 +32,10 @@ public class Staal {
 
     private Date aanmaakDatum;
 
-    // foreign key naar de usertabel
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    /** Auth user id (stored in hematology DB; no cross-database FK). */
+    @JsonIgnore
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @OneToMany(mappedBy = "staal", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true)
     @JsonManagedReference
@@ -53,7 +56,7 @@ public class Staal {
 
     // constructor voor het registreren van een staal zonder tests
     public Staal(Long staalCode, String patientVoornaam, String patientAchternaam, LocalDate patientGeboorteDatum,
-                 char patientGeslacht, String laborantNaam, String laborantRnummer, User user) {
+                 char patientGeslacht, String laborantNaam, String laborantRnummer, Long userId) {
         this.staalCode = staalCode;
         this.patientVoornaam = patientVoornaam;
         this.patientAchternaam = patientAchternaam;
@@ -61,14 +64,14 @@ public class Staal {
         this.patientGeslacht = patientGeslacht;
         this.laborantNaam = laborantNaam;
         this.laborantRnummer = laborantRnummer;
-        this.user = user;
+        this.userId = userId;
         this.aanmaakDatum = new Date();
         this.status = Status.AANGEMAAKT;
     }
 
     // constructor voor het registreren van een staal met tests
     public Staal(Long staalCode, String patientVoornaam, String patientAchternaam, LocalDate patientGeboorteDatum,
-                 char patientGeslacht, String laborantNaam, String laborantRnummer, User user,
+                 char patientGeslacht, String laborantNaam, String laborantRnummer, Long userId,
                  List<StaalTest> registeredTests) {
         this.staalCode = staalCode;
         this.patientVoornaam = patientVoornaam;
@@ -77,10 +80,28 @@ public class Staal {
         this.patientGeslacht = patientGeslacht;
         this.laborantNaam = laborantNaam;
         this.laborantRnummer = laborantRnummer;
-        this.user = user;
+        this.userId = userId;
         this.setRegisteredTests(registeredTests); // Use setter to ensure proper association
         this.aanmaakDatum = new Date();
         this.status = Status.AANGEMAAKT;
+    }
+
+    @JsonGetter("user")
+    public Map<String, Long> getUserRefForJson() {
+        return userId == null ? null : Collections.singletonMap("id", userId);
+    }
+
+    @JsonSetter("user")
+    public void setUserFromJson(Map<String, Object> user) {
+        if (user == null || user.get("id") == null) {
+            return;
+        }
+        Object idObj = user.get("id");
+        if (idObj instanceof Number n) {
+            this.userId = n.longValue();
+        } else if (idObj instanceof String s && !s.isBlank()) {
+            this.userId = Long.parseLong(s);
+        }
     }
 
     // getters en setters
@@ -156,12 +177,12 @@ public class Staal {
         this.aanmaakDatum = aanmaakDatum;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public List<StaalTest> getRegisteredTests() {

@@ -1,14 +1,14 @@
 package com.thomasmore.blc.labflow.service;
 
 import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
-import com.thomasmore.blc.labflow.entity.Staal;
-import com.thomasmore.blc.labflow.entity.StaalTest;
-import com.thomasmore.blc.labflow.entity.Test;
-import com.thomasmore.blc.labflow.entity.User;
-import com.thomasmore.blc.labflow.repository.StaalRepository;
-import com.thomasmore.blc.labflow.repository.TestRepository;
-import com.thomasmore.blc.labflow.repository.UserRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
+import com.thomasmore.blc.labflow.entity.hematology.Test;
+import com.thomasmore.blc.labflow.repository.hematology.StaalRepository;
+import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
+import com.thomasmore.blc.labflow.repository.auth.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Hibernate;
 import jakarta.persistence.criteria.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class StaalService {
     @Autowired
     private StaalRepository staalRepository;
@@ -39,6 +41,9 @@ public class StaalService {
 
     // Create
     public void createStaal(Staal staal) {
+        if (staal.getUserId() == null || !userRepository.existsById(staal.getUserId())) {
+            throw new IllegalArgumentException("Invalid or missing user id for staal");
+        }
         // lopen door elke test
         if (staalRepository.findByStaalCode(staal.getStaalCode()) == null) {
             for (StaalTest registeredTest : staal.getRegisteredTests()) {
@@ -56,7 +61,9 @@ public class StaalService {
 
     // Read all
     public List<Staal> read() {
-        return staalRepository.findAllByOrderByStaalCodeDesc();
+        List<Staal> list = staalRepository.findAllByOrderByStaalCodeDesc();
+        list.forEach(this::initializeStaalForJson);
+        return list;
     }
 
     // Read Paginated Stalen
@@ -110,20 +117,44 @@ public class StaalService {
             }
         }
 
-        return staalRepository.findAll(spec, pageable);
+        Page<Staal> staalPage = staalRepository.findAll(spec, pageable);
+        staalPage.getContent().forEach(this::initializeStaalForJson);
+        return staalPage;
+    }
+
+    /**
+     * Load associations needed for JSON while the hematology persistence context is still open
+     * (transaction ends when the service method returns, before Spring MVC serializes the body).
+     */
+    private void initializeStaalForJson(Staal staal) {
+        if (staal == null) {
+            return;
+        }
+        Hibernate.initialize(staal.getRegisteredTests());
+        for (StaalTest row : staal.getRegisteredTests()) {
+            Test test = row.getTest();
+            if (test != null) {
+                Hibernate.initialize(test);
+                Hibernate.initialize(test.getEenheid());
+                Hibernate.initialize(test.getTestcategorie());
+                Hibernate.initialize(test.getReferentiewaardes());
+            }
+        }
     }
 
     // Update
     public ResponseEntity<Staal> update(Long id, Staal staal) {
         Staal existingStaal = staalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + id));
-        User user = userRepository.findById(staal.getUser().getId());
+        if (staal.getUserId() == null || !userRepository.existsById(staal.getUserId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         if (existingStaal != null) {
 
             // Update the fields
             existingStaal.setStaalCode(staal.getStaalCode());
             existingStaal.setLaborantNaam(staal.getLaborantNaam());
-            existingStaal.setUser(user);
+            existingStaal.setUserId(staal.getUserId());
             existingStaal.setLaborantRnummer(staal.getLaborantRnummer());
             existingStaal.setPatientAchternaam(staal.getPatientAchternaam());
             existingStaal.setPatientVoornaam(staal.getPatientVoornaam());
@@ -145,6 +176,7 @@ public class StaalService {
 
             // Save the updated Staal entity, along with the StaalTest associations
             Staal updatedStaal = staalRepository.save(existingStaal);
+            initializeStaalForJson(updatedStaal);
             return new ResponseEntity<>(updatedStaal, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return NOT_FOUND if the Staal entity doesn't exist
@@ -165,12 +197,17 @@ public class StaalService {
 
     // Get by id
     public Optional<Staal> readById(Long id) {
-        return staalRepository.findById(id);
+        return staalRepository.findById(id).map(staal -> {
+            initializeStaalForJson(staal);
+            return staal;
+        });
     }
 
     // Get staal by staalcode
     public Staal readByStaalCode(Long staalCode) {
-        return staalRepository.findByStaalCode(staalCode);
+        Staal staal = staalRepository.findByStaalCode(staalCode);
+        initializeStaalForJson(staal);
+        return staal;
     }
 
     // increment van de grootste testcode voor aanmaken nieuwe test
@@ -201,6 +238,7 @@ public class StaalService {
             Staal.Status newStatus = Staal.Status.valueOf(status.toUpperCase());
             toPatchStaal.setStatus(newStatus);
             staalRepository.save(toPatchStaal);
+            initializeStaalForJson(toPatchStaal);
             return new ResponseEntity<>(toPatchStaal, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

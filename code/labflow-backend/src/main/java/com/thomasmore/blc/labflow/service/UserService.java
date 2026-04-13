@@ -1,8 +1,6 @@
 package com.thomasmore.blc.labflow.service;
-
-import com.thomasmore.blc.labflow.entity.Test;
-import com.thomasmore.blc.labflow.entity.User;
-import com.thomasmore.blc.labflow.repository.UserRepository;
+import com.thomasmore.blc.labflow.entity.auth.User;
+import com.thomasmore.blc.labflow.repository.auth.UserRepository;
 // transactional zorgt ervoor dat een methode met meerdere database interacties volgens het ACID principe werkt
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,10 +11,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional("authTransactionManager")
 public class UserService {
 
     @Autowired
@@ -63,7 +64,7 @@ public class UserService {
 
     // delete
     public ResponseEntity<Integer> delete(Long id) {
-        User deleteUser = userRepository.findById(id);
+        User deleteUser = userRepository.findById(id).orElse(null);
         if (deleteUser != null) {
             userRepository.delete(deleteUser);
             return new ResponseEntity<>(userRepository.findAll().size(), HttpStatus.OK);
@@ -73,7 +74,7 @@ public class UserService {
 
     // update
     public ResponseEntity<User> update(Long id, User user) {
-        User updateUser = userRepository.findById(id);
+        User updateUser = userRepository.findById(id).orElse(null);
         if (updateUser != null) {
             updateUser.setEmail(user.getEmail());
             updateUser.setRol(user.getRol());
@@ -88,7 +89,7 @@ public class UserService {
 
     // update without password
     public ResponseEntity<User> updateWithoutPassword(Long id, User user) {
-        User updateUser = userRepository.findById(id);
+        User updateUser = userRepository.findById(id).orElse(null);
         if (updateUser != null) {
             updateUser.setEmail(user.getEmail());
             updateUser.setRol(user.getRol());

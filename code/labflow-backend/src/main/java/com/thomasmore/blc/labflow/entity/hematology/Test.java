@@ -1,7 +1,7 @@
-package com.thomasmore.blc.labflow.entity;
+package com.thomasmore.blc.labflow.entity.hematology;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.lang.Nullable;
 
@@ -37,7 +37,8 @@ public class Test {
 
     @Nullable
     @OneToMany(mappedBy = "test", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    /** Lazy collection; never serialize in JSON (session closed before MVC writes the body). */
+    @JsonIgnore
     private Set<Referentiewaarde> referentiewaardes;
 
     // lege constructor

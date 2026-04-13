@@ -6,23 +6,23 @@
 	import FaSave from 'svelte-icons/fa/FaSave.svelte';
 	import { goto } from '$app/navigation';
 	import { staalCodeStore } from '$lib/store';
+	import { get } from 'svelte/store';
 	import { getCookie } from '$lib/globalFunctions';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
-	const token = getCookie('authToken') || '';
-
 	async function setStatusStaal() {
-		let sampleCode: string | undefined;
-		staalCodeStore.subscribe((value) => {
-			sampleCode = value;
-		});
+		const code = String(get(staalCodeStore) ?? '').trim();
+		if (!code) return;
 
-		await fetch(`${backend_path}/api/updatestaalstatus/GEREGISTREERD/${sampleCode}`, {
-			method: 'PATCH',
-			headers: {
-				Authorization: `Bearer ${token}`
+		await fetch(
+			`${backend_path}/api/updatestaalstatus/GEREGISTREERD/${encodeURIComponent(code)}`,
+			{
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${getCookie('authToken') || ''}`
+				}
 			}
-		});
+		);
 	}
 </script>
 

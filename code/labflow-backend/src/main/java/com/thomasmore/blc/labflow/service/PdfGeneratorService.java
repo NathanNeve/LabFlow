@@ -3,7 +3,11 @@ package com.thomasmore.blc.labflow.service;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import com.thomasmore.blc.labflow.entity.*;
+import com.thomasmore.blc.labflow.entity.hematology.Referentiewaarde;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
+import com.thomasmore.blc.labflow.entity.hematology.Test;
+import com.thomasmore.blc.labflow.entity.hematology.Testcategorie;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -19,6 +23,17 @@ public class PdfGeneratorService {
     String geboorteString = "Geboorte: ";
     String geslachtString = "Geslacht: ";
     String geenNotitieString = "Geen notitie";
+
+    /** Result/notes for this staal + test without touching {@code Test#stalen} (lazy, not loaded for JSON). */
+    private static Optional<StaalTest> staalTestFor(Staal staal, Test test) {
+        if (staal == null || test == null || test.getId() == null || staal.getRegisteredTests() == null) {
+            return Optional.empty();
+        }
+        Long testId = test.getId();
+        return staal.getRegisteredTests().stream()
+                .filter(st -> st.getTest() != null && testId.equals(st.getTest().getId()))
+                .findFirst();
+    }
 
     public byte[] generateLabelPdf(Staal staal) throws DocumentException {
         Document document = new Document(new Rectangle(210, 140));
@@ -248,12 +263,10 @@ public class PdfGeneratorService {
             nameHeader.setBorder(Rectangle.NO_BORDER);
             dataTable.addCell(nameHeader);
 
-            // ophalen van het resultaat van de test
-            String result = notitie.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
+            // ophalen van het resultaat van de test (via deze staal, niet Test.stalen — lazy buiten sessie)
+            String result = staalTestFor(staal, notitie)
                     .map(StaalTest::getResult)
                     .filter(Objects::nonNull)
-                    .findFirst()
                     .orElse(geenNotitieString);
 
 
@@ -282,11 +295,9 @@ public class PdfGeneratorService {
             dataTable.addCell(categoryHeader);
 
             // ophalen van de nota van de notitie test
-            String note = notitie.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
+            String note = staalTestFor(staal, notitie)
                     .map(StaalTest::getNote)
                     .filter(Objects::nonNull)
-                    .findFirst()
                     .orElse(null);
 
             // als de test een notitie heeft, deze toevoegen aan de tabel
@@ -313,20 +324,16 @@ public class PdfGeneratorService {
             nameHeader.setBorder(Rectangle.NO_BORDER);
             dataTable.addCell(nameHeader);
 
-            // ophalen van het resultaat van de test
-            String result = test.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
+            // ophalen van het resultaat van de test (via deze staal)
+            String result = staalTestFor(staal, test)
                     .map(StaalTest::getResult)
                     .filter(Objects::nonNull)
-                    .findFirst()
                     .orElse("No result");
 
             // ophalen van de nota van de test
-            String note = test.getStalen().stream()
-                    .filter(staalTest -> staalTest.getStaal().getStaalCode().equals(staalCode))
+            String note = staalTestFor(staal, test)
                     .map(StaalTest::getNote)
                     .filter(Objects::nonNull)
-                    .findFirst()
                     .orElse("No note");
 
             // afhankelijk van het resultaat een cell toevoegen
@@ -348,10 +355,7 @@ public class PdfGeneratorService {
             // alle referentiewaardes ophalen die bij test horen
             Set<Referentiewaarde> referentiewaardes = test.getReferentiewaardes();
 
-            // afhankelijk van het aantal referentiewaardes, deze samenvoegen en toevoegen aan de tabel
-            assert referentiewaardes != null;
-            if (referentiewaardes.isEmpty()) {
-                // stream voor tussen elke referentiewaarde een '/' te plaatsen
+            if (referentiewaardes != null && !referentiewaardes.isEmpty()) {
                 String referentieWaarden = referentiewaardes.stream()
                         .map(Referentiewaarde::getWaarde)
                         .collect(Collectors.joining(" / "));

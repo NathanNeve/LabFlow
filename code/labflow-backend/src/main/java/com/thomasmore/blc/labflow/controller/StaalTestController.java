@@ -1,9 +1,8 @@
 package com.thomasmore.blc.labflow.controller;
 
-import com.thomasmore.blc.labflow.entity.StaalTest;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
 import com.thomasmore.blc.labflow.service.StaalTestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

@@ -1,7 +1,7 @@
 package com.thomasmore.blc.labflow.controller;
 
 import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
-import com.thomasmore.blc.labflow.entity.Staal;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
 import com.thomasmore.blc.labflow.service.StaalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

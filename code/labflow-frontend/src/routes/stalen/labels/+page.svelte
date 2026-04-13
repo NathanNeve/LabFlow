@@ -10,6 +10,7 @@
 	// @ts-ignore
 	import FaCloudDownloadAlt from 'svelte-icons/fa/FaCloudDownloadAlt.svelte';
 	import { staalCodeStore } from '$lib/store';
+	import { get } from 'svelte/store';
 	import { onDestroy, onMount } from 'svelte';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
@@ -30,25 +31,37 @@
 	// instantiëren van een leeg staalobject
 	let staal: Staal = createDefaultStaal();
 
-	let staalId: number;
+	let staalId: number | undefined;
 	let testCategories: TestCategorie[] = [];
-	let token: string = getCookie('authToken') || '';
+	let token: string = '';
+
+	function authToken(): string {
+		return getCookie('authToken') || '';
+	}
 
 	// alle tests categorieën ophalen die bij de testen horen
 	async function loadData() {
-		if (token != null) {
-			try {
-				staal = await fetchAll(token, `staal/${sampleCode}`);
-				// assign id to staalId
-				staalId = staal.id;
-				// Extract unique test categories
-				await extractUniqueTestCategories(staal.registeredTests);
-			} catch (error) {
-				console.error('data kon niet gefetched worden:', error);
-			}
-		} else {
+		token = authToken();
+		if (!token) {
 			console.error('jwt error');
 			goto('/login');
+			return;
+		}
+		const codeRaw = get(staalCodeStore);
+		const code =
+			codeRaw !== undefined && codeRaw !== null ? String(codeRaw).trim() : '';
+		if (!code || code === 'undefined' || code === 'null') {
+			console.error('Geen geldige staalcode in sessie voor labels.');
+			goto('/stalen');
+			return;
+		}
+		try {
+			staal = await fetchAll(token, `staal/${encodeURIComponent(code)}`);
+			staalId = staal.id;
+			await extractUniqueTestCategories(staal.registeredTests);
+		} catch (error) {
+			console.error('data kon niet gefetched worden:', error);
+			goto('/stalen');
 		}
 	}
 
@@ -71,15 +84,20 @@
 	let pdfUrl = ''; // URL to display the PDF in the iframe
 
 	async function fetchPdf() {
+		token = authToken();
 		if (!token) {
 			console.error('User is not authenticated');
 			goto('/login');
+			return;
+		}
+		if (staalId === undefined || staalId === null || Number.isNaN(Number(staalId))) {
+			return;
 		}
 
 		const response = await fetch(`${backend_path}/api/pdf/generatelabel/${staalId}`, {
 			method: 'GET',
 			headers: {
-				Authorization: `Bearer ${token}`
+				Authorization: `Bearer ${authToken()}`
 			}
 		});
 
@@ -97,7 +115,7 @@
 			const response = await fetch(`${backend_path}/api/pdf/generatelabel/${staalId}`, {
 				method: 'GET',
 				headers: {
-					Authorization: `Bearer ${token}`
+					Authorization: `Bearer ${authToken()}`
 				}
 			});
 
@@ -145,7 +163,7 @@
 			const response = await fetch(`${backend_path}/api/printer/labels/${staalId}/${amount}`, {
 				method: 'GET',
 				headers: {
-					Authorization: `Bearer ${token}`
+					Authorization: `Bearer ${authToken()}`
 				}
 			});
 
@@ -197,8 +215,10 @@
 	}
 
 	onMount(async () => {
-		token = getCookie('authToken') || '';
 		await loadData();
+		if (!staal?.id) {
+			return;
+		}
 		await fetchPdf();
 
 		JSPrintManager.auto_reconnect = true;
@@ -304,7 +324,8 @@
 					<!-- left button-->
 					<div class="w-1/4 mt-auto">
 						<button
-							on:click={() => printLabels(staalId, amount)}
+							on:click={() =>
+								typeof staalId === 'number' && printLabels(staalId, amount)}
 							class="bg-blue-600 text-xl rounded-lg p-3 text-white h-20 w-full flex flex-row items-center justify-center"
 						>
 							afdrukken
@@ -312,7 +333,7 @@
 					</div>
 					<div class="w-1/4 mt-auto">
 						<button
-							on:click={() => getPdf(staalId)}
+							on:click={() => typeof staalId === 'number' && getPdf(staalId)}
 							class="bg-gray-400 text-xl rounded-lg ml-4 p-3 text-white w-20 h-20 flex flex-row items-center justify-center"
 						>
 							<div class="h-5">

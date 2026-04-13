@@ -1,4 +1,4 @@
-package com.thomasmore.blc.labflow.entity;
+package com.thomasmore.blc.labflow.entity.hematology;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.annotation.Nullable;
