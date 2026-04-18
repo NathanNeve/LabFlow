@@ -64,3 +64,22 @@ export interface Referentiewaarde {
     waarde: string;
     label: string;
 }
+
+/** Microbiology module – staal + staaltype */
+export interface MicrobiologyStaalType {
+    id: number;
+    naam: string;
+}
+
+export interface MicrobiologyStaal {
+    id: number;
+    staalCode: number;
+    patientAchternaam: string;
+    patientVoornaam: string;
+    patientGeboorteDatum: string;
+    patientGeslacht: string;
+    laborantNaam: string;
+    laborantRnummer: string;
+    staalType: MicrobiologyStaalType;
+    confirmDelete?: boolean;
+}

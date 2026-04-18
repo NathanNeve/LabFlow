@@ -212,3 +212,88 @@ export async function fetchStatussen() {
         goto('/');
     }
 }
+
+const backend_path_fetch = import.meta.env.VITE_BACKEND_PATH;
+
+/** Paginated microbiology stalen (GET /api/microbiology/staal) */
+export async function fetchMicrobiologyStalen(
+    page = 0,
+    size = 25,
+    searchParams: StalenSearchParams = {}
+) {
+    const token = authToken();
+    if (token) {
+        try {
+            let params = `page=${page}&size=${size}`;
+            if (searchParams.searchCode) {
+                params += `&search=${encodeURIComponent(searchParams.searchCode)}`;
+            }
+            if (searchParams.searchDate) {
+                params += `&date=${encodeURIComponent(searchParams.searchDate)}`;
+            }
+            const stalen = await fetchAll(token, 'microbiology/staal', params);
+            const filteredStalen = stalen.content;
+            return {
+                stalen: filteredStalen,
+                filteredStalen,
+                totalPages: stalen.totalPages,
+                totalElements: stalen.totalElements,
+                currentPage: stalen.number,
+                isFirst: stalen.first,
+                isLast: stalen.last,
+                size: stalen.size
+            };
+        } catch (error) {
+            console.error('Microbiology stalen konden niet gefetched worden:', error);
+            return null;
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
+        return null;
+    }
+}
+
+export async function fetchMicrobiologyStaalTypes() {
+    const token = authToken();
+    if (token) {
+        try {
+            return await fetchAll(token, 'microbiology/staal-types');
+        } catch (error) {
+            console.error('Microbiology staaltypes konden niet gefetched worden:', error);
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
+    }
+}
+
+export async function updateMicrobiologyStaal(id: number, body: Record<string, unknown>) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    });
+}
+
+export async function deleteMicrobiologyStaal(id: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${id}`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+    });
+}

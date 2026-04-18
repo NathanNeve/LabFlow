@@ -29,12 +29,13 @@
 			</a>
 
 			<!-- Microbiologie -->
-			<div
+			<a
+				href="/microbiologie/stalen"
 				class="bg-blue-400 text-white aspect-square w-60 rounded-2xl flex flex-col items-center justify-center space-y-3 p-4"
 			>
 				<img src={microbiologie} alt="Microbiologie" class="w-3/5" />
 				<p class="text-white text-2xl text-center">Microbiologie</p>
-			</div>
+			</a>
 		</div>
 	</div>
 </div>
