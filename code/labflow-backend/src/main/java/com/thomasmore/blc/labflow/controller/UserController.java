@@ -1,8 +1,7 @@
 package com.thomasmore.blc.labflow.controller;
 
 import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
-import com.thomasmore.blc.labflow.entity.Test;
-import com.thomasmore.blc.labflow.entity.User;
+import com.thomasmore.blc.labflow.entity.auth.User;
 import com.thomasmore.blc.labflow.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -7,3 +7,5 @@ workspace.xml
 
 # Ignore my a todo list i made
 todo-v2.md
+
+.m2/

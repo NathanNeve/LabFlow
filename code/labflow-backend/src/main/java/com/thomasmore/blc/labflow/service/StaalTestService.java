@@ -1,13 +1,15 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.StaalTest;
-import com.thomasmore.blc.labflow.entity.StaalTestId;
-import com.thomasmore.blc.labflow.repository.StaalTestRepository;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
+import com.thomasmore.blc.labflow.entity.hematology.StaalTestId;
+import com.thomasmore.blc.labflow.repository.hematology.StaalTestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class StaalTestService {
     @Autowired
     private StaalTestRepository staalTestRepository;

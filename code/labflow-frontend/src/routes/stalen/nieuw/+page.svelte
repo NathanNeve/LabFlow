@@ -5,6 +5,7 @@
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
 	import { getUserId } from '$lib/globalFunctions';
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 
 	// @ts-ignore
 	import FaTrashAlt from 'svelte-icons/fa/FaTrashAlt.svelte';
@@ -36,6 +37,16 @@
 	import { slide } from 'svelte/transition';
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
+	function authToken(): string {
+		return getCookie('authToken') || '';
+	}
+
+	function isNewStaalContext(code: string | undefined): boolean {
+		if (code === undefined || code === null) return true;
+		const c = String(code).trim();
+		return c === '' || c === 'defaultCode';
+	}
+
 	// types
 	import type { Test, TestCategorie, Eenheid } from '$lib/types/dbTypes';
 	// wrapper for array of testcodes (strings)
@@ -52,8 +63,6 @@
 	let tests: Test[] = [];
 	let testsSorted: Test[] = [];
 	let searchCode = '';
-	let token: string = '';
-
 	// nieuwe staalcode
 	let nieuweStaalCode: string = '';
 	let naam = '';
@@ -102,36 +111,69 @@
 	let geselecteerdeTests: string[] = [];
 
 	onMount(() => {
-		token = getCookie('authToken') || '';
 		loadTests();
-	});
-
-	// neem de id van de store
-	let sampleCode: string | undefined;
-	staalCodeStore.subscribe((value) => {
-		sampleCode = value;
 	});
 
 	let loading = true;
 	let staalId: string = '';
+
+	function assignTestsFromApi(raw: unknown) {
+		const list = Array.isArray(raw) ? (raw as Test[]) : [];
+		if (!Array.isArray(raw)) {
+			console.error('tests API verwacht een array, ontving:', raw);
+		}
+		tests = list;
+		testsSorted = list;
+	}
+
+	/** Spring kan plain text of JSON-string teruggeven; response.json() faalt op niet-JSON. */
+	async function fetchNewStaalCodeText(token: string): Promise<string> {
+		const res = await fetch(`${backend_path}/api/newStaalCode`, {
+			headers: { Authorization: 'Bearer ' + token }
+		});
+		if (!res.ok) {
+			throw new Error(`newStaalCode HTTP ${res.status}`);
+		}
+		const body = (await res.text()).trim();
+		if (body.startsWith('"') && body.endsWith('"')) {
+			try {
+				return JSON.parse(body) as string;
+			} catch {
+				return body.slice(1, -1);
+			}
+		}
+		return body;
+	}
+
 	// fetchen van tests op "tests"
 	// verkrijgen nieuwe staalcode op "/api/newStaalCode"
 	// als we in de session storage een staalcode hebben, binden we deze zijn waarden aan de variabelen
 	async function loadTests() {
-		if (token != null && sampleCode == '') {
+		const token = authToken();
+		if (!token) {
+			console.error('jwt error');
+			goto('/');
+			return;
+		}
+		const code = get(staalCodeStore);
+		if (isNewStaalContext(code)) {
 			try {
-				tests = await fetchAll(token, 'tests');
-				testsSorted = tests;
-				nieuweStaalCode = await fetchAll(token, 'newStaalCode');
+				assignTestsFromApi(await fetchAll(token, 'tests'));
+				nieuweStaalCode = await fetchNewStaalCodeText(token);
 				loading = false;
 			} catch (error) {
 				console.error('testen kon niet gefetched worden:', error);
+				loading = false;
 			}
-		} else if (token != null && sampleCode != '') {
+		} else {
 			try {
-				tests = await fetchAll(token, 'tests');
-				const test = sampleCode ? await fetchStaal_StaalCode(sampleCode) : null;
-				testsSorted = tests;
+				assignTestsFromApi(await fetchAll(token, 'tests'));
+				const test = await fetchStaal_StaalCode(String(code));
+				if (!test) {
+					console.error('Geen staal gevonden voor code in store; toon wel de testlijst.');
+					loading = false;
+					return;
+				}
 				// binden van de bestaande staalwaarden aan de variabelen
 				nieuweStaalCode = test.staalCode;
 				naam = test.patientAchternaam;
@@ -148,15 +190,14 @@
 				loading = false;
 			} catch (error) {
 				console.error('testen kon niet gefetched worden:', error);
+				loading = false;
 			}
-		} else {
-			console.error('jwt error');
-			goto('/');
 		}
 	}
 
-	function setLaborant() {
-		let isValid = false;
+	async function setLaborant() {
+		errrorVeldenStaal.laborantNaam = false;
+		errrorVeldenStaal.laborantRnummer = false;
 		laborantRnummer = laborantRnummer.toUpperCase();
 		// regex voor R-nummer: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes
 		const regex = /^[RU]\d{7}$/;
@@ -168,25 +209,30 @@
 			errrorVeldenStaal.laborantRnummer = true;
 		}
 
-		if (laborantNaam && laborantRnummer && regex.test(laborantRnummer)) {
-			isValid = true;
+		const isValid = !!(laborantNaam && laborantRnummer && regex.test(laborantRnummer));
+		if (!isValid) {
+			return;
 		}
-		if (isValid) {
-			return ($id = null);
-		}
-		return;
+		$id = null;
+		await loadTests();
 	}
 
 	// zoeken op basis van code
 	function filterTests() {
+		const q = (searchCode || '').toLowerCase();
 		testsSorted = tests.filter((test) => {
-			const codeMatch =
-				test.naam.toLowerCase().includes(searchCode.toLowerCase()) ||
-				test.testCode.toLowerCase().includes(searchCode.toLowerCase()) ||
-				test.testcategorie.naam.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				test.eenheid.afkorting.toString().toLowerCase().includes(searchCode.toLowerCase()) ||
-				test.eenheid.naam.toString().toLowerCase().includes(searchCode.toLowerCase());
-			return codeMatch;
+			const naam = (test.naam ?? '').toLowerCase();
+			const tc = (test.testCode ?? '').toLowerCase();
+			const cat = (test.testcategorie?.naam ?? '').toString().toLowerCase();
+			const afk = (test.eenheid?.afkorting ?? '').toString().toLowerCase();
+			const eenNaam = (test.eenheid?.naam ?? '').toString().toLowerCase();
+			return (
+				naam.includes(q) ||
+				tc.includes(q) ||
+				cat.includes(q) ||
+				afk.includes(q) ||
+				eenNaam.includes(q)
+			);
 		});
 	}
 
@@ -242,7 +288,7 @@
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
 					testCode: testCode,
@@ -258,8 +304,7 @@
 		} catch (error) {
 			console.error('test kon niet worden aangemaakt: ', error);
 		}
-		tests = await fetchAll(token, 'tests'); // tests refreshen, triggert een refresh
-		testsSorted = tests;
+		assignTestsFromApi(await fetchAll(authToken(), 'tests')); // tests refreshen
 		return ($id = null);
 	}
 
@@ -334,11 +379,17 @@
 		}
 
 		try {
-			await fetch(` ${backend_path}/api/createstaal`, {
+			const uid = Number(userId);
+			if (!Number.isFinite(uid) || uid <= 0) {
+				errorMessageStaal = 'Gebruikerssessie ongeldig; meld opnieuw aan.';
+				isWarningAcknowledged = false;
+				return;
+			}
+			const response = await fetch(`${backend_path}/api/createstaal`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
 					staalCode: nieuweStaalCode,
@@ -349,17 +400,25 @@
 					laborantNaam: laborantNaam,
 					laborantRnummer: laborantRnummer,
 					user: {
-						id: userId
+						id: uid
 					},
 					registeredTests: geselecteerdeTestsArray
 				})
 			});
-			// doorgeven van aangemaakte staalcode naar volgend scherm
-			staalCodeStore.set(nieuweStaalCode);
+			if (!response.ok) {
+				const msg = await response.text();
+				errorMessageStaal = msg || 'Staal kon niet worden aangemaakt.';
+				isWarningAcknowledged = false;
+				return;
+			}
+			staalCodeStore.set(String(nieuweStaalCode));
 		} catch (error) {
 			console.error('staal kon niet worden aangemaakt: ', error);
+			errorMessageStaal = 'Staal kon niet worden aangemaakt.';
+			isWarningAcknowledged = false;
+			return;
 		}
-		isWarningAcknowledged = false; // Reset de warning zodat de knop geklikt kan worden
+		isWarningAcknowledged = false;
 		return goto('/stalen/labels');
 	}
 
@@ -417,11 +476,17 @@
 			return; // wachten voor volgende click
 		}
 		try {
-			await fetch(`${backend_path}/api/updatestaal/${staalId}`, {
+			const uid = Number(userId);
+			if (!Number.isFinite(uid) || uid <= 0) {
+				errorMessageStaal = 'Gebruikerssessie ongeldig; meld opnieuw aan.';
+				isWarningAcknowledged = false;
+				return;
+			}
+			const response = await fetch(`${backend_path}/api/updatestaal/${staalId}`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
 					staalCode: nieuweStaalCode,
@@ -432,23 +497,31 @@
 					laborantNaam: laborantNaam,
 					laborantRnummer: laborantRnummer,
 					user: {
-						id: 2
+						id: uid
 					},
 					registeredTests: geselecteerdeTestsArray
 				})
 			});
-			// doorgeven van aangemaakte staalcode naar volgend scherm
-			staalCodeStore.set(nieuweStaalCode);
+			if (!response.ok) {
+				const msg = await response.text();
+				errorMessageStaal = msg || 'Staal kon niet worden opgeslagen.';
+				isWarningAcknowledged = false;
+				return;
+			}
+			staalCodeStore.set(String(nieuweStaalCode));
 		} catch (error) {
 			console.error('staal kon niet worden aangemaakt: ', error);
+			errorMessageStaal = 'Staal kon niet worden opgeslagen.';
+			isWarningAcknowledged = false;
+			return;
 		}
-		isWarningAcknowledged = false; // Reset de warning zodat de knop geklikt kan worden
+		isWarningAcknowledged = false;
 		return goto('/stalen/labels');
 	}
 
 	// post or put functie, afhankelijk van of er al een staalcode is in de session storage
 	function postOrPut() {
-		if (sampleCode === '') {
+		if (isNewStaalContext(get(staalCodeStore))) {
 			nieuweStaal();
 		} else {
 			staalAanpassen();
@@ -481,7 +554,7 @@
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
 					naam: categorienaam,
@@ -500,7 +573,7 @@
 			await fetch(`${backend_path}/api/deletetest/${id}`, {
 				method: 'DELETE',
 				headers: {
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				}
 			});
 		} catch (error) {
@@ -550,7 +623,7 @@
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: 'Bearer ' + token
+					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
 					testCode: test.testCode,
@@ -956,7 +1029,7 @@
 						{#if rol === 'admin'}
 							<div class="col-span-1 flex justify-end space-x-2">
 								<!-- Edit Button -->
-								<Modal>
+								<Modal id={`edit-test-${test.id}`}>
 									<Trigger>
 										<button
 											type="button"

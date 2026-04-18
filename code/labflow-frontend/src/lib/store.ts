@@ -12,7 +12,11 @@ function createSessionStore(key:string, initialValue:string) {
 
 
     // initialize the writable store. use the value from sessionStorage if it exists, otherwise use the initialValue
-    const store = writable(storedValue ? JSON.parse(storedValue) : initialValue);
+    let parsedInitial = storedValue ? JSON.parse(storedValue) : initialValue;
+    if (key === 'staalCode' && parsedInitial === 'defaultCode') {
+        parsedInitial = '';
+    }
+    const store = writable(parsedInitial);
 
     // subscribe to changes in the store to update sessionStorage whenever the store value changes
     if (typeof window !== 'undefined') {
@@ -27,5 +31,5 @@ function createSessionStore(key:string, initialValue:string) {
     return store;
 }
 
-// create a specific session-backed store for 'staalcode' with a default value (defaultCode)
-export const staalCodeStore = createSessionStore('staalCode', 'defaultCode');
+// create a specific session-backed store for 'staalcode' (empty = nieuwe staal)
+export const staalCodeStore = createSessionStore('staalCode', '');

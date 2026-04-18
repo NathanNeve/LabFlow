@@ -1,14 +1,16 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.Referentiewaarde;
-import com.thomasmore.blc.labflow.repository.ReferentiewaardeRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Referentiewaarde;
+import com.thomasmore.blc.labflow.repository.hematology.ReferentiewaardeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class ReferentiewaardeService {
     @Autowired
     private ReferentiewaardeRepository referentiewaardeRepository;

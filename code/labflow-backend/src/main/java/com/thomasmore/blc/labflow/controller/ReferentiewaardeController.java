@@ -1,7 +1,6 @@
 package com.thomasmore.blc.labflow.controller;
 
-import com.thomasmore.blc.labflow.entity.Referentiewaarde;
-import com.thomasmore.blc.labflow.repository.ReferentiewaardeRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Referentiewaarde;
 import com.thomasmore.blc.labflow.service.ReferentiewaardeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

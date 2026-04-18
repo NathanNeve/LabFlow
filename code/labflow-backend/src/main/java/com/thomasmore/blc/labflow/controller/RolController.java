@@ -1,6 +1,6 @@
 package com.thomasmore.blc.labflow.controller;
 
-import com.thomasmore.blc.labflow.entity.Rol;
+import com.thomasmore.blc.labflow.entity.auth.Rol;
 import com.thomasmore.blc.labflow.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

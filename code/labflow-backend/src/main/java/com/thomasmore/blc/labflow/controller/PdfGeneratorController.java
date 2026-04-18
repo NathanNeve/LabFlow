@@ -1,12 +1,11 @@
 package com.thomasmore.blc.labflow.controller;
 
 import com.itextpdf.text.DocumentException;
-import com.thomasmore.blc.labflow.entity.Staal;
-import com.thomasmore.blc.labflow.repository.StaalRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Staal;
+import com.thomasmore.blc.labflow.repository.hematology.StaalRepository;
 import com.thomasmore.blc.labflow.service.PdfGeneratorService;
 import com.thomasmore.blc.labflow.service.StaalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

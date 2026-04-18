@@ -40,10 +40,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // we gaan na of de token valide is en start met "Bearer "
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            // extractie van de token zonder "Bearer "
             token = authHeader.substring(7);
-            // methode om email uit de token te halen in jwtService
-            email = jwtService.extractEmail(token);
+            try {
+                email = jwtService.extractEmail(token);
+            } catch (Exception ignored) {
+                // Ongeldige of verlopen token, of secret gewijzigd sinds uitgifte: niet authenticeren
+                token = null;
+                email = null;
+            }
         }
 
         // email mag niet null zijn, en mag nog niet geauthenticeerd zijn

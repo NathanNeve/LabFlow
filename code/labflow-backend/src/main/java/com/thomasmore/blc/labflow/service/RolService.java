@@ -1,15 +1,16 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.Rol;
-import com.thomasmore.blc.labflow.repository.RolRepository;
+import com.thomasmore.blc.labflow.entity.auth.Rol;
+import com.thomasmore.blc.labflow.repository.auth.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional("authTransactionManager")
 public class RolService {
     @Autowired
     private RolRepository rolRepository;
@@ -26,7 +27,7 @@ public class RolService {
 
     // update
     public ResponseEntity<Rol> update(Long id, Rol rol) {
-        Rol updateRol = rolRepository.findById(id);
+        Rol updateRol = rolRepository.findById(id).orElse(null);
         if (updateRol != null) {
             updateRol.setNaam(rol.getNaam());
             rolRepository.save(updateRol);
@@ -37,7 +38,7 @@ public class RolService {
 
     // delete
     public ResponseEntity<Integer> delete(Long id) {
-        Rol deleteRol = rolRepository.findById(id);
+        Rol deleteRol = rolRepository.findById(id).orElse(null);
         if (deleteRol != null) {
             rolRepository.delete(deleteRol);
             return new ResponseEntity<>(rolRepository.findAll().size(), org.springframework.http.HttpStatus.OK);

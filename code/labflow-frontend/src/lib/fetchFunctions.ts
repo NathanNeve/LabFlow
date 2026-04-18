@@ -3,13 +3,16 @@ import { goto } from '$app/navigation';
 import type { Eenheid, TestCategorie } from './types/dbTypes';
 import type { StalenSearchParams } from './types/searchTypes';
 
-const token = getCookie('authToken') ?? '';
+function authToken(): string {
+	return getCookie('authToken') ?? '';
+}
 let testcategorieën: TestCategorie[] = [];
 let eenheden: Eenheid[] = [];
 
 // laden categorieën
 export async function loadTestCategorieën() {
-    if (token != null) {
+    const token = authToken();
+    if (token) {
         try {
             testcategorieën = await fetchAll(token, 'testcategorieen');
             return testcategorieën;
@@ -24,7 +27,8 @@ export async function loadTestCategorieën() {
 
 // laden eenheden voor popup test aanmaken
 export async function loadEenheden() {
-    if (token != null) {
+    const token = authToken();
+    if (token) {
         try {
             eenheden = await fetchAll(token, 'readeenheid');
             return eenheden;
@@ -39,6 +43,7 @@ export async function loadEenheden() {
 
 // fetch alle stalen
 export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearchParams = {}) {
+    const token = authToken();
     if (token) {
         try {
             // query parameters voor paginering en zoeken op datum, code en status
@@ -82,6 +87,7 @@ export async function fetchStalen(page = 0, size = 25, searchParams: StalenSearc
 
 // fetchen van 1 staal op basis van staalCode
 export async function fetchStaal_StaalCode(staalCode: string) {
+    const token = authToken();
     if (token) {
         try {
             const staal = await fetchAll(token, `staal/${staalCode}`);
@@ -97,6 +103,7 @@ export async function fetchStaal_StaalCode(staalCode: string) {
 
 // fetchen van users
 export async function fetchUsers() {
+    const token = authToken();
     if (token) {
         try {
             const users = await fetchAllWithoutPrefix(token, 'getusers');
@@ -112,6 +119,7 @@ export async function fetchUsers() {
 
 // fetchen van rollen
 export async function fetchRollen() {
+    const token = authToken();
     if (token) {
         try {
             const rollen = await fetchAll(token, 'rollen');
@@ -127,6 +135,7 @@ export async function fetchRollen() {
 
 // fetchen van tests
 export async function fetchTests() {
+    const token = authToken();
     if (token) {
         try {
             const tests = await fetchAll(token, 'tests');
@@ -142,6 +151,7 @@ export async function fetchTests() {
 
 // fetchen van testcategorieën
 export async function fetchTestcategorieën() {
+    const token = authToken();
     if (token) {
         try {
             const categorieën = await fetchAll(token, 'testcategorieen');
@@ -157,6 +167,7 @@ export async function fetchTestcategorieën() {
 
 // fetchen van eenheden
 export async function fetchEenheden() {
+    const token = authToken();
     if (token) {
         try {
             const eenheden = await fetchAll(token, 'readeenheid');
@@ -172,6 +183,7 @@ export async function fetchEenheden() {
 
 // fetchen van referentiewaarden
 export async function fetchReferentiewaarden() {
+    const token = authToken();
     if (token) {
         try {
             const referentiewaarden = await fetchAll(token, 'referentiewaarden');
@@ -187,6 +199,7 @@ export async function fetchReferentiewaarden() {
 
 // fetchen van statussen
 export async function fetchStatussen() {
+    const token = authToken();
     if (token) {
         try {
             const statussen = await fetchAll(token, 'getstatus');
@@ -194,5 +207,8 @@ export async function fetchStatussen() {
         } catch (error) {
             console.error("Statussen konden niet gefetched worden:", error);
         }
+    } else {
+        console.error("JWT error: token missing of invalid");
+        goto('/');
     }
 }

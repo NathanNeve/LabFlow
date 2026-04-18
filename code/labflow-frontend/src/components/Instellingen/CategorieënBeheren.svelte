@@ -325,7 +325,7 @@
 								components={ChromeVariant}
 								sliderDirection="horizontal"
 								bind:hex={categorie.kleur}
-								on:input={() => updateCategorie(categorie.id)}
+								onInput={() => updateCategorie(categorie.id)}
 							/>
 						</div>
 					</div>

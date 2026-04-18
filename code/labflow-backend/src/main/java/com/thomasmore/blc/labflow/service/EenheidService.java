@@ -1,18 +1,20 @@
 package com.thomasmore.blc.labflow.service;
 
-import com.thomasmore.blc.labflow.entity.Eenheid;
-import com.thomasmore.blc.labflow.repository.EenheidRepository;
-import com.thomasmore.blc.labflow.repository.TestRepository;
+import com.thomasmore.blc.labflow.entity.hematology.Eenheid;
+import com.thomasmore.blc.labflow.repository.hematology.EenheidRepository;
+import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 @Service
+@Transactional("hematologyTransactionManager")
 public class EenheidService {
     @Autowired
     private EenheidRepository eenheidRepository;

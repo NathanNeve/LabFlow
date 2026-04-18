@@ -1,10 +1,9 @@
 package com.thomasmore.blc.labflow.controller;
 
 import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
-import com.thomasmore.blc.labflow.entity.Testcategorie;
+import com.thomasmore.blc.labflow.entity.hematology.Testcategorie;
 import com.thomasmore.blc.labflow.service.TestCategorieService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
