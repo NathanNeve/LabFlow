@@ -1,12 +1,14 @@
 package com.thomasmore.blc.labflow.config;
 
 import com.thomasmore.blc.labflow.entity.microbiology.Antibiotica;
+import com.thomasmore.blc.labflow.entity.microbiology.Staal;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalType;
 import com.thomasmore.blc.labflow.entity.microbiology.Test;
 import com.thomasmore.blc.labflow.entity.microbiology.TestVoedingsbodem;
 import com.thomasmore.blc.labflow.entity.microbiology.TestVoedingsbodemId;
 import com.thomasmore.blc.labflow.entity.microbiology.Voedingsbodem;
 import com.thomasmore.blc.labflow.repository.microbiology.AntibioticaRepository;
+import com.thomasmore.blc.labflow.repository.microbiology.StaalRepository;
 import com.thomasmore.blc.labflow.repository.microbiology.StaalTypeRepository;
 import com.thomasmore.blc.labflow.repository.microbiology.TestRepository;
 import com.thomasmore.blc.labflow.repository.microbiology.TestVoedingsbodemRepository;
@@ -19,6 +21,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -117,18 +120,77 @@ public class MicrobiologyDataLoader implements CommandLineRunner {
             new TestEntry("940", "VRE", "Perineum", false, List.of("VRE", "TSB")),
             new TestEntry("950", "CPE", "Perineum", false, List.of("CPE", "TSB")));
 
+    /** Mock patient stalen for development dashboards (must match frontend R-nummer pattern ^[RU]\\d{7}$). */
+    private record MockStaalEntry(long staalCode, String voornaam, String achternaam, LocalDateTime geboorte,
+                                  char geslacht, String laborantNaam, String laborantRnummer, String staalTypeNaam) {}
+
+    private static final List<MockStaalEntry> MOCK_STALEN = List.of(
+            new MockStaalEntry(602600001L, "Emma", "Janssen", LocalDateTime.of(1992, 3, 14, 0, 0), 'V',
+                    "Lisa Vermeulen", "R1000001", "Urine"),
+            new MockStaalEntry(602600002L, "Lucas", "Peeters", LocalDateTime.of(1987, 11, 21, 0, 0), 'M',
+                    "Tom Willems", "U1000002", "Faeces"),
+            new MockStaalEntry(602600003L, "Marie", "Dupont", LocalDateTime.of(2001, 7, 9, 0, 0), 'V',
+                    "Sophie Jacobs", "R1000003", "CSV"),
+            new MockStaalEntry(602600004L, "Noah", "De Smet", LocalDateTime.of(1995, 1, 18, 0, 0), 'M',
+                    "Pieter Claes", "R1000004", "Sputum"),
+            new MockStaalEntry(602600005L, "Elise", "Van den Broeck", LocalDateTime.of(1989, 9, 30, 0, 0), 'V',
+                    "Katrien Maes", "U1000005", "Bronchusaspiraat"),
+            new MockStaalEntry(602600006L, "Victor", "Hermans", LocalDateTime.of(1968, 5, 22, 0, 0), 'M',
+                    "Jan Goossens", "R1000006", "Wisser keel"),
+            new MockStaalEntry(602600007L, "Tessa", "Wouters", LocalDateTime.of(2004, 12, 5, 0, 0), 'V',
+                    "Anouk Peeters", "R1000007", "Neus"),
+            new MockStaalEntry(602600008L, "Ruben", "Declercq", LocalDateTime.of(1990, 4, 12, 0, 0), 'M',
+                    "David Van Damme", "U1000008", "Keel"),
+            new MockStaalEntry(602600009L, "Julie", "Martens", LocalDateTime.of(1976, 8, 27, 0, 0), 'V',
+                    "Els De Vries", "R1000009", "Punctievocht"),
+            new MockStaalEntry(602600010L, "Sam", "Aerts", LocalDateTime.of(1999, 2, 3, 0, 0), 'X',
+                    "Nick Vervoort", "R1000010", "Genitaal"),
+            new MockStaalEntry(602600011L, "Laura", "Segers", LocalDateTime.of(1984, 10, 16, 0, 0), 'V',
+                    "Femke Van Hove", "U1000011", "Vagina"),
+            new MockStaalEntry(602600012L, "Daan", "Cornelis", LocalDateTime.of(2008, 6, 20, 0, 0), 'M',
+                    "Wouter Simons", "R1000012", "Urethra"),
+            new MockStaalEntry(602600013L, "Femke", "Thijs", LocalDateTime.of(1993, 12, 11, 0, 0), 'V',
+                    "Sara Lemmens", "R1000013", "BRP"),
+            new MockStaalEntry(602600014L, "Robbe", "Nijs", LocalDateTime.of(1972, 5, 8, 0, 0), 'M',
+                    "Geert Bosmans", "U1000014", "Perineum"),
+            new MockStaalEntry(602600015L, "Mila", "Verhoeven", LocalDateTime.of(1997, 1, 25, 0, 0), 'V',
+                    "Ine Van Loon", "R1000015", "Wisser diep"),
+            new MockStaalEntry(602600016L, "Aaron", "Vervoort", LocalDateTime.of(1981, 4, 8, 0, 0), 'M',
+                    "Niels Coppens", "R1000016", "Wisser opp"),
+            new MockStaalEntry(602600017L, "Chiara", "Ruys", LocalDateTime.of(1996, 11, 19, 0, 0), 'V',
+                    "Lotte Praet", "U1000017", "Wisser neus"),
+            new MockStaalEntry(602600018L, "Finn", "Desmet", LocalDateTime.of(2006, 2, 27, 0, 0), 'M',
+                    "Brent Maertens", "R1000018", "Faeces"),
+            new MockStaalEntry(602600019L, "Zoë", "Van Rompaey", LocalDateTime.of(1979, 7, 13, 0, 0), 'V',
+                    "Hanne Verschuren", "U1000019", "Urine"),
+            new MockStaalEntry(602600020L, "Mats", "De Pauw", LocalDateTime.of(1991, 9, 6, 0, 0), 'M',
+                    "Stijn Roels", "R1000020", "CSV"),
+            new MockStaalEntry(602600021L, "Elena", "Verstraete", LocalDateTime.of(2003, 5, 31, 0, 0), 'V',
+                    "Ophélie Tanghe", "U1000021", "Sputum"),
+            new MockStaalEntry(602600022L, "Jamie", "Lefever", LocalDateTime.of(1988, 12, 22, 0, 0), 'X',
+                    "Quentin Devos", "R1000022", "Bronchusaspiraat"),
+            new MockStaalEntry(602600023L, "Isa", "Callens", LocalDateTime.of(1974, 6, 4, 0, 0), 'V',
+                    "Merel Struyf", "U1000023", "Keel"),
+            new MockStaalEntry(602600024L, "Otis", "Baert", LocalDateTime.of(1998, 8, 17, 0, 0), 'M',
+                    "Vince De Clercq", "R1000024", "Neus"),
+            new MockStaalEntry(602600025L, "Kaat", "De Witte", LocalDateTime.of(1994, 4, 2, 0, 0), 'V',
+                    "Yara Smets", "U1000025", "Perineum"));
+
     private final AntibioticaRepository antibioticaRepository;
+    private final StaalRepository staalRepository;
     private final StaalTypeRepository staalTypeRepository;
     private final TestRepository testRepository;
     private final VoedingsbodemRepository voedingsbodemRepository;
     private final TestVoedingsbodemRepository testVoedingsbodemRepository;
 
     public MicrobiologyDataLoader(AntibioticaRepository antibioticaRepository,
+                                  StaalRepository staalRepository,
                                   StaalTypeRepository staalTypeRepository,
                                   TestRepository testRepository,
                                   VoedingsbodemRepository voedingsbodemRepository,
                                   TestVoedingsbodemRepository testVoedingsbodemRepository) {
         this.antibioticaRepository = antibioticaRepository;
+        this.staalRepository = staalRepository;
         this.staalTypeRepository = staalTypeRepository;
         this.testRepository = testRepository;
         this.voedingsbodemRepository = voedingsbodemRepository;
@@ -149,8 +211,29 @@ public class MicrobiologyDataLoader implements CommandLineRunner {
                 linkTestVoedingsbodemIfAbsent(test, vb);
             }
         }
-        log.info("Microbiology reference data loaded: {} antibiotics, {} tests (idempotent upsert).",
-                MOCK_ANTIBIOTICA_NAMEN.size(), TESTS.size());
+        seedMockStalen();
+        log.info("Microbiology reference data loaded: {} antibiotics, {} tests, {} mock stalen (idempotent upsert).",
+                MOCK_ANTIBIOTICA_NAMEN.size(), TESTS.size(), MOCK_STALEN.size());
+    }
+
+    private void seedMockStalen() {
+        for (MockStaalEntry m : MOCK_STALEN) {
+            if (staalRepository.findByStaalCode(m.staalCode()).isPresent()) {
+                continue;
+            }
+            StaalType type = staalTypeRepository.findByNaam(m.staalTypeNaam())
+                    .orElseGet(() -> staalTypeRepository.save(new StaalType(m.staalTypeNaam())));
+            Staal staal = new Staal();
+            staal.setStaalCode(m.staalCode());
+            staal.setPatientVoornaam(m.voornaam());
+            staal.setPatientAchternaam(m.achternaam());
+            staal.setPatientGeboorteDatum(m.geboorte());
+            staal.setPatientGeslacht(m.geslacht());
+            staal.setLaborantNaam(m.laborantNaam());
+            staal.setLaborantRnummer(m.laborantRnummer());
+            staal.setStaalType(type);
+            staalRepository.save(staal);
+        }
     }
 
     private Antibiotica findOrCreateAntibiotica(String naam) {
