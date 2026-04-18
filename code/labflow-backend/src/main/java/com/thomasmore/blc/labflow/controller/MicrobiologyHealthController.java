@@ -1,6 +1,6 @@
 package com.thomasmore.blc.labflow.controller;
 
-import com.thomasmore.blc.labflow.repository.microbiology.MicrobiologyModulePlaceholderRepository;
+import com.thomasmore.blc.labflow.repository.microbiology.Staal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class MicrobiologyHealthController {
 
     @Autowired
-    private MicrobiologyModulePlaceholderRepository microbiologyModulePlaceholderRepository;
+    private Staal microbiologyModulePlaceholderRepository;
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
