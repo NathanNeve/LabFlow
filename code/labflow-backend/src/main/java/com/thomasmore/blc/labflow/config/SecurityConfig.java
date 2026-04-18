@@ -34,7 +34,6 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // disable csrf (stateless applicatie heeft dit niet nodig)
