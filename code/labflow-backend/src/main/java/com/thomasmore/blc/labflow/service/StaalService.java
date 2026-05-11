@@ -4,12 +4,14 @@ import com.thomasmore.blc.labflow.config.UniqueConstraintViolationException;
 import com.thomasmore.blc.labflow.entity.hematology.Staal;
 import com.thomasmore.blc.labflow.entity.hematology.StaalTest;
 import com.thomasmore.blc.labflow.entity.hematology.Test;
+import com.thomasmore.blc.labflow.repository.hematology.StaalCodeCounterRepository;
 import com.thomasmore.blc.labflow.repository.hematology.StaalRepository;
 import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
 import com.thomasmore.blc.labflow.repository.auth.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.hibernate.Hibernate;
 import jakarta.persistence.criteria.Path;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,8 +35,13 @@ import java.util.Optional;
 @Service
 @Transactional("hematologyTransactionManager")
 public class StaalService {
+    private static final Logger log = LoggerFactory.getLogger(StaalService.class);
+
     @Autowired
     private StaalRepository staalRepository;
+
+    @Autowired
+    private StaalCodeCounterRepository staalCodeCounterRepository;
 
     @Autowired
     private TestRepository testRepository;
@@ -40,23 +49,76 @@ public class StaalService {
     private UserRepository userRepository;
 
     // Create
-    public void createStaal(Staal staal) {
+    public Staal createStaal(Staal staal) {
+        Long providedCode = staal.getStaalCode();
+        log.info(
+                "[staal-queue] enqueue createStaal userId={} providedStaalCode={} tests={}",
+                staal.getUserId(),
+                providedCode,
+                staal.getRegisteredTests() == null ? 0 : staal.getRegisteredTests().size()
+        );
+
         if (staal.getUserId() == null || !userRepository.existsById(staal.getUserId())) {
             throw new IllegalArgumentException("Invalid or missing user id for staal");
         }
         // lopen door elke test
-        if (staalRepository.findByStaalCode(staal.getStaalCode()) == null) {
-            for (StaalTest registeredTest : staal.getRegisteredTests()) {
-                // testobject ophalen en koppelen met staal
-                Test test = testRepository.findByTestCode(registeredTest.getTest().getTestCode());
-                registeredTest.setTest(test);
-            }
-            staal.setStatus(Staal.Status.AANGEMAAKT);
-            staalRepository.save(staal);
-        } else {
-            throw new UniqueConstraintViolationException("Staalcode already exists");
+        for (StaalTest registeredTest : staal.getRegisteredTests()) {
+            // testobject ophalen en koppelen met staal
+            Test test = testRepository.findByTestCode(registeredTest.getTest().getTestCode());
+            registeredTest.setTest(test);
         }
 
+        staal.setStatus(Staal.Status.AANGEMAAKT);
+
+        final int maxAttempts = 5;
+        boolean staalCodeWasAutoAllocated = false;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            if (staal.getStaalCode() == null || staal.getStaalCode() <= 0) {
+                staal.setStaalCode(allocateNextStaalCode());
+                staalCodeWasAutoAllocated = true;
+            }
+
+            try {
+                log.info(
+                        "[staal-queue] attempt={} createStaal userId={} staalCode={} (autoAllocated={})",
+                        attempt,
+                        staal.getUserId(),
+                        staal.getStaalCode(),
+                        staalCodeWasAutoAllocated
+                );
+                Staal saved = staalRepository.save(staal);
+                initializeStaalForJson(saved);
+                log.info(
+                        "[staal-queue] created staal id={} staalCode={} userId={}",
+                        saved.getId(),
+                        saved.getStaalCode(),
+                        saved.getUserId()
+                );
+                return saved;
+            } catch (DataIntegrityViolationException e) {
+                // If the user supplied a code, propagate conflict immediately.
+                if (!staalCodeWasAutoAllocated) {
+                    throw new UniqueConstraintViolationException("Staalcode already exists");
+                }
+                // If the code was allocated here, retry with a new allocated code.
+                if (attempt == maxAttempts) {
+                    throw new UniqueConstraintViolationException("Could not allocate unique staalcode after retries");
+                }
+                staal.setStaalCode(null);
+            }
+        }
+
+        throw new UniqueConstraintViolationException("Could not create staal");
+    }
+
+    private Long allocateNextStaalCode() {
+        int year = Year.now().getValue();
+        Long next = staalCodeCounterRepository.incrementAndGet(year);
+        String code = year + String.format("%06d", next);
+        Long staalCode = Long.parseLong(code);
+        log.info("[staal-queue] allocated staalCode={} (year={}, next={})", staalCode, year, next);
+        return staalCode;
     }
 
     // Read all
