@@ -83,3 +83,18 @@ export interface MicrobiologyStaal {
     staalType: MicrobiologyStaalType;
     confirmDelete?: boolean;
 }
+
+/** Microbiology catalog test (GET /api/microbiology/tests) */
+export interface MicrobiologyCatalogTest {
+    id: number;
+    testCode: string;
+    naam: string;
+    extraTest: boolean;
+    staalType?: MicrobiologyStaalType;
+    voedingsbodems?: string[];
+}
+
+export interface MicrobiologyVoedingsbodem {
+    id: number;
+    naam: string;
+}

@@ -33,3 +33,6 @@ function createSessionStore(key:string, initialValue:string) {
 
 // create a specific session-backed store for 'staalcode' (empty = nieuwe staal)
 export const staalCodeStore = createSessionStore('staalCode', '');
+
+/** Microbiology flow: numeric staal id (primary key) after POST /api/microbiology/staal */
+export const microbiologyStaalIdStore = createSessionStore('microbiologyStaalId', '');

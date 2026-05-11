@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Nav from '../../../components/nav.svelte';
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+	import { microbiologyStaalIdStore } from '$lib/store';
 	import {
 		fetchMicrobiologyStalen,
 		fetchMicrobiologyStaalTypes,
@@ -308,6 +310,10 @@
 		<button
 			type="button"
 			class="bg-blue-400 flex flex-col items-center justify-center w-56 h-56 rounded-2xl"
+			on:click={() => {
+				microbiologyStaalIdStore.set('');
+				goto('/microbiologie/stalen/nieuw');
+			}}
 		>
 			<div class="w-28 h-28 text-white flex items-center justify-center">
 				<GoPlus />
