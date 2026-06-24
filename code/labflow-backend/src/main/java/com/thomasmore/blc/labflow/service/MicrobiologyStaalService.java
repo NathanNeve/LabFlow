@@ -7,6 +7,7 @@ import com.thomasmore.blc.labflow.dto.MicrobiologyStaalUpdateRequest;
 import com.thomasmore.blc.labflow.dto.MicrobiologyTestResponse;
 import com.thomasmore.blc.labflow.dto.MicrobiologyVoedingsbodemsConfirmRequest;
 import com.thomasmore.blc.labflow.entity.microbiology.Staal;
+import com.thomasmore.blc.labflow.entity.microbiology.StaalStatus;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalTest;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalTestVoedingsbodem;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalType;
@@ -79,10 +80,19 @@ public class MicrobiologyStaalService {
     @Autowired
     private VoedingsbodemRepository voedingsbodemRepository;
 
-    public Page<Staal> findStalen(int page, int size, String search, String dateStr) {
+    public Page<Staal> findStalen(int page, int size, String search, String dateStr, String statusStr) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("staalCode").descending());
 
         Specification<Staal> spec = Specification.where(null);
+
+        if (statusStr != null && !statusStr.isBlank()) {
+            try {
+                StaalStatus status = StaalStatus.valueOf(statusStr.trim().toUpperCase());
+                spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+            } catch (IllegalArgumentException e) {
+                // ignore invalid status filter
+            }
+        }
 
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) -> {
@@ -191,6 +201,7 @@ public class MicrobiologyStaalService {
                         t.getTestCode(),
                         t.getNaam(),
                         t.isExtraTest(),
+                        t.getTestType() != null ? t.getTestType().name() : null,
                         t.getId() == null ? Collections.emptyList() : testVoedingsbodemRepository.findVoedingsbodemNamesByTestId(t.getId())
                 ))
                 .collect(Collectors.toList());
@@ -270,6 +281,25 @@ public class MicrobiologyStaalService {
         return out;
     }
 
+    public List<Voedingsbodem> findConfirmedVoedingsbodems(Long staalId) {
+        if (!staalRepository.existsById(staalId)) {
+            throw new EntityNotFoundException("Staal not found with id: " + staalId);
+        }
+        Set<Long> seen = new LinkedHashSet<>();
+        List<Voedingsbodem> out = new ArrayList<>();
+        for (StaalTestVoedingsbodem link : staalTestVoedingsbodemRepository.findByStaalId(staalId)) {
+            Hibernate.initialize(link.getVoedingsbodem());
+            Voedingsbodem vb = link.getVoedingsbodem();
+            if (vb == null || vb.getId() == null || seen.contains(vb.getId())) {
+                continue;
+            }
+            seen.add(vb.getId());
+            out.add(vb);
+        }
+        out.sort(Comparator.comparing(Voedingsbodem::getNaam, Comparator.nullsLast(String::compareToIgnoreCase)));
+        return out;
+    }
+
     public void confirmVoedingsbodems(Long staalId, MicrobiologyVoedingsbodemsConfirmRequest body) {
         if (body == null || body.getVoedingsbodemIds() == null) {
             throw new IllegalArgumentException("voedingsbodemIds required");
@@ -283,7 +313,45 @@ public class MicrobiologyStaalService {
 
         List<StaalTest> staalTests = staalTestRepository.findByStaalId(staalId);
         staalTestVoedingsbodemRepository.deleteByStaalId(staalId);
+        linkVoedingsbodemsToStaalTests(staalTests, body.getVoedingsbodemIds(), allowedIds);
+        updateStaalStatusAfterVoedingsbodems(staalId);
+    }
+
+    public void addVoedingsbodems(Long staalId, MicrobiologyVoedingsbodemsConfirmRequest body) {
+        if (body == null || body.getVoedingsbodemIds() == null || body.getVoedingsbodemIds().isEmpty()) {
+            throw new IllegalArgumentException("voedingsbodemIds required");
+        }
+        if (!staalRepository.existsById(staalId)) {
+            throw new EntityNotFoundException("Staal not found with id: " + staalId);
+        }
+
+        Set<Long> confirmedIds = findConfirmedVoedingsbodems(staalId).stream()
+                .map(Voedingsbodem::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        List<Voedingsbodem> allowed = findPossibleVoedingsbodems(staalId);
+        Set<Long> allowedIds = allowed.stream().map(Voedingsbodem::getId).collect(Collectors.toSet());
+
         for (Long vbId : body.getVoedingsbodemIds()) {
+            if (vbId == null || !allowedIds.contains(vbId)) {
+                throw new IllegalArgumentException("Invalid voedingsbodem id: " + vbId);
+            }
+            if (confirmedIds.contains(vbId)) {
+                throw new IllegalArgumentException("Voedingsbodem already linked: " + vbId);
+            }
+        }
+
+        List<StaalTest> staalTests = staalTestRepository.findByStaalId(staalId);
+        linkVoedingsbodemsToStaalTests(staalTests, body.getVoedingsbodemIds(), allowedIds);
+        updateStaalStatusAfterVoedingsbodems(staalId);
+    }
+
+    private void linkVoedingsbodemsToStaalTests(
+            List<StaalTest> staalTests,
+            List<Long> voedingsbodemIds,
+            Set<Long> allowedIds
+    ) {
+        for (Long vbId : voedingsbodemIds) {
             if (vbId == null || !allowedIds.contains(vbId)) {
                 throw new IllegalArgumentException("Invalid voedingsbodem id: " + vbId);
             }
@@ -300,6 +368,19 @@ public class MicrobiologyStaalService {
                 }
             }
         }
+    }
+
+    private void updateStaalStatusAfterVoedingsbodems(Long staalId) {
+        Staal staal = staalRepository.findById(staalId)
+                .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + staalId));
+        if (staal.getStatus() != StaalStatus.KLAAR) {
+            staal.setStatus(StaalStatus.GEREGISTREERD);
+            staalRepository.save(staal);
+        }
+    }
+
+    public List<StaalStatus> getStatussen() {
+        return List.of(StaalStatus.values());
     }
 
     public ResponseEntity<Staal> update(Long id, MicrobiologyStaalUpdateRequest body) {

@@ -7,6 +7,7 @@ import com.thomasmore.blc.labflow.dto.MicrobiologyStaalTestsRequest;
 import com.thomasmore.blc.labflow.dto.MicrobiologyTestResponse;
 import com.thomasmore.blc.labflow.dto.MicrobiologyVoedingsbodemsConfirmRequest;
 import com.thomasmore.blc.labflow.entity.microbiology.Staal;
+import com.thomasmore.blc.labflow.entity.microbiology.StaalStatus;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalType;
 import com.thomasmore.blc.labflow.entity.microbiology.Voedingsbodem;
 import com.thomasmore.blc.labflow.repository.microbiology.StaalTypeRepository;
@@ -46,9 +47,15 @@ public class MicrobiologyStaalController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "25") int size,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) String date
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false) String status
     ) {
-        return microbiologyStaalService.findStalen(page, size, search, date);
+        return microbiologyStaalService.findStalen(page, size, search, date, status);
+    }
+
+    @GetMapping("/statussen")
+    public List<StaalStatus> listStatussen() {
+        return microbiologyStaalService.getStatussen();
     }
 
     @GetMapping("/staal/{id}")
@@ -105,6 +112,15 @@ public class MicrobiologyStaalController {
         }
     }
 
+    @GetMapping("/staal/{id}/voedingsbodems/confirmed")
+    public ResponseEntity<List<Voedingsbodem>> listConfirmedVoedingsbodems(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(microbiologyStaalService.findConfirmedVoedingsbodems(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/staal/{id}/voedingsbodems/confirm")
     public ResponseEntity<Void> confirmVoedingsbodems(
             @PathVariable Long id,
@@ -112,6 +128,21 @@ public class MicrobiologyStaalController {
     ) {
         try {
             microbiologyStaalService.confirmVoedingsbodems(id, body);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/staal/{id}/voedingsbodems/add")
+    public ResponseEntity<Void> addVoedingsbodems(
+            @PathVariable Long id,
+            @RequestBody MicrobiologyVoedingsbodemsConfirmRequest body
+    ) {
+        try {
+            microbiologyStaalService.addVoedingsbodems(id, body);
             return ResponseEntity.noContent().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();

@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository("microbiologyTestVoedingsbodemRepository")
 public interface TestVoedingsbodemRepository extends JpaRepository<TestVoedingsbodem, TestVoedingsbodemId> {
 
+    boolean existsByTest_Id(Long testId);
+
     boolean existsByTest_IdAndVoedingsbodem_Id(Long testId, Long voedingsbodemId);
 
     @Query("""

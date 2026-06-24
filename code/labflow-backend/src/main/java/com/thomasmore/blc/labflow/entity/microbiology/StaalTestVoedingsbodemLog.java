@@ -22,9 +22,13 @@ public class StaalTestVoedingsbodemLog {
 
     private String beoordeling;
 
+    private String sts;
+
     private String commentaar;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "staal_test_voedingsbodem_id", nullable = false)
@@ -57,6 +61,14 @@ public class StaalTestVoedingsbodemLog {
         this.beoordeling = beoordeling;
     }
 
+    public String getSts() {
+        return sts;
+    }
+
+    public void setSts(String sts) {
+        this.sts = sts;
+    }
+
     public String getCommentaar() {
         return commentaar;
     }
@@ -71,6 +83,14 @@ public class StaalTestVoedingsbodemLog {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public StaalTestVoedingsbodem getStaalTestVoedingsbodem() {

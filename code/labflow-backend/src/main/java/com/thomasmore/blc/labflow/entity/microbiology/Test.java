@@ -2,6 +2,8 @@ package com.thomasmore.blc.labflow.entity.microbiology;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,6 +27,10 @@ public class Test {
     @Column(nullable = false)
     private boolean extraTest;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TestType testType;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "staal_type_id", nullable = false)
     private StaalType staalType;
@@ -32,11 +38,12 @@ public class Test {
     public Test() {
     }
 
-    public Test(String testCode, String naam, StaalType staalType, boolean extraTest) {
+    public Test(String testCode, String naam, StaalType staalType, boolean extraTest, TestType testType) {
         this.testCode = testCode;
         this.naam = naam;
         this.staalType = staalType;
         this.extraTest = extraTest;
+        this.testType = testType;
     }
 
     public Long getId() {
@@ -69,6 +76,14 @@ public class Test {
 
     public void setExtraTest(boolean extraTest) {
         this.extraTest = extraTest;
+    }
+
+    public TestType getTestType() {
+        return testType;
+    }
+
+    public void setTestType(TestType testType) {
+        this.testType = testType;
     }
 
     public StaalType getStaalType() {

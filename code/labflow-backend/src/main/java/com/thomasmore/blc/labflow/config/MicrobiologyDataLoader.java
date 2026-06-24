@@ -4,6 +4,7 @@ import com.thomasmore.blc.labflow.entity.microbiology.Antibiotica;
 import com.thomasmore.blc.labflow.entity.microbiology.Staal;
 import com.thomasmore.blc.labflow.entity.microbiology.StaalType;
 import com.thomasmore.blc.labflow.entity.microbiology.Test;
+import com.thomasmore.blc.labflow.entity.microbiology.TestType;
 import com.thomasmore.blc.labflow.entity.microbiology.TestVoedingsbodem;
 import com.thomasmore.blc.labflow.entity.microbiology.TestVoedingsbodemId;
 import com.thomasmore.blc.labflow.entity.microbiology.Voedingsbodem;
@@ -250,9 +251,24 @@ public class MicrobiologyDataLoader implements CommandLineRunner {
                 .orElseGet(() -> voedingsbodemRepository.save(new Voedingsbodem(naam)));
     }
 
+    private TestType inferTestType(String naam, List<String> voedingsbodems) {
+        String lower = naam.toLowerCase();
+        if (lower.contains("gramkleuring")) {
+            return TestType.GRAMKLEURING;
+        }
+        if (lower.contains("antibiogram")) {
+            return TestType.ANTIBIOGRAM;
+        }
+        if (lower.contains("cultuur") || !voedingsbodems.isEmpty()) {
+            return TestType.CULTUUR;
+        }
+        return TestType.EXTRA_TEST;
+    }
+
     private Test findOrCreateTest(TestEntry entry, StaalType staalType) {
+        TestType testType = inferTestType(entry.naam(), entry.voedingsbodems());
         return testRepository.findByTestCode(entry.code()).orElseGet(() -> testRepository.save(
-                new Test(entry.code(), entry.naam(), staalType, entry.extraTest())));
+                new Test(entry.code(), entry.naam(), staalType, entry.extraTest(), testType)));
     }
 
     private void linkTestVoedingsbodemIfAbsent(Test test, Voedingsbodem voedingsbodem) {

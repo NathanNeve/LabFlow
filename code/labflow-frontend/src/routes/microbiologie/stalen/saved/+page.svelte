@@ -34,8 +34,7 @@
 		<button
 			type="button"
 			class="flex h-14 w-56 flex-row items-center justify-center rounded-lg bg-blue-600 text-lg text-white"
-			on:click={() => {}}
-			title="Binnenkort: koppel hier je notities"
+			on:click={() => goto('/microbiologie/stalen/notitieblok')}
 		>
 			<div class="mr-2 h-5 w-5"><FaBook /></div>
 			Notitieblok

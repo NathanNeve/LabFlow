@@ -1,58 +1,25 @@
-package com.thomasmore.blc.labflow.entity.microbiology;
+package com.thomasmore.blc.labflow.dto.microbiology;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-
-@Entity
-public class Staal {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class MicrobiologyNotebookResponse {
     private Long id;
-
-    @Column(unique = true)
     private Long staalCode;
-
     private String patientVoornaam;
-
     private String patientAchternaam;
-
-    private LocalDateTime patientGeboorteDatum;
-
-    private char patientGeslacht;
-
-    private String laborantNaam;
-
-    private String laborantRnummer;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "staal_type_id", nullable = false)
-    private StaalType staalType;
-
+    private String patientGeboorteDatum;
+    private String patientGeslacht;
     private String commentaar;
-
     private boolean voltooidAlgemeneTesten;
-
     private boolean voltooidVoedingsbodems;
-
     private boolean voltooidGramkleuring;
-
     private boolean voltooidAntibiogram;
-
-    @Enumerated(EnumType.STRING)
-    private StaalStatus status = StaalStatus.AANGEMAAKT;
-
-    public Staal() {
-    }
+    private String status;
+    private List<String> activeSections;
+    private List<MicrobiologyStaalTestDto> algemeneTesten;
+    private List<MicrobiologyVoedingsbodemNotebookDto> voedingsbodems;
+    private MicrobiologyGramkleuringDto gramkleuring;
+    private List<MicrobiologyAntibiogramEntryDto> antibiogram;
 
     public Long getId() {
         return id;
@@ -86,44 +53,20 @@ public class Staal {
         this.patientAchternaam = patientAchternaam;
     }
 
-    public LocalDateTime getPatientGeboorteDatum() {
+    public String getPatientGeboorteDatum() {
         return patientGeboorteDatum;
     }
 
-    public void setPatientGeboorteDatum(LocalDateTime patientGeboorteDatum) {
+    public void setPatientGeboorteDatum(String patientGeboorteDatum) {
         this.patientGeboorteDatum = patientGeboorteDatum;
     }
 
-    public char getPatientGeslacht() {
+    public String getPatientGeslacht() {
         return patientGeslacht;
     }
 
-    public void setPatientGeslacht(char patientGeslacht) {
+    public void setPatientGeslacht(String patientGeslacht) {
         this.patientGeslacht = patientGeslacht;
-    }
-
-    public String getLaborantNaam() {
-        return laborantNaam;
-    }
-
-    public void setLaborantNaam(String laborantNaam) {
-        this.laborantNaam = laborantNaam;
-    }
-
-    public String getLaborantRnummer() {
-        return laborantRnummer;
-    }
-
-    public void setLaborantRnummer(String laborantRnummer) {
-        this.laborantRnummer = laborantRnummer;
-    }
-
-    public StaalType getStaalType() {
-        return staalType;
-    }
-
-    public void setStaalType(StaalType staalType) {
-        this.staalType = staalType;
     }
 
     public String getCommentaar() {
@@ -166,11 +109,51 @@ public class Staal {
         this.voltooidAntibiogram = voltooidAntibiogram;
     }
 
-    public StaalStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(StaalStatus status) {
+    public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<String> getActiveSections() {
+        return activeSections;
+    }
+
+    public void setActiveSections(List<String> activeSections) {
+        this.activeSections = activeSections;
+    }
+
+    public List<MicrobiologyStaalTestDto> getAlgemeneTesten() {
+        return algemeneTesten;
+    }
+
+    public void setAlgemeneTesten(List<MicrobiologyStaalTestDto> algemeneTesten) {
+        this.algemeneTesten = algemeneTesten;
+    }
+
+    public List<MicrobiologyVoedingsbodemNotebookDto> getVoedingsbodems() {
+        return voedingsbodems;
+    }
+
+    public void setVoedingsbodems(List<MicrobiologyVoedingsbodemNotebookDto> voedingsbodems) {
+        this.voedingsbodems = voedingsbodems;
+    }
+
+    public MicrobiologyGramkleuringDto getGramkleuring() {
+        return gramkleuring;
+    }
+
+    public void setGramkleuring(MicrobiologyGramkleuringDto gramkleuring) {
+        this.gramkleuring = gramkleuring;
+    }
+
+    public List<MicrobiologyAntibiogramEntryDto> getAntibiogram() {
+        return antibiogram;
+    }
+
+    public void setAntibiogram(List<MicrobiologyAntibiogramEntryDto> antibiogram) {
+        this.antibiogram = antibiogram;
     }
 }

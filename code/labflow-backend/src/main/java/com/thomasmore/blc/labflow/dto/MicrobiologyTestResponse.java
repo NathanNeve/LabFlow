@@ -11,16 +11,19 @@ public class MicrobiologyTestResponse {
     private String testCode;
     private String naam;
     private boolean extraTest;
+    private String testType;
     private List<String> voedingsbodems;
 
     public MicrobiologyTestResponse() {
     }
 
-    public MicrobiologyTestResponse(Long id, String testCode, String naam, boolean extraTest, List<String> voedingsbodems) {
+    public MicrobiologyTestResponse(Long id, String testCode, String naam, boolean extraTest, String testType,
+                                    List<String> voedingsbodems) {
         this.id = id;
         this.testCode = testCode;
         this.naam = naam;
         this.extraTest = extraTest;
+        this.testType = testType;
         this.voedingsbodems = voedingsbodems;
     }
 
@@ -56,6 +59,14 @@ public class MicrobiologyTestResponse {
         this.extraTest = extraTest;
     }
 
+    public String getTestType() {
+        return testType;
+    }
+
+    public void setTestType(String testType) {
+        this.testType = testType;
+    }
+
     public List<String> getVoedingsbodems() {
         return voedingsbodems;
     }
@@ -64,4 +75,3 @@ public class MicrobiologyTestResponse {
         this.voedingsbodems = voedingsbodems;
     }
 }
-

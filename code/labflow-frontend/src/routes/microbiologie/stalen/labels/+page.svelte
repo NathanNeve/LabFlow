@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Nav from '../../../../components/nav.svelte';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { getCookie, formatDate, formatSex } from '$lib/globalFunctions';
 	// @ts-ignore
 	import FaArrowLeft from 'svelte-icons/fa/FaArrowLeft.svelte';
@@ -17,7 +18,9 @@
 	import { onDestroy, onMount } from 'svelte';
 	import type { MicrobiologyStaal, MicrobiologyVoedingsbodem } from '$lib/types/dbTypes';
 	import {
+		addMicrobiologyVoedingsbodems,
 		confirmMicrobiologyVoedingsbodems,
+		fetchMicrobiologyConfirmedVoedingsbodems,
 		fetchMicrobiologyStaalById,
 		fetchMicrobiologyVoedingsbodems
 	} from '$lib/fetchFunctions';
@@ -29,7 +32,9 @@
 	let staal: MicrobiologyStaal | null = null;
 	let staalId: number | undefined;
 	let voedingsbodems: MicrobiologyVoedingsbodem[] = [];
+	let lockedVbIds = new Set<number>();
 	let selectedVbIds = new Set<number>();
+	let newlyAddedVbIds: number[] = [];
 	let confirmed = false;
 	let pdfUrl = '';
 	let token = '';
@@ -38,20 +43,48 @@
 	let selectedPrinter = '';
 	let useDefaultPrinter = false;
 
+	$: addMode = $page.url.searchParams.get('mode') === 'add';
+
 	function authToken(): string {
 		return getCookie('authToken') || '';
 	}
 
+	function isLockedVb(id: number) {
+		return addMode && lockedVbIds.has(id);
+	}
+
 	function toggleVb(id: number) {
 		if (confirmed) return;
+		if (isLockedVb(id)) return;
 		const next = new Set(selectedVbIds);
 		if (next.has(id)) next.delete(id);
 		else next.add(id);
 		selectedVbIds = next;
 	}
 
+	function newlySelectedIds(): number[] {
+		return Array.from(selectedVbIds).filter((id) => !lockedVbIds.has(id));
+	}
+
+	function labelQueryParam(ids: number[]): string {
+		return ids.length > 0 ? `?voedingsbodemIds=${ids.join(',')}` : '';
+	}
+
 	async function terug() {
+		if (addMode) {
+			goto('/microbiologie/stalen/notitieblok');
+			return;
+		}
 		goto('/microbiologie/stalen/nieuw');
+	}
+
+	async function volgende() {
+		if (addMode) {
+			await invalidateAll();
+			goto('/microbiologie/stalen/notitieblok');
+			return;
+		}
+		goto('/microbiologie/stalen/saved');
 	}
 
 	async function loadData() {
@@ -75,24 +108,53 @@
 		staal = s;
 		const vbs = (await fetchMicrobiologyVoedingsbodems(sid)) as MicrobiologyVoedingsbodem[] | null;
 		voedingsbodems = Array.isArray(vbs) ? vbs : [];
-		selectedVbIds = new Set(voedingsbodems.map((v) => v.id));
+
+		if (addMode) {
+			const confirmedVbs =
+				((await fetchMicrobiologyConfirmedVoedingsbodems(sid)) as MicrobiologyVoedingsbodem[] | null) ?? [];
+			lockedVbIds = new Set(confirmedVbs.map((v) => v.id));
+			selectedVbIds = new Set(lockedVbIds);
+		} else {
+			lockedVbIds = new Set();
+			selectedVbIds = new Set(voedingsbodems.map((v) => v.id));
+		}
 	}
 
 	async function onConfirm() {
 		if (staalId == null) return;
 		if (confirmed) {
 			confirmed = false;
+			newlyAddedVbIds = [];
 			if (pdfUrl) {
 				URL.revokeObjectURL(pdfUrl);
 				pdfUrl = '';
 			}
 			return;
 		}
-		const res = await confirmMicrobiologyVoedingsbodems(staalId, Array.from(selectedVbIds));
-		if (!res?.ok) {
-			console.error('Confirm voedingsbodems failed');
-			return;
+
+		if (addMode) {
+			const toAdd = newlySelectedIds();
+			if (toAdd.length === 0) {
+				console.error('Selecteer minstens één nieuwe voedingsbodem');
+				return;
+			}
+			const res = await addMicrobiologyVoedingsbodems(staalId, toAdd);
+			if (!res?.ok) {
+				console.error('Voedingsbodems toevoegen mislukt');
+				return;
+			}
+			newlyAddedVbIds = toAdd;
+			lockedVbIds = new Set([...lockedVbIds, ...toAdd]);
+			selectedVbIds = new Set(lockedVbIds);
+		} else {
+			const res = await confirmMicrobiologyVoedingsbodems(staalId, Array.from(selectedVbIds));
+			if (!res?.ok) {
+				console.error('Confirm voedingsbodems failed');
+				return;
+			}
+			newlyAddedVbIds = [];
 		}
+
 		confirmed = true;
 		await fetchPdf();
 	}
@@ -105,10 +167,14 @@
 			URL.revokeObjectURL(pdfUrl);
 			pdfUrl = '';
 		}
-		const response = await fetch(`${backend_path}/api/microbiology/pdf/generatelabel/${staalId}`, {
-			method: 'GET',
-			headers: { Authorization: `Bearer ${authToken()}` }
-		});
+		const filterIds = addMode ? newlyAddedVbIds : [];
+		const response = await fetch(
+			`${backend_path}/api/microbiology/pdf/generatelabel/${staalId}${labelQueryParam(filterIds)}`,
+			{
+				method: 'GET',
+				headers: { Authorization: `Bearer ${authToken()}` }
+			}
+		);
 		if (response.ok) {
 			const pdfBlob = await response.blob();
 			pdfUrl = URL.createObjectURL(pdfBlob);
@@ -117,10 +183,14 @@
 
 	async function getPdf(id: number) {
 		try {
-			const response = await fetch(`${backend_path}/api/microbiology/pdf/generatelabel/${id}`, {
-				method: 'GET',
-				headers: { Authorization: `Bearer ${authToken()}` }
-			});
+			const filterIds = addMode ? newlyAddedVbIds : [];
+			const response = await fetch(
+				`${backend_path}/api/microbiology/pdf/generatelabel/${id}${labelQueryParam(filterIds)}`,
+				{
+					method: 'GET',
+					headers: { Authorization: `Bearer ${authToken()}` }
+				}
+			);
 			if (!response.ok) return;
 			const disposition = response.headers.get('X-Filename');
 			let filename = `Labels_${staal?.patientAchternaam ?? ''}_${staal?.patientVoornaam ?? ''}`;
@@ -144,8 +214,9 @@
 
 	async function printLabels(id: number, copies: number) {
 		try {
+			const filterIds = addMode ? newlyAddedVbIds : [];
 			const response = await fetch(
-				`${backend_path}/api/microbiology/printer/labels/${id}/${copies}`,
+				`${backend_path}/api/microbiology/printer/labels/${id}/${copies}${labelQueryParam(filterIds)}`,
 				{
 					method: 'GET',
 					headers: { Authorization: `Bearer ${authToken()}` }
@@ -193,9 +264,20 @@
 		if (pdfUrl) URL.revokeObjectURL(pdfUrl);
 	});
 
-	$: labelCountText = confirmed
-		? `${1 + selectedVbIds.size} voedingsbodems`
-		: `${1 + voedingsbodems.length} voedingsbodems (max)`;
+	$: labelCountText = (() => {
+		if (addMode) {
+			if (confirmed) {
+				return `${newlyAddedVbIds.length} nieuwe label${newlyAddedVbIds.length === 1 ? '' : 's'}`;
+			}
+			const available = voedingsbodems.filter((v) => !lockedVbIds.has(v.id)).length;
+			return `${lockedVbIds.size} bestaand, ${available} beschikbaar om toe te voegen`;
+		}
+		return confirmed
+			? `${1 + selectedVbIds.size} voedingsbodems`
+			: `${1 + voedingsbodems.length} voedingsbodems (max)`;
+	})();
+
+	$: canConfirm = addMode ? newlySelectedIds().length > 0 : selectedVbIds.size > 0;
 </script>
 
 <Nav />
@@ -242,9 +324,9 @@
 					type="button"
 					class="flex h-20 w-1/2 flex-row items-center justify-center rounded-lg bg-blue-600 p-3 text-xl text-white disabled:cursor-not-allowed disabled:bg-gray-300"
 					disabled={!confirmed}
-					on:click={() => goto('/microbiologie/stalen/saved')}
+					on:click={volgende}
 				>
-					Volgende
+					{addMode ? 'Terug naar notitieblok' : 'Volgende'}
 					<div class="ml-2 h-5 w-5"><FaArrowRight /></div>
 				</button>
 			</div>
@@ -253,35 +335,47 @@
 		<div class="flex h-full space-x-4">
 			<div class="flex h-[75vh] w-1/3 flex-col rounded-xl bg-white p-4">
 				<p class="text-blue-500">{labelCountText}</p>
-				<div class="my-3 flex items-center justify-between rounded-xl border border-gray-200 p-4">
-					<p class="text-lg font-bold">
-						{staal?.patientVoornaam ?? ''} {staal?.patientAchternaam ?? ''}
+				{#if !addMode}
+					<div class="my-3 flex items-center justify-between rounded-xl border border-gray-200 p-4">
+						<p class="text-lg font-bold">
+							{staal?.patientVoornaam ?? ''} {staal?.patientAchternaam ?? ''}
+						</p>
+						<p class="rounded-full bg-blue-500 px-8 py-3 text-white">standaard</p>
+					</div>
+				{:else}
+					<p class="my-3 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+						Bestaande voedingsbodems blijven geselecteerd. Kies extra voedingsbodems om toe te voegen.
+						Alleen de nieuwe labels worden afgedrukt.
 					</p>
-					<p class="rounded-full bg-blue-500 px-8 py-3 text-white">standaard</p>
-				</div>
+				{/if}
 
 				<div class="min-h-0 flex-1 space-y-2 overflow-auto">
 					{#each voedingsbodems as vb}
+						{@const isSelected = selectedVbIds.has(vb.id)}
+						{@const isLocked = isLockedVb(vb.id)}
 						<button
 							type="button"
-							disabled={confirmed}
-							class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-4 text-left hover:bg-gray-50 disabled:cursor-default disabled:opacity-90"
+							disabled={confirmed || isLocked}
+							class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-200 p-4 text-left hover:bg-gray-50 disabled:cursor-default disabled:opacity-90 {isLocked
+								? 'border-green-200 bg-green-50'
+								: ''}"
 							on:click={() => toggleVb(vb.id)}
 						>
 							<div class="flex items-center gap-3">
 								<div
-									class="rounded-full text-white h-12 flex items-center justify-center {selectedVbIds.has(vb.id)
-										? '' 
-										: ''}"
-									style="background-color: {selectedVbIds.has(vb.id) ? '#23E22C' : '#E3E3E3'};"
+									class="flex h-12 items-center justify-center rounded-full text-white"
+									style="background-color: {isSelected ? '#23E22C' : '#E3E3E3'};"
 								>
-									{#if selectedVbIds.has(vb.id)}
-										<div class={`p-3 rounded-full text-white h-12`}><FaCheck /></div>
+									{#if isSelected}
+										<div class="h-12 rounded-full p-3 text-white"><FaCheck /></div>
 									{:else}
-										<div class={`rounded-full text-white h-12`}><IoIosClose /></div>
+										<div class="h-12 rounded-full text-white"><IoIosClose /></div>
 									{/if}
 								</div>
 								<span class="font-semibold">{vb.naam}</span>
+								{#if isLocked}
+									<span class="text-sm text-green-700">(reeds toegevoegd)</span>
+								{/if}
 							</div>
 						</button>
 					{/each}
@@ -290,10 +384,11 @@
 				<div class="mt-3 shrink-0">
 					<button
 						type="button"
-						class="w-full rounded-lg bg-blue-600 py-2 text-white"
+						class="w-full rounded-lg bg-blue-600 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+						disabled={!confirmed && !canConfirm}
 						on:click={onConfirm}
 					>
-						{confirmed ? 'Wijzigen' : 'Bevestigen'}
+						{confirmed ? 'Wijzigen' : addMode ? 'Toevoegen' : 'Bevestigen'}
 					</button>
 				</div>
 			</div>
@@ -312,7 +407,15 @@
 							class="flex h-full min-h-[320px] flex-col items-center justify-center rounded-xl bg-white p-8 text-center text-gray-600"
 						>
 							<p class="mb-2 text-lg font-medium">Voorbeeld nog niet beschikbaar</p>
-							<p>Selecteer de gewenste voedingsbodems en druk op <strong>Bevestigen</strong> om het PDF-voorbeeld te laden.</p>
+							<p>
+								{#if addMode}
+									Selecteer extra voedingsbodems en druk op <strong>Toevoegen</strong> om het
+									PDF-voorbeeld van de nieuwe labels te laden.
+								{:else}
+									Selecteer de gewenste voedingsbodems en druk op <strong>Bevestigen</strong> om
+									het PDF-voorbeeld te laden.
+								{/if}
+							</p>
 						</div>
 					{/if}
 				</div>

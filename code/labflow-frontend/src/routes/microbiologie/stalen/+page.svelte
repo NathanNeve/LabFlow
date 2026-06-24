@@ -7,6 +7,7 @@
 	import {
 		fetchMicrobiologyStalen,
 		fetchMicrobiologyStaalTypes,
+		fetchMicrobiologyStatussen,
 		updateMicrobiologyStaal,
 		deleteMicrobiologyStaal
 	} from '$lib/fetchFunctions';
@@ -42,8 +43,10 @@
 
 	let stalen: MicrobiologyStaal[] = [];
 	let staalTypes: MicrobiologyStaalType[] = [];
+	let statussen: string[] = [];
 	let searchCode = '';
 	let searchDate = '';
+	let filteredStatus = '';
 	/** Mock data (~25 rows): page size 10 yields multiple pages; raise to 25 for a denser table. */
 	const pageSize = 10;
 	let page = 0;
@@ -97,6 +100,34 @@
 		return g || '';
 	}
 
+	function statusLabel(status?: string): string {
+		switch (status) {
+			case 'AANGEMAAKT':
+				return 'Aangemaakt';
+			case 'GEREGISTREERD':
+				return 'Geregistreerd';
+			case 'KLAAR':
+				return 'Klaar';
+			default:
+				return status?.toLowerCase() ?? '';
+		}
+	}
+
+	function statusRowClass(status?: string): string {
+		if (status === 'KLAAR') return 'bg-green-50';
+		if (status === 'GEREGISTREERD') return 'bg-blue-100';
+		return 'bg-white';
+	}
+
+	function goToStaal(staal: MicrobiologyStaal) {
+		microbiologyStaalIdStore.set(String(staal.id));
+		if (staal.status === 'GEREGISTREERD' || staal.status === 'KLAAR') {
+			goto('/microbiologie/stalen/notitieblok');
+		} else if (staal.status === 'AANGEMAAKT' || !staal.status) {
+			goto('/microbiologie/stalen/nieuw');
+		}
+	}
+
 	function verwijderZoek() {
 		searchCode = '';
 		loadStalen();
@@ -105,6 +136,7 @@
 	function deleteFilters() {
 		searchCode = '';
 		searchDate = '';
+		filteredStatus = '';
 		page = 0;
 		loadStalen();
 	}
@@ -124,6 +156,10 @@
 			if (searchDate) {
 				searchParams.searchDate = formatDateForBackend(searchDate);
 			}
+			if (filteredStatus) {
+				searchParams.filteredStatus = filteredStatus;
+			}
+
 			const data = await fetchMicrobiologyStalen(page, pageSize, searchParams);
 			if (data) {
 				stalen = data.stalen;
@@ -146,6 +182,10 @@
 	}
 
 	function handleDateChange() {
+		applyFilters();
+	}
+
+	function handleStatusChange() {
 		applyFilters();
 	}
 
@@ -298,6 +338,8 @@
 	async function load() {
 		const types = await fetchMicrobiologyStaalTypes();
 		if (types) staalTypes = types;
+		const statuses = await fetchMicrobiologyStatussen();
+		if (statuses) statussen = statuses;
 		await loadStalen();
 	}
 
@@ -352,7 +394,22 @@
 				</button>
 			</div>
 
-			<div class="flex items-center w-1/4">
+			<div class="flex items-center w-1/5">
+				<select
+					id="searchStatus"
+					name="searchStatus"
+					bind:value={filteredStatus}
+					on:change={handleStatusChange}
+					class="w-full h-14 rounded-lg text-black px-3 border border-gray-300"
+				>
+					<option value="">Alle statussen</option>
+					{#each statussen as status}
+						<option value={status}>{statusLabel(status)}</option>
+					{/each}
+				</select>
+			</div>
+
+			<div class="flex items-center w-1/5">
 				<label
 					for="searchDate"
 					class="text-black bg-gray-200 h-14 flex items-center justify-center rounded-l-lg px-3 border border-gray-300"
@@ -387,10 +444,12 @@
 		<div class="space-y-3 overflow-auto h-[calc(100vh-288px)] pr-2">
 			{#each stalen as staal, index}
 				<div class="flex items-center justify-between">
-					<div
-						class="grid grid-cols-7 gap-4 rounded-lg h-16 items-center px-3 bg-white {rol === 'admin'
-							? 'w-11/12'
-							: 'w-full'} border border-gray-100"
+					<button
+						type="button"
+						class="grid grid-cols-7 gap-4 rounded-lg h-16 items-center px-3 {statusRowClass(staal.status)}
+							{rol === 'admin' ? 'w-11/12' : 'w-full'}
+							border border-gray-100 hover:ring-2 hover:ring-blue-300 transition"
+						on:click={() => goToStaal(staal)}
 					>
 						<div class="flex flex-col justify-center">
 							<p class="text-gray-400">Code</p>
@@ -417,10 +476,10 @@
 							<p>{staal?.laborantNaam || ''}</p>
 						</div>
 						<div class="flex flex-col justify-center min-w-0">
-							<p class="text-gray-400">Staaltype</p>
-							<p class="truncate">{staal?.staalType?.naam || ''}</p>
+							<p class="text-gray-400">Status</p>
+							<p class="truncate font-semibold">{statusLabel(staal?.status)}</p>
 						</div>
-					</div>
+					</button>
 
 					{#if rol === 'admin'}
 						<div class="col-span-1 flex justify-end space-x-2">

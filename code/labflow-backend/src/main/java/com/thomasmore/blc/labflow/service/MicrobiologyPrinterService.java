@@ -32,7 +32,7 @@ public class MicrobiologyPrinterService {
     @Qualifier("microbiologyStaalTestVoedingsbodemRepository")
     private StaalTestVoedingsbodemRepository staalTestVoedingsbodemRepository;
 
-    public ResponseEntity<String> printLabel(Long staalId, int amountOfCopies) {
+    public ResponseEntity<String> printLabel(Long staalId, int amountOfCopies, List<Long> voedingsbodemFilterIds) {
         try {
             if (amountOfCopies < 0) {
                 return ResponseEntity.badRequest().body("Amount of copies must be greater than 0");
@@ -69,19 +69,32 @@ public class MicrobiologyPrinterService {
                     .sorted(Comparator.comparing(Voedingsbodem::getNaam, Comparator.nullsLast(String::compareToIgnoreCase)))
                     .toList();
 
+            boolean onlySpecificVbs = voedingsbodemFilterIds != null && !voedingsbodemFilterIds.isEmpty();
+            if (onlySpecificVbs) {
+                Set<Long> filterSet = new LinkedHashSet<>(voedingsbodemFilterIds);
+                sortedVbs = sortedVbs.stream()
+                        .filter(vb -> vb.getId() != null && filterSet.contains(vb.getId()))
+                        .toList();
+                if (sortedVbs.isEmpty()) {
+                    return ResponseEntity.badRequest().body("Geen geldige voedingsbodems voor labelgeneratie");
+                }
+            }
+
             String zplCode = "";
 
             for (int i = 0; i < amountOfCopies; i++) {
-                zplCode += "^XA\n"
-                        + "^PW450\n"
-                        + "^LL250\n"
-                        + "^FO10,15^GB430,230,3^FS\n"
-                        + "^FO20,25^A0N,30,30^FD" + nullSafe(staal.getPatientVoornaam()) + "^FS\n"
-                        + "^FO200,25^A0N,30,30^FD" + nullSafe(staal.getPatientAchternaam()) + "^FS\n"
-                        + "^FO20,65^A0N,25,25^FD" + "Geboorte: " + formattedGeboorte + "^FS\n"
-                        + "^FO20,105^A0N,25,25^FD" + "Geslacht: " + formattedGeslacht + "^FS\n"
-                        + "^FO90,140^BY3^BCN,60,,,,A^FD" + staal.getStaalCode() + "^FS\n"
-                        + "^XZ\n";
+                if (!onlySpecificVbs) {
+                    zplCode += "^XA\n"
+                            + "^PW450\n"
+                            + "^LL250\n"
+                            + "^FO10,15^GB430,230,3^FS\n"
+                            + "^FO20,25^A0N,30,30^FD" + nullSafe(staal.getPatientVoornaam()) + "^FS\n"
+                            + "^FO200,25^A0N,30,30^FD" + nullSafe(staal.getPatientAchternaam()) + "^FS\n"
+                            + "^FO20,65^A0N,25,25^FD" + "Geboorte: " + formattedGeboorte + "^FS\n"
+                            + "^FO20,105^A0N,25,25^FD" + "Geslacht: " + formattedGeslacht + "^FS\n"
+                            + "^FO90,140^BY3^BCN,60,,,,A^FD" + staal.getStaalCode() + "^FS\n"
+                            + "^XZ\n";
+                }
 
                 for (Voedingsbodem vb : sortedVbs) {
                     String naam = vb.getNaam() != null ? vb.getNaam() : "";

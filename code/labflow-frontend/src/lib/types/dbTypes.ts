@@ -81,8 +81,88 @@ export interface MicrobiologyStaal {
     laborantNaam: string;
     laborantRnummer: string;
     staalType: MicrobiologyStaalType;
+    commentaar?: string;
+    voltooidAlgemeneTesten?: boolean;
+    voltooidVoedingsbodems?: boolean;
+    voltooidGramkleuring?: boolean;
+    voltooidAntibiogram?: boolean;
+    status?: string;
     confirmDelete?: boolean;
 }
+
+export interface MicrobiologyStaalTestDto {
+    id: number;
+    testId: number;
+    testCode: string;
+    testNaam: string;
+    waarde: string | null;
+    commentaar: string | null;
+    failed: boolean;
+}
+
+export interface MicrobiologyVoedingsbodemLogEntry {
+    id?: number;
+    organisme: string;
+    beoordeling: string;
+    sts: string;
+    commentaar: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface MicrobiologyVoedingsbodemNotebookDto {
+    linkId: number;
+    voedingsbodemId: number;
+    voedingsbodemNaam: string;
+    commentaar: string | null;
+    logs: MicrobiologyVoedingsbodemLogEntry[];
+}
+
+export interface MicrobiologyGramkleuringRowDto {
+    bepaling: string;
+    score: string;
+    commentaar: string;
+}
+
+export interface MicrobiologyGramkleuringDto {
+    staalTestId?: number;
+    commentaar: string | null;
+    rows: MicrobiologyGramkleuringRowDto[];
+}
+
+export interface MicrobiologyAntibiogramEntryDto {
+    antibioticaId: number;
+    antibioticaNaam: string;
+    beoordeling: 'R' | 'S' | 'I';
+}
+
+export interface MicrobiologyNotebookResponse {
+    id: number;
+    staalCode: number;
+    patientVoornaam: string;
+    patientAchternaam: string;
+    patientGeboorteDatum: string;
+    patientGeslacht: string;
+    commentaar: string | null;
+    voltooidAlgemeneTesten: boolean;
+    voltooidVoedingsbodems: boolean;
+    voltooidGramkleuring: boolean;
+    voltooidAntibiogram: boolean;
+    status: string;
+    activeSections: MicrobiologyNotebookSection[];
+    algemeneTesten: MicrobiologyStaalTestDto[];
+    voedingsbodems: MicrobiologyVoedingsbodemNotebookDto[];
+    gramkleuring: MicrobiologyGramkleuringDto;
+    antibiogram: MicrobiologyAntibiogramEntryDto[];
+}
+
+export type MicrobiologyNotebookSection =
+    | 'algemene-testen'
+    | 'voedingsbodems'
+    | 'gramkleuring'
+    | 'antibiogram';
+
+export type MicrobiologyTestType = 'GRAMKLEURING' | 'ANTIBIOGRAM' | 'CULTUUR' | 'EXTRA_TEST';
 
 /** Microbiology catalog test (GET /api/microbiology/tests) */
 export interface MicrobiologyCatalogTest {
@@ -90,6 +170,7 @@ export interface MicrobiologyCatalogTest {
     testCode: string;
     naam: string;
     extraTest: boolean;
+    testType: MicrobiologyTestType;
     staalType?: MicrobiologyStaalType;
     voedingsbodems?: string[];
 }
