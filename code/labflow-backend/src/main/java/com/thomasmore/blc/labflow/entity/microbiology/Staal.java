@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,6 +37,19 @@ public class Staal {
     @ManyToOne(optional = false)
     @JoinColumn(name = "staal_type_id", nullable = false)
     private StaalType staalType;
+
+    private String commentaar;
+
+    private boolean voltooidAlgemeneTesten;
+
+    private boolean voltooidVoedingsbodems;
+
+    private boolean voltooidGramkleuring;
+
+    private boolean voltooidAntibiogram;
+
+    @Enumerated(EnumType.STRING)
+    private StaalStatus status = StaalStatus.AANGEMAAKT;
 
     public Staal() {
     }
@@ -109,5 +124,53 @@ public class Staal {
 
     public void setStaalType(StaalType staalType) {
         this.staalType = staalType;
+    }
+
+    public String getCommentaar() {
+        return commentaar;
+    }
+
+    public void setCommentaar(String commentaar) {
+        this.commentaar = commentaar;
+    }
+
+    public boolean isVoltooidAlgemeneTesten() {
+        return voltooidAlgemeneTesten;
+    }
+
+    public void setVoltooidAlgemeneTesten(boolean voltooidAlgemeneTesten) {
+        this.voltooidAlgemeneTesten = voltooidAlgemeneTesten;
+    }
+
+    public boolean isVoltooidVoedingsbodems() {
+        return voltooidVoedingsbodems;
+    }
+
+    public void setVoltooidVoedingsbodems(boolean voltooidVoedingsbodems) {
+        this.voltooidVoedingsbodems = voltooidVoedingsbodems;
+    }
+
+    public boolean isVoltooidGramkleuring() {
+        return voltooidGramkleuring;
+    }
+
+    public void setVoltooidGramkleuring(boolean voltooidGramkleuring) {
+        this.voltooidGramkleuring = voltooidGramkleuring;
+    }
+
+    public boolean isVoltooidAntibiogram() {
+        return voltooidAntibiogram;
+    }
+
+    public void setVoltooidAntibiogram(boolean voltooidAntibiogram) {
+        this.voltooidAntibiogram = voltooidAntibiogram;
+    }
+
+    public StaalStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(StaalStatus status) {
+        this.status = status;
     }
 }

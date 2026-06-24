@@ -4,6 +4,9 @@ const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
 // helper functie om de jwt token te decoden
 function decodeToken() {
+    if (typeof document === "undefined") {
+        return null;
+    }
     const token = getCookie('authToken');
     if (token) {
         return jwtDecode<DecodedToken>(token);
@@ -57,9 +60,8 @@ export async function fetchAllWithoutPrefix(token: string, subject: string) {
 }
 
 // https://stackoverflow.com/questions/10730362/get-cookie-by-name 
-export function getCookie(name: string) {
+export function getCookie(name: string): string | null | undefined {
     if (typeof document === "undefined") {
-        console.warn("getCookie called in a non-browser environment.");
         return null;
     }
 

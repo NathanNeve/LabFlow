@@ -19,9 +19,9 @@ public class StaalController {
 
     // create
     @PostMapping("/createstaal")
-    public ResponseEntity<String> createStaal(@RequestBody Staal staal) {
-        staalService.createStaal(staal);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Staal created successfully");
+    public ResponseEntity<Staal> createStaal(@RequestBody Staal staal) {
+        Staal created = staalService.createStaal(staal);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // read

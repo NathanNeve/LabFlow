@@ -28,6 +28,8 @@ public class StaalTest {
 
     private String commentaar;
 
+    private boolean failed;
+
     public StaalTest() {
     }
 
@@ -69,5 +71,13 @@ public class StaalTest {
 
     public void setCommentaar(String commentaar) {
         this.commentaar = commentaar;
+    }
+
+    public boolean isFailed() {
+        return failed;
+    }
+
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 }

@@ -126,27 +126,7 @@
 		testsSorted = list;
 	}
 
-	/** Spring kan plain text of JSON-string teruggeven; response.json() faalt op niet-JSON. */
-	async function fetchNewStaalCodeText(token: string): Promise<string> {
-		const res = await fetch(`${backend_path}/api/newStaalCode`, {
-			headers: { Authorization: 'Bearer ' + token }
-		});
-		if (!res.ok) {
-			throw new Error(`newStaalCode HTTP ${res.status}`);
-		}
-		const body = (await res.text()).trim();
-		if (body.startsWith('"') && body.endsWith('"')) {
-			try {
-				return JSON.parse(body) as string;
-			} catch {
-				return body.slice(1, -1);
-			}
-		}
-		return body;
-	}
-
 	// fetchen van tests op "tests"
-	// verkrijgen nieuwe staalcode op "/api/newStaalCode"
 	// als we in de session storage een staalcode hebben, binden we deze zijn waarden aan de variabelen
 	async function loadTests() {
 		const token = authToken();
@@ -159,7 +139,7 @@
 		if (isNewStaalContext(code)) {
 			try {
 				assignTestsFromApi(await fetchAll(token, 'tests'));
-				nieuweStaalCode = await fetchNewStaalCodeText(token);
+				nieuweStaalCode = '';
 				loading = false;
 			} catch (error) {
 				console.error('testen kon niet gefetched worden:', error);
@@ -392,7 +372,6 @@
 					Authorization: 'Bearer ' + authToken()
 				},
 				body: JSON.stringify({
-					staalCode: nieuweStaalCode,
 					patientAchternaam: naam,
 					patientVoornaam: voornaam,
 					patientGeslacht: geslacht,
@@ -411,7 +390,15 @@
 				isWarningAcknowledged = false;
 				return;
 			}
-			staalCodeStore.set(String(nieuweStaalCode));
+			const created = await response.json();
+			const code = created?.staalCode;
+			if (!code) {
+				errorMessageStaal = 'Staal aangemaakt, maar geen staalcode ontvangen.';
+				isWarningAcknowledged = false;
+				return;
+			}
+			nieuweStaalCode = String(code);
+			staalCodeStore.set(String(code));
 		} catch (error) {
 			console.error('staal kon niet worden aangemaakt: ', error);
 			errorMessageStaal = 'Staal kon niet worden aangemaakt.';

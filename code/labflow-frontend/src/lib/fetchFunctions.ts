@@ -231,6 +231,9 @@ export async function fetchMicrobiologyStalen(
             if (searchParams.searchDate) {
                 params += `&date=${encodeURIComponent(searchParams.searchDate)}`;
             }
+            if (searchParams.filteredStatus) {
+                params += `&status=${encodeURIComponent(searchParams.filteredStatus)}`;
+            }
             const stalen = await fetchAll(token, 'microbiology/staal', params);
             const filteredStalen = stalen.content;
             return {
@@ -251,6 +254,20 @@ export async function fetchMicrobiologyStalen(
         console.error('JWT error: token missing of invalid');
         goto('/');
         return null;
+    }
+}
+
+export async function fetchMicrobiologyStatussen() {
+    const token = authToken();
+    if (token) {
+        try {
+            return await fetchAll(token, 'microbiology/statussen');
+        } catch (error) {
+            console.error('Microbiology statussen konden niet gefetched worden:', error);
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
     }
 }
 
@@ -295,5 +312,324 @@ export async function deleteMicrobiologyStaal(id: number) {
         headers: {
             Authorization: 'Bearer ' + token
         }
+    });
+}
+
+export async function createMicrobiologyStaal(body: {
+    laborantNaam: string;
+    laborantRnummer: string;
+    staalTypeId: number;
+}) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    const response = await fetch(`${backend_path_fetch}/api/microbiology/staal`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) return null;
+    return response.json();
+}
+
+export async function fetchMicrobiologyStaalById(id: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    try {
+        return await fetchAll(token, `microbiology/staal/${id}`);
+    } catch (e) {
+        console.error('Microbiology staal ophalen mislukt:', e);
+        return null;
+    }
+}
+
+export async function fetchMicrobiologyTests(staalTypeId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    try {
+        return await fetchAll(token, 'microbiology/tests', `staalTypeId=${staalTypeId}`);
+    } catch (e) {
+        console.error('Microbiology tests ophalen mislukt:', e);
+        return null;
+    }
+}
+
+export async function saveMicrobiologyStaalTests(
+    id: number,
+    body: {
+        patientVoornaam: string;
+        patientAchternaam: string;
+        patientGeboorteDatum: string;
+        patientGeslacht: string;
+        testIds: number[];
+    }
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    const response = await fetch(`${backend_path_fetch}/api/microbiology/staal/${id}/tests`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    });
+    if (!response.ok) return null;
+    return response.json();
+}
+
+export async function fetchMicrobiologyVoedingsbodems(staalId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    try {
+        return await fetchAll(token, `microbiology/staal/${staalId}/voedingsbodems`);
+    } catch (e) {
+        console.error('Voedingsbodems ophalen mislukt:', e);
+        return null;
+    }
+}
+
+export async function confirmMicrobiologyVoedingsbodems(staalId: number, voedingsbodemIds: number[]) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/voedingsbodems/confirm`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ voedingsbodemIds })
+    });
+}
+
+export async function fetchMicrobiologyConfirmedVoedingsbodems(staalId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    try {
+        return await fetchAll(token, `microbiology/staal/${staalId}/voedingsbodems/confirmed`);
+    } catch (e) {
+        console.error('Bevestigde voedingsbodems ophalen mislukt:', e);
+        return null;
+    }
+}
+
+export async function addMicrobiologyVoedingsbodems(staalId: number, voedingsbodemIds: number[]) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/voedingsbodems/add`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ voedingsbodemIds })
+    });
+}
+
+export async function clearMicrobiologyStaalTests(staalId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/tests`, {
+        method: 'DELETE',
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+    });
+}
+
+export async function fetchMicrobiologyNotebook(staalId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    try {
+        return await fetchAll(token, `microbiology/staal/${staalId}/notebook`);
+    } catch (e) {
+        console.error('Notebook ophalen mislukt:', e);
+        return null;
+    }
+}
+
+export async function patchMicrobiologyStaalCommentaar(staalId: number, commentaar: string) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/commentaar`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ commentaar })
+    });
+}
+
+export async function patchMicrobiologySectionVoltooid(
+    staalId: number,
+    section: string,
+    voltooid: boolean
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/voltooid/${section}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ voltooid })
+    });
+}
+
+export async function patchMicrobiologyStaalKlaar(staalId: number) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/klaar`, {
+        method: 'PATCH',
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+    });
+}
+
+export async function updateMicrobiologyStaalTest(
+    staalId: number,
+    staalTestId: number,
+    body: { waarde?: string; commentaar?: string; failed?: boolean }
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/staal-test/${staalTestId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    });
+}
+
+export async function patchMicrobiologyVoedingsbodemCommentaar(
+    staalId: number,
+    linkId: number,
+    commentaar: string
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(
+        `${backend_path_fetch}/api/microbiology/staal/${staalId}/voedingsbodems/${linkId}/commentaar`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token
+            },
+            body: JSON.stringify({ commentaar })
+        }
+    );
+}
+
+export async function syncMicrobiologyVoedingsbodemLogs(
+    staalId: number,
+    linkId: number,
+    logs: { organisme: string; beoordeling: string; sts: string; commentaar: string }[]
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(
+        `${backend_path_fetch}/api/microbiology/staal/${staalId}/voedingsbodems/${linkId}/logs`,
+        {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token
+            },
+            body: JSON.stringify({ logs })
+        }
+    );
+}
+
+export async function updateMicrobiologyGramkleuring(
+    staalId: number,
+    body: { commentaar?: string; rows?: { bepaling: string; score: string; commentaar: string }[] }
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/gramkleuring`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+    });
+}
+
+export async function updateMicrobiologyAntibiogram(
+    staalId: number,
+    entries: { antibioticaId: number; beoordeling: string }[]
+) {
+    const token = authToken();
+    if (!token) {
+        goto('/');
+        return null;
+    }
+    return fetch(`${backend_path_fetch}/api/microbiology/staal/${staalId}/antibiogram`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({ entries })
     });
 }
