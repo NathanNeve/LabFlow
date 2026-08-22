@@ -25,7 +25,7 @@
 				class="bg-blue-400 text-white aspect-square w-60 rounded-2xl flex flex-col items-center justify-center space-y-3 p-4"
 			>
 				<img src={hematologie} alt="Hematologie" class="w-3/5" />
-				<p class="text-white text-2xl text-center">Hematologie</p>
+				<p class="text-white text-2xl text-center">hematologie</p>
 			</a>
 
 			<!-- Microbiologie -->
@@ -34,7 +34,7 @@
 				class="bg-blue-400 text-white aspect-square w-60 rounded-2xl flex flex-col items-center justify-center space-y-3 p-4"
 			>
 				<img src={microbiologie} alt="Microbiologie" class="w-3/5" />
-				<p class="text-white text-2xl text-center">Microbiologie</p>
+				<p class="text-white text-2xl text-center">klinische chemie</p>
 			</a>
 		</div>
 	</div>
