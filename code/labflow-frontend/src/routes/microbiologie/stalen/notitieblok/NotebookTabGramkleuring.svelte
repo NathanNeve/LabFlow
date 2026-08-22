@@ -16,7 +16,7 @@
 
 <div class="space-y-6 p-4">
 	<section>
-		<h3 class="mb-2 font-semibold text-gray-700">Comment</h3>
+		<h3 class="mb-2 font-semibold text-gray-700">Commentaar voor protocol</h3>
 		<textarea
 			bind:value={gramkleuring.commentaar}
 			disabled={locked}

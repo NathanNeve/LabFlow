@@ -104,7 +104,6 @@ export interface MicrobiologyVoedingsbodemLogEntry {
     id?: number;
     organisme: string;
     beoordeling: string;
-    sts: string;
     commentaar: string;
     createdAt?: string;
     updatedAt?: string;
