@@ -1,5 +1,8 @@
 <script lang="ts">
-	import type { MicrobiologyVoedingsbodemLogEntry, MicrobiologyVoedingsbodemNotebookDto } from '$lib/types/dbTypes';
+	import type {
+		MicrobiologyVoedingsbodemLogEntry,
+		MicrobiologyVoedingsbodemNotebookDto
+	} from '$lib/types/dbTypes';
 	import { createEventDispatcher } from 'svelte';
 	import { goto } from '$app/navigation';
 	// @ts-ignore
@@ -32,7 +35,7 @@
 	}
 
 	function emptyRow(): MicrobiologyVoedingsbodemLogEntry {
-		return { organisme: '', beoordeling: '', sts: '', commentaar: '' };
+		return { organisme: '', beoordeling: '', commentaar: '' };
 	}
 
 	function ensureTrailingEmptyRow(logs: MicrobiologyVoedingsbodemLogEntry[]) {
@@ -50,7 +53,7 @@
 
 	function syncDraftKeys(logs: MicrobiologyVoedingsbodemLogEntry[]) {
 		draftRowKeys = logs.map((row, i) =>
-			row.id != null ? `saved-${row.id}` : draftRowKeys[i] ?? `draft-${++draftKeyCounter}`
+			row.id != null ? `saved-${row.id}` : (draftRowKeys[i] ?? `draft-${++draftKeyCounter}`)
 		);
 	}
 
@@ -63,7 +66,6 @@
 		return (
 			(row.organisme && row.organisme.trim() !== '') ||
 			(row.beoordeling && row.beoordeling.trim() !== '') ||
-			(row.sts && row.sts.trim() !== '') ||
 			(row.commentaar && row.commentaar.trim() !== '')
 		);
 	}
@@ -118,7 +120,7 @@
 <div class="space-y-6 p-4">
 	{#if voedingsbodems.length === 0}
 		<div class="space-y-4">
-			<p class="text-gray-500">Geen cultuurs geregistreerd voor dit staal.</p>
+			<p class="text-gray-500">Geen cultuur geregistreerd voor dit staal.</p>
 			<button
 				type="button"
 				disabled={locked}
@@ -131,7 +133,8 @@
 		</div>
 	{:else}
 		<section>
-			<label for="vb-select" class="mb-2 block font-semibold text-gray-700">Selecteer cultuur</label>
+			<label for="vb-select" class="mb-2 block font-semibold text-gray-700">Selecteer cultuur</label
+			>
 			<div class="flex max-w-md items-center gap-2">
 				<select
 					id="vb-select"
@@ -160,7 +163,7 @@
 
 		{#if selected}
 			<section>
-				<h3 class="mb-2 font-semibold text-gray-700">Comment</h3>
+				<h3 class="mb-2 font-semibold text-gray-700">Commentaar voor protocol</h3>
 				<textarea
 					bind:value={selected.commentaar}
 					disabled={locked}
@@ -177,15 +180,14 @@
 			<hr class="border-gray-300" />
 
 			<section class="overflow-visible">
-				<h3 class="mb-2 font-semibold text-gray-700">Isolats</h3>
+				<h3 class="mb-2 font-semibold text-gray-700">Isolaten</h3>
 				<table class="w-full table-fixed border-collapse overflow-visible">
 					<thead>
 						<tr class="border-b border-gray-300 text-left text-sm text-gray-500">
 							<th class="w-[8%] p-2"></th>
-							<th class="w-[18%] p-2">Organisme</th>
-							<th class="w-[12%] p-2">Beoordeling</th>
-							<th class="w-[12%] p-2">STS</th>
-							<th class="w-[50%] p-2">Commentaar</th>
+							<th class="w-[20%] p-2">Organisme</th>
+							<th class="w-[14%] p-2">Beoordeling</th>
+							<th class="w-[58%] p-2">Commentaar</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -231,15 +233,6 @@
 											<option value={opt}>{opt}</option>
 										{/each}
 									</select>
-								</td>
-								<td class="p-2">
-									<input
-										type="text"
-										bind:value={row.sts}
-										disabled={locked}
-										on:blur={onLogCellBlur}
-										class="w-full rounded-lg border border-gray-400 bg-gray-200 px-2 py-1 disabled:bg-gray-300"
-									/>
 								</td>
 								<td class="p-2">
 									<textarea

@@ -47,7 +47,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Label PDFs for microbiology: standard label + one page per confirmed {@link Voedingsbodem}.
+ * Label PDFs for microbiology: standard label + one page per confirmed
+ * {@link Voedingsbodem}.
  */
 @Service
 @Transactional("microbiologyTransactionManager")
@@ -76,7 +77,8 @@ public class MicrobiologyPdfGeneratorService {
                 .orElseThrow(() -> new EntityNotFoundException("Staal not found with id: " + staalId));
         MicrobiologyNotebookResponse notebook = microbiologyNotebookService.getNotebook(staalId);
         List<String> activeSections = notebook.getActiveSections() != null
-                ? notebook.getActiveSections() : List.of();
+                ? notebook.getActiveSections()
+                : List.of();
 
         Document document = new Document(PageSize.A4);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -94,7 +96,7 @@ public class MicrobiologyPdfGeneratorService {
         document.add(Chunk.NEWLINE);
 
         if (notebook.getCommentaar() != null && !notebook.getCommentaar().isBlank()) {
-            addSectionSubtitle(document, "Algemeen commentaar", headerFont);
+            addSectionSubtitle(document, "Algemene commentaar", headerFont);
             document.add(new Paragraph(notebook.getCommentaar(), bodyFont));
             document.add(Chunk.NEWLINE);
         }
@@ -154,7 +156,9 @@ public class MicrobiologyPdfGeneratorService {
             addSectionSubtitle(document, "Gramkleuring", headerFont);
             if (notebook.getGramkleuring().getCommentaar() != null
                     && !notebook.getGramkleuring().getCommentaar().isBlank()) {
-                document.add(new Paragraph(notebook.getGramkleuring().getCommentaar(), bodyFont));
+                Paragraph gramComment = new Paragraph(notebook.getGramkleuring().getCommentaar(), bodyFont);
+                gramComment.setSpacingAfter(CULTUUR_COMMENT_SPACING_AFTER);
+                document.add(gramComment);
             }
             if (notebook.getGramkleuring().getRows() != null
                     && !notebook.getGramkleuring().getRows().isEmpty()) {
@@ -202,7 +206,7 @@ public class MicrobiologyPdfGeneratorService {
 
         PdfPTable headerTable = new PdfPTable(2);
         headerTable.setWidthPercentage(100);
-        headerTable.setWidths(new int[]{3, 1});
+        headerTable.setWidths(new int[] { 3, 1 });
 
         PdfPCell leftCell = new PdfPCell();
         leftCell.setBorder(Rectangle.NO_BORDER);
@@ -240,8 +244,8 @@ public class MicrobiologyPdfGeneratorService {
         if (notebook.getGramkleuring().getRows() == null) {
             return false;
         }
-        return notebook.getGramkleuring().getRows().stream().anyMatch(row ->
-                (row.getScore() != null && !row.getScore().isBlank())
+        return notebook.getGramkleuring().getRows().stream()
+                .anyMatch(row -> (row.getScore() != null && !row.getScore().isBlank())
                         || (row.getCommentaar() != null && !row.getCommentaar().isBlank()));
     }
 
@@ -347,7 +351,8 @@ public class MicrobiologyPdfGeneratorService {
             document.add(Chunk.NEWLINE);
 
             ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
-                    new Phrase(String.valueOf(staalCode), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
+                    new Phrase(String.valueOf(staalCode),
+                            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
                     105, 15, 0);
 
             String vbNaam = vb.getNaam() != null ? vb.getNaam() : "";
@@ -377,7 +382,8 @@ public class MicrobiologyPdfGeneratorService {
         document.add(Chunk.NEWLINE);
 
         ColumnText.showTextAligned(canvas, Element.ALIGN_CENTER,
-                new Phrase(String.valueOf(staalCode), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
+                new Phrase(String.valueOf(staalCode),
+                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.BLACK)),
                 105, 15, 0);
 
         barcodeImage.setAbsolutePosition(70, 30);

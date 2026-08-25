@@ -23,3 +23,7 @@ Hibernate will **not** copy rows from the old file automatically. Options:
 3. **Accept reset**: for production staging, deploy empty files and re-seed only if that is acceptable.
 
 For Docker/Render, mount a single volume directory so all three `.db` files persist together under `/app/databases`.
+
+<!-- docker run -p 8080:8080 `
+  -v "${PWD}\.env:/app/.env" `
+  labflow-backend -->

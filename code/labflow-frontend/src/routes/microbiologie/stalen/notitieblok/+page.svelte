@@ -35,11 +35,15 @@
 
 	const backend_path = import.meta.env.VITE_BACKEND_PATH;
 
-	type TabDef = { id: MicrobiologyNotebookSection; label: string; voltooidKey: keyof MicrobiologyNotebookResponse };
+	type TabDef = {
+		id: MicrobiologyNotebookSection;
+		label: string;
+		voltooidKey: keyof MicrobiologyNotebookResponse;
+	};
 
 	const TABS: TabDef[] = [
 		{ id: 'algemene-testen', label: 'Algemene testen', voltooidKey: 'voltooidAlgemeneTesten' },
-		{ id: 'voedingsbodems', label: 'Cultuurs', voltooidKey: 'voltooidVoedingsbodems' },
+		{ id: 'voedingsbodems', label: 'Cultuur', voltooidKey: 'voltooidVoedingsbodems' },
 		{ id: 'gramkleuring', label: 'Gramkleuring', voltooidKey: 'voltooidGramkleuring' },
 		{ id: 'antibiogram', label: 'Antibiogram', voltooidKey: 'voltooidAntibiogram' }
 	];
@@ -76,9 +80,7 @@
 		: ({} as Record<MicrobiologyNotebookSection, boolean>);
 
 	$: allVoltooid =
-		notebook != null &&
-		visibleTabs.length > 0 &&
-		visibleTabs.every((tab) => voltooidFlags[tab.id]);
+		notebook != null && visibleTabs.length > 0 && visibleTabs.every((tab) => voltooidFlags[tab.id]);
 
 	$: currentTab = visibleTabs.find((t) => t.id === selectedTab) ?? visibleTabs[0];
 	$: tabVoltooid = voltooidFlags[selectedTab] ?? false;
@@ -113,19 +115,15 @@
 		if (!notebook) return;
 		for (const vb of notebook.voedingsbodems) {
 			if (!vb.logs || vb.logs.length === 0) {
-				vb.logs = [{ organisme: '', beoordeling: '', sts: '', commentaar: '' }];
+				vb.logs = [{ organisme: '', beoordeling: '', commentaar: '' }];
 			} else {
-				for (const log of vb.logs) {
-					if (log.sts == null) log.sts = '';
-				}
 				const last = vb.logs[vb.logs.length - 1];
 				const hasContent =
 					(last.organisme && last.organisme.trim()) ||
 					(last.beoordeling && last.beoordeling.trim()) ||
-					(last.sts && last.sts.trim()) ||
 					(last.commentaar && last.commentaar.trim());
 				if (hasContent) {
-					vb.logs.push({ organisme: '', beoordeling: '', sts: '', commentaar: '' });
+					vb.logs.push({ organisme: '', beoordeling: '', commentaar: '' });
 				}
 			}
 		}
@@ -147,20 +145,26 @@
 	}
 
 	async function handleTestSave(
-		event: CustomEvent<{ staalTestId: number; waarde?: string; commentaar?: string; failed?: boolean }>
+		event: CustomEvent<{
+			staalTestId: number;
+			waarde?: string;
+			commentaar?: string;
+			failed?: boolean;
+		}>
 	) {
 		if (staalId == null || !notebook) return;
 		const { staalTestId, waarde, commentaar, failed } = event.detail;
 		const res = await updateMicrobiologyStaalTest(staalId, staalTestId, event.detail);
 		if (!res?.ok) return;
-		const nextFailed = failed ?? notebook.algemeneTesten.find((t) => t.id === staalTestId)?.failed ?? false;
+		const nextFailed =
+			failed ?? notebook.algemeneTesten.find((t) => t.id === staalTestId)?.failed ?? false;
 		notebook = {
 			...notebook,
 			algemeneTesten: notebook.algemeneTesten.map((t) =>
 				t.id === staalTestId
 					? {
 							...t,
-							waarde: nextFailed ? '' : (waarde !== undefined ? waarde : t.waarde),
+							waarde: nextFailed ? '' : waarde !== undefined ? waarde : t.waarde,
 							commentaar: commentaar !== undefined ? commentaar : t.commentaar,
 							failed: nextFailed
 						}
@@ -169,15 +173,20 @@
 		};
 	}
 
-	async function handleVbComment(
-		event: CustomEvent<{ linkId: number; commentaar: string }>
-	) {
+	async function handleVbComment(event: CustomEvent<{ linkId: number; commentaar: string }>) {
 		if (staalId == null) return;
-		await patchMicrobiologyVoedingsbodemCommentaar(staalId, event.detail.linkId, event.detail.commentaar);
+		await patchMicrobiologyVoedingsbodemCommentaar(
+			staalId,
+			event.detail.linkId,
+			event.detail.commentaar
+		);
 	}
 
 	async function handleVbLogs(
-		event: CustomEvent<{ linkId: number; logs: { organisme: string; beoordeling: string; sts: string; commentaar: string }[] }>
+		event: CustomEvent<{
+			linkId: number;
+			logs: { organisme: string; beoordeling: string; commentaar: string }[];
+		}>
 	) {
 		if (staalId == null || !notebook) return;
 		const res = await syncMicrobiologyVoedingsbodemLogs(
@@ -198,7 +207,12 @@
 		initVoedingsbodemLogs();
 	}
 
-	async function handleGramSave(event: CustomEvent<{ commentaar?: string | null; rows: { bepaling: string; score: string; commentaar: string }[] }>) {
+	async function handleGramSave(
+		event: CustomEvent<{
+			commentaar?: string | null;
+			rows: { bepaling: string; score: string; commentaar: string }[];
+		}>
+	) {
 		if (staalId == null) return;
 		await updateMicrobiologyGramkleuring(staalId, {
 			commentaar: event.detail.commentaar ?? undefined,
@@ -230,10 +244,13 @@
 	async function downloadResults() {
 		if (staalId == null || (!allVoltooid && !notebookLocked)) return;
 		try {
-			const response = await fetch(`${backend_path}/api/microbiology/pdf/generateresults/${staalId}`, {
-				method: 'GET',
-				headers: { Authorization: `Bearer ${authToken()}` }
-			});
+			const response = await fetch(
+				`${backend_path}/api/microbiology/pdf/generateresults/${staalId}`,
+				{
+					method: 'GET',
+					headers: { Authorization: `Bearer ${authToken()}` }
+				}
+			);
 			if (!response.ok) return;
 
 			const disposition = response.headers.get('X-Filename');
@@ -286,9 +303,7 @@
 				<div class="flex flex-col justify-center">
 					<p class="text-gray-400">Geboortedatum</p>
 					<p class="font-bold">
-						{notebook?.patientGeboorteDatum
-							? formatDate(notebook.patientGeboorteDatum)
-							: '...'}
+						{notebook?.patientGeboorteDatum ? formatDate(notebook.patientGeboorteDatum) : '...'}
 					</p>
 				</div>
 				<div class="flex flex-col justify-center pl-5">
@@ -319,16 +334,19 @@
 			</div>
 		</div>
 
-
 		<div class="flex min-h-0 flex-1 space-x-4">
 			<div class="flex w-1/3 min-h-0 flex-col space-y-4">
 				<div class="min-h-0 flex-1 overflow-y-auto rounded-xl bg-white p-4">
-					<p class="text-blue-500">{visibleTabs.length} {visibleTabs.length === 1 ? 'sectie' : 'secties'}</p>
+					<p class="text-blue-500">
+						{visibleTabs.length}
+						{visibleTabs.length === 1 ? 'sectie' : 'secties'}
+					</p>
 					{#each visibleTabs as tab (tab.id)}
 						<button
 							type="button"
 							on:click={() => (selectedTab = tab.id)}
-							class="my-3 flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:scale-[101%] hover:bg-gray-100 {selectedTab === tab.id
+							class="my-3 flex w-full cursor-pointer items-center justify-between rounded-xl border border-gray-200 p-4 transition hover:scale-[101%] hover:bg-gray-100 {selectedTab ===
+							tab.id
 								? 'ring-2 ring-blue-400'
 								: ''}"
 						>
@@ -353,13 +371,13 @@
 				</div>
 
 				<div>
-					<p class="mb-2 font-semibold text-gray-700">Comment</p>
+					<p class="mb-2 font-semibold text-gray-700">Algemene commentaar</p>
 					<textarea
 						bind:value={generalComment}
 						disabled={notebookLocked}
 						on:blur={saveGeneralComment}
 						class="h-28 w-full rounded-lg border border-gray-400 bg-white p-3 disabled:cursor-not-allowed disabled:bg-gray-200"
-						placeholder="Algemeen commentaar over het staal..."
+						placeholder="Algemene commentaar over de staal..."
 					></textarea>
 				</div>
 
