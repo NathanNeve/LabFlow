@@ -5,13 +5,10 @@
 	// @ts-ignore
 	import GiTestTubes from 'svelte-icons/gi/GiTestTubes.svelte';
 	// @ts-ignore
-	import FaUserAlt from 'svelte-icons/fa/FaUserAlt.svelte';
-	// @ts-ignore
 	import GiHypodermicTest from 'svelte-icons/gi/GiHypodermicTest.svelte';
 	// @ts-ignore
 	import FaWrench from 'svelte-icons/fa/FaWrench.svelte';
 	import CategorieënBeheren from '../../components/Instellingen/CategorieënBeheren.svelte';
-	import GebruikersBeheren from '../../components/Instellingen/GebruikersBeheren.svelte';
 	import StalenBeheren from '../../components/Instellingen/StalenBeheren.svelte';
 	import TestsBeheren from '../../components/Instellingen/Testsbeheren.svelte';
 	import EenhedenBeheren from '../../components/Instellingen/EenhedenBeheren.svelte';
@@ -33,16 +30,6 @@
 		>
 			<div class="w-12 h-12 mb-3"><GiHypodermicTest /></div>
 			Testen
-		</button>
-		<button
-			type="button"
-			on:click={() => (navElement = 'Gebruiker')}
-			class="p-2 text-center text-md {navElement == 'Gebruiker'
-				? 'bg-blue-500'
-				: 'bg-blue-400'} flex flex-col items-center justify-center w-32 h-32 rounded-2xl text-white"
-		>
-			<div class="w-12 h-12 mb-3"><FaUserAlt /></div>
-			Gebruikers
 		</button>
 		<button
 			type="button"
@@ -84,8 +71,6 @@
 		<CategorieënBeheren />
 	{:else if navElement === 'Staal'}
 		<StalenBeheren />
-	{:else if navElement === 'Gebruiker'}
-		<GebruikersBeheren />
 	{:else if navElement === 'Test'}
 		<TestsBeheren />
 	{:else if navElement === 'Eenheid'}

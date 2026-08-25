@@ -16,4 +16,6 @@ public interface AntibiogramRepository extends JpaRepository<Antibiogram, Long> 
     Optional<Antibiogram> findByStaal_IdAndAntibiotica_Id(Long staalId, Long antibioticaId);
 
     void deleteByStaal_IdAndAntibiotica_Id(Long staalId, Long antibioticaId);
+
+    boolean existsByAntibiotica_Id(Long antibioticaId);
 }

@@ -497,11 +497,7 @@
 
 			<div class="h-[calc(100vh-330px)] overflow-auto">
 				{#each testsSorted as test}
-					<div
-						class="grid h-20 grid-cols-12 items-center gap-4 border-b border-gray-300 px-3 {test.extraTest
-							? 'bg-blue-50'
-							: ''}"
-					>
+					<div class="grid h-20 grid-cols-12 items-center gap-4 border-b border-gray-300 px-3">
 						<div class="col-span-1">
 							<input
 								type="checkbox"
@@ -514,21 +510,17 @@
 							<p class="text-gray-400">Testcode</p>
 							<p>{test.testCode}</p>
 						</div>
-						<div class="col-span-4">
+						<div class="col-span-5">
 							<p class="text-gray-400">Naam</p>
 							<p class="truncate">{test.naam}</p>
 						</div>
-						<div class="col-span-3">
+						<div class="col-span-4">
 							<p class="text-gray-400">Voedingsbodems</p>
 							{#if (test.voedingsbodems ?? []).length > 0}
 								<p class="truncate">{(test.voedingsbodems ?? []).join(', ')}</p>
 							{:else}
 								<p class="text-gray-400">—</p>
 							{/if}
-						</div>
-						<div class="col-span-2">
-							<p class="text-gray-400">Extra</p>
-							<p>{test.extraTest ? 'Ja' : 'Nee'}</p>
 						</div>
 					</div>
 				{/each}

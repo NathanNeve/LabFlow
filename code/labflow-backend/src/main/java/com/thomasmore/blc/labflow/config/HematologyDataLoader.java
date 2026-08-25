@@ -14,6 +14,8 @@ import com.thomasmore.blc.labflow.repository.hematology.StaalRepository;
 import com.thomasmore.blc.labflow.repository.hematology.StaalTestRepository;
 import com.thomasmore.blc.labflow.repository.hematology.TestCategorieRepository;
 import com.thomasmore.blc.labflow.repository.hematology.TestRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,8 @@ import java.util.Objects;
 @Order(2)
 public class HematologyDataLoader implements CommandLineRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(HematologyDataLoader.class);
+
     private final UserRepository userRepository;
     private final EenheidRepository eenheidRepository;
     private final TestCategorieRepository testCategorieRepository;
@@ -34,12 +38,12 @@ public class HematologyDataLoader implements CommandLineRunner {
     private final StaalTestRepository staalTestRepository;
 
     public HematologyDataLoader(UserRepository userRepository,
-                                EenheidRepository eenheidRepository,
-                                TestCategorieRepository testCategorieRepository,
-                                TestRepository testRepository,
-                                StaalRepository staalRepository,
-                                ReferentiewaardeRepository referentiewaardeRepository,
-                                StaalTestRepository staalTestRepository) {
+            EenheidRepository eenheidRepository,
+            TestCategorieRepository testCategorieRepository,
+            TestRepository testRepository,
+            StaalRepository staalRepository,
+            ReferentiewaardeRepository referentiewaardeRepository,
+            StaalTestRepository staalTestRepository) {
         this.userRepository = userRepository;
         this.eenheidRepository = eenheidRepository;
         this.testCategorieRepository = testCategorieRepository;
@@ -53,8 +57,10 @@ public class HematologyDataLoader implements CommandLineRunner {
     public void run(String... args) {
         User uNathan = userRepository.findByEmail("nathanneve@test.be");
         User uCesar = userRepository.findByEmail("césarvanleuffelen@test.be");
-        Objects.requireNonNull(uNathan, "Seed user nathanneve@test.be missing; check AuthDataLoader and .env passwords");
-        Objects.requireNonNull(uCesar, "Seed user césarvanleuffelen@test.be missing; check AuthDataLoader and .env passwords");
+        Objects.requireNonNull(uNathan,
+                "Seed user nathanneve@test.be missing; check AuthDataLoader and .env passwords");
+        Objects.requireNonNull(uCesar,
+                "Seed user césarvanleuffelen@test.be missing; check AuthDataLoader and .env passwords");
         long idNathan = uNathan.getId();
         long idCesar = uCesar.getId();
 
@@ -64,7 +70,7 @@ public class HematologyDataLoader implements CommandLineRunner {
         Testcategorie serumCat = new Testcategorie("Serum", "#ED3A3A", "Rood");
         Testcategorie heparineCat = new Testcategorie("Heparine", "#2DE57A", "Groen");
         Testcategorie fluorideCat = new Testcategorie("Fluoride", "#8c8c8c", "Grijs");
-        Testcategorie urineCat = new Testcategorie("Urine", "#ffcc40","Geel");
+        Testcategorie urineCat = new Testcategorie("Urine", "#ffcc40", "Geel");
         Testcategorie noCat = new Testcategorie("Geen Categorie", "#ffffff", "Geen");
         testCategorieRepository.save(edtaCat);
         testCategorieRepository.save(citraatCat);
@@ -74,38 +80,67 @@ public class HematologyDataLoader implements CommandLineRunner {
         testCategorieRepository.save(urineCat);
         testCategorieRepository.save(noCat);
 
-
         // Stalen, dit is voor development, geen echte waarden
-        Staal staal1 = new Staal(2024000001L, "César", "Van Leuffelen", LocalDate.parse("2004-07-29"), 'M', "Nathan Neve", "R1234567", idNathan);
-        Staal staal2 = new Staal(2024000002L, "Lucas", "Peeters", LocalDate.parse("1985-07-21"), 'M', "Sofie", "R1234567", idCesar);
-        Staal staal3 = new Staal(2024000003L, "Mila", "Vermeulen", LocalDate.parse("1993-02-11"), 'V', "Bart", "R1234567", idNathan);
-        Staal staal4 = new Staal(2024000004L, "Liam", "Claes", LocalDate.parse("1992-11-30"), 'M', "Lies", "R1234567", idCesar);
-        Staal staal5 = new Staal(2024000005L, "Olivia", "Dubois", LocalDate.parse("2000-01-08"), 'V', "An", "R1234567", idNathan);
-        Staal staal6 = new Staal(2024000006L, "Noah", "De Smet", LocalDate.parse("1987-03-16"), 'M', "Koen", "R1234567", idCesar);
-        Staal staal7 = new Staal(2024000007L, "Marie", "De Vries", LocalDate.parse("1991-09-25"), 'V', "Katrien", "R1234567", idNathan);
-        Staal staal8 = new Staal(2024000008L, "Arthur", "Van Damme", LocalDate.parse("1988-12-19"), 'M', "Jan", "R1234567", idCesar);
-        Staal staal9 = new Staal(2024000009L, "Charlotte", "Jacobs", LocalDate.parse("1995-04-03"), 'V', "Eva", "R1234567", idNathan);
-        Staal staal10 = new Staal(2024000010L, "Victor", "Maes", LocalDate.parse("1990-06-10"), 'M', "Lotte", "R1234567", idCesar);
-        Staal staal11 = new Staal(2024000011L, "Emma", "Goossens", LocalDate.parse("1996-05-14"), 'V', "Tom", "R1234567", idNathan);
-        Staal staal12 = new Staal(2024000012L, "Finn", "Lenaerts", LocalDate.parse("1994-02-18"), 'M', "Lien", "R1234567", idCesar);
-        Staal staal13 = new Staal(2024000013L, "Elise", "Van den Broeck", LocalDate.parse("2001-03-22"), 'V', "Kim", "R1234567", idNathan);
-        Staal staal14 = new Staal(2024000014L, "Jules", "Willems", LocalDate.parse("1989-08-07"), 'M', "Sarah", "R1234567", idCesar);
-        Staal staal15 = new Staal(2024000015L, "Lotte", "Hermans", LocalDate.parse("1998-09-12"), 'V', "Pieter", "R1234567", idNathan);
-        Staal staal16 = new Staal(2024000016L, "Mats", "Van Dijk", LocalDate.parse("1986-10-05"), 'M', "Karen", "R1234567", idCesar);
-        Staal staal17 = new Staal(2024000017L, "Tess", "De Clercq", LocalDate.parse("1999-11-01"), 'V', "Luc", "R1234567", idNathan);
-        Staal staal18 = new Staal(2024000018L, "Niels", "De Wilde", LocalDate.parse("1993-01-27"), 'M', "Els", "R1234567", idCesar);
-        Staal staal19 = new Staal(2024000019L, "Sara", "Desmet", LocalDate.parse("1997-07-19"), 'V', "Joachim", "R1234567", idNathan);
-        Staal staal20 = new Staal(2024000020L, "Simon", "Van Acker", LocalDate.parse("1984-12-30"), 'M', "Nathalie", "R1234567", idCesar);
-        Staal staal21 = new Staal(2024000021L, "Hanne", "De Vos", LocalDate.parse("2002-06-09"), 'V', "Stijn", "R1234567", idNathan);
-        Staal staal22 = new Staal(2024000022L, "Brent", "Mertens", LocalDate.parse("1990-04-25"), 'M', "Inge", "R1234567", idCesar);
-        Staal staal23 = new Staal(2024000023L, "Jana", "Declercq", LocalDate.parse("1995-08-13"), 'V', "Dieter", "R1234567", idNathan);
-        Staal staal24 = new Staal(2024000024L, "Cedric", "Lauwers", LocalDate.parse("1988-03-09"), 'M', "Annick", "R1234567", idCesar);
-        Staal staal25 = new Staal(2024000025L, "Lien", "Van den Eede", LocalDate.parse("1991-12-05"), 'V', "Marc", "R1234567", idNathan);
-        Staal staal26 = new Staal(2024000026L, "Robbe", "Smet", LocalDate.parse("1992-07-28"), 'M', "Heidi", "R1234567", idCesar);
-        Staal staal27 = new Staal(2024000027L, "Sofie", "Dewitte", LocalDate.parse("1996-10-15"), 'V', "Dirk", "R1234567", idNathan);
-        Staal staal28 = new Staal(2024000028L, "Kobe", "Van Leeuwen", LocalDate.parse("1985-05-01"), 'M', "Veerle", "R1234567", idCesar);
-        Staal staal29 = new Staal(2024000029L, "Annelies", "D'Haese", LocalDate.parse("1994-09-18"), 'V', "Bert", "R1234567", idNathan);
-        Staal staal30 = new Staal(2024000030L, "Alexander", "De Backer", LocalDate.parse("1993-06-23"), 'M', "Sabine", "R1234567", idCesar);
+        Staal staal1 = new Staal(2024000001L, "César", "Van Leuffelen", LocalDate.parse("2004-07-29"), 'M',
+                "Nathan Neve", "R1234567", idNathan);
+        Staal staal2 = new Staal(2024000002L, "Lucas", "Peeters", LocalDate.parse("1985-07-21"), 'M', "Sofie",
+                "R1234567", idCesar);
+        Staal staal3 = new Staal(2024000003L, "Mila", "Vermeulen", LocalDate.parse("1993-02-11"), 'V', "Bart",
+                "R1234567", idNathan);
+        Staal staal4 = new Staal(2024000004L, "Liam", "Claes", LocalDate.parse("1992-11-30"), 'M', "Lies", "R1234567",
+                idCesar);
+        Staal staal5 = new Staal(2024000005L, "Olivia", "Dubois", LocalDate.parse("2000-01-08"), 'V', "An", "R1234567",
+                idNathan);
+        Staal staal6 = new Staal(2024000006L, "Noah", "De Smet", LocalDate.parse("1987-03-16"), 'M', "Koen", "R1234567",
+                idCesar);
+        Staal staal7 = new Staal(2024000007L, "Marie", "De Vries", LocalDate.parse("1991-09-25"), 'V', "Katrien",
+                "R1234567", idNathan);
+        Staal staal8 = new Staal(2024000008L, "Arthur", "Van Damme", LocalDate.parse("1988-12-19"), 'M', "Jan",
+                "R1234567", idCesar);
+        Staal staal9 = new Staal(2024000009L, "Charlotte", "Jacobs", LocalDate.parse("1995-04-03"), 'V', "Eva",
+                "R1234567", idNathan);
+        Staal staal10 = new Staal(2024000010L, "Victor", "Maes", LocalDate.parse("1990-06-10"), 'M', "Lotte",
+                "R1234567", idCesar);
+        Staal staal11 = new Staal(2024000011L, "Emma", "Goossens", LocalDate.parse("1996-05-14"), 'V', "Tom",
+                "R1234567", idNathan);
+        Staal staal12 = new Staal(2024000012L, "Finn", "Lenaerts", LocalDate.parse("1994-02-18"), 'M', "Lien",
+                "R1234567", idCesar);
+        Staal staal13 = new Staal(2024000013L, "Elise", "Van den Broeck", LocalDate.parse("2001-03-22"), 'V', "Kim",
+                "R1234567", idNathan);
+        Staal staal14 = new Staal(2024000014L, "Jules", "Willems", LocalDate.parse("1989-08-07"), 'M', "Sarah",
+                "R1234567", idCesar);
+        Staal staal15 = new Staal(2024000015L, "Lotte", "Hermans", LocalDate.parse("1998-09-12"), 'V', "Pieter",
+                "R1234567", idNathan);
+        Staal staal16 = new Staal(2024000016L, "Mats", "Van Dijk", LocalDate.parse("1986-10-05"), 'M', "Karen",
+                "R1234567", idCesar);
+        Staal staal17 = new Staal(2024000017L, "Tess", "De Clercq", LocalDate.parse("1999-11-01"), 'V', "Luc",
+                "R1234567", idNathan);
+        Staal staal18 = new Staal(2024000018L, "Niels", "De Wilde", LocalDate.parse("1993-01-27"), 'M', "Els",
+                "R1234567", idCesar);
+        Staal staal19 = new Staal(2024000019L, "Sara", "Desmet", LocalDate.parse("1997-07-19"), 'V', "Joachim",
+                "R1234567", idNathan);
+        Staal staal20 = new Staal(2024000020L, "Simon", "Van Acker", LocalDate.parse("1984-12-30"), 'M', "Nathalie",
+                "R1234567", idCesar);
+        Staal staal21 = new Staal(2024000021L, "Hanne", "De Vos", LocalDate.parse("2002-06-09"), 'V', "Stijn",
+                "R1234567", idNathan);
+        Staal staal22 = new Staal(2024000022L, "Brent", "Mertens", LocalDate.parse("1990-04-25"), 'M', "Inge",
+                "R1234567", idCesar);
+        Staal staal23 = new Staal(2024000023L, "Jana", "Declercq", LocalDate.parse("1995-08-13"), 'V', "Dieter",
+                "R1234567", idNathan);
+        Staal staal24 = new Staal(2024000024L, "Cedric", "Lauwers", LocalDate.parse("1988-03-09"), 'M', "Annick",
+                "R1234567", idCesar);
+        Staal staal25 = new Staal(2024000025L, "Lien", "Van den Eede", LocalDate.parse("1991-12-05"), 'V', "Marc",
+                "R1234567", idNathan);
+        Staal staal26 = new Staal(2024000026L, "Robbe", "Smet", LocalDate.parse("1992-07-28"), 'M', "Heidi", "R1234567",
+                idCesar);
+        Staal staal27 = new Staal(2024000027L, "Sofie", "Dewitte", LocalDate.parse("1996-10-15"), 'V', "Dirk",
+                "R1234567", idNathan);
+        Staal staal28 = new Staal(2024000028L, "Kobe", "Van Leeuwen", LocalDate.parse("1985-05-01"), 'M', "Veerle",
+                "R1234567", idCesar);
+        Staal staal29 = new Staal(2024000029L, "Annelies", "D'Haese", LocalDate.parse("1994-09-18"), 'V', "Bert",
+                "R1234567", idNathan);
+        Staal staal30 = new Staal(2024000030L, "Alexander", "De Backer", LocalDate.parse("1993-06-23"), 'M', "Sabine",
+                "R1234567", idCesar);
 
         staalRepository.save(staal1);
         staalRepository.save(staal2);
@@ -191,7 +226,6 @@ public class HematologyDataLoader implements CommandLineRunner {
         eenheidRepository.save(picomolesPerLiter);
         eenheidRepository.save(millilitersPerMinute);
 
-
         // Aanmaken van tests met hun codes en opslaan
         Test test1 = new Test("X", "Notitie", notAvailable, noCat);
         testRepository.save(test1);
@@ -209,7 +243,9 @@ public class HematologyDataLoader implements CommandLineRunner {
         testRepository.save(test606);
         Test test607 = new Test("607", "WBC", cellsPerMicroliter, edtaCat);
         testRepository.save(test607);
-        Test test608 = new Test("608", "Formule: staafkerninge neutrofielen, segmentkerninge neutrofielen, lymfocyten, monocyten, eosinofielen, basofielen", notAvailable, edtaCat);
+        Test test608 = new Test("608",
+                "Formule: staafkerninge neutrofielen, segmentkerninge neutrofielen, lymfocyten, monocyten, eosinofielen, basofielen",
+                notAvailable, edtaCat);
         testRepository.save(test608);
         Test test609 = new Test("609", "Thrombocyten", plateletsPerMicroliter, edtaCat);
         testRepository.save(test609);
@@ -350,7 +386,6 @@ public class HematologyDataLoader implements CommandLineRunner {
         Test test553 = new Test("553", "Creatinine clearance", millilitersPerMinute, urineCat);
         testRepository.save(test553);
 
-
         // referentiewaarden aanmaken
         // Hematologie (EDTA)
         referentiewaardeRepository.save(new Referentiewaarde("man 14-18", test601));
@@ -367,7 +402,8 @@ public class HematologyDataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("33+2", test606));
         referentiewaardeRepository.save(new Referentiewaarde("4000-10000", test607));
 
-        // Formule: staafkerninge neutrofielen, segmentkerninge neutrofielen, lymfocyten, monocyten, eosinofielen, basofielen
+        // Formule: staafkerninge neutrofielen, segmentkerninge neutrofielen,
+        // lymfocyten, monocyten, eosinofielen, basofielen
         referentiewaardeRepository.save(new Referentiewaarde("staafkerninge neutrofielen 5-16", test608));
         referentiewaardeRepository.save(new Referentiewaarde("segmentkerninge neutrofielen 50-70", test608));
         referentiewaardeRepository.save(new Referentiewaarde("lymfocyten 20-35", test608));
@@ -387,7 +423,8 @@ public class HematologyDataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Kell +/-", test65));
 
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test66));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test67));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test67));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test68));
 
         // Hemostase (citraat)
@@ -398,25 +435,31 @@ public class HematologyDataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("man 0-5", test221));
         referentiewaardeRepository.save(new Referentiewaarde("vrouw 0-7", test221));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test222));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test223));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test223));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test224));
 
         // Serologie Viraal (serum)
-        referentiewaardeRepository.save(new Referentiewaarde("negatief ≤0,90 /hertesten 0,91-1,09 / positief ≥1,10", test280));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("negatief ≤0,90 /hertesten 0,91-1,09 / positief ≥1,10", test280));
         referentiewaardeRepository.save(new Referentiewaarde(" +/-", test281));
 
         // Serologie Bacterieel (serum)
         referentiewaardeRepository.save(new Referentiewaarde("positief >200", test270));
 
         // Flow cytometrie (EDTA)
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test727));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test728));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test727));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test728));
 
         // Genetica
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test729));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test729));
 
         // Metabole aandoeningen
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test730));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test730));
 
         // Biochemie - Suikers
         referentiewaardeRepository.save(new Referentiewaarde("70-105", test100));
@@ -465,7 +508,8 @@ public class HematologyDataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("Alfa-2 globulinen: 7.4-12.6%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Bèta globulinen: 7.5-12.9%", test162));
         referentiewaardeRepository.save(new Referentiewaarde("Gamma globulinen: 8-15.8%", test162));
-        referentiewaardeRepository.save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test163));
+        referentiewaardeRepository
+                .save(new Referentiewaarde("hier graag een tekstvlak om zelf uitslag in te typen", test163));
 
         referentiewaardeRepository.save(new Referentiewaarde("<5", test164)); // CRP
         referentiewaardeRepository.save(new Referentiewaarde("30-100", test210)); // Vit. D3 (25-OH)
@@ -481,10 +525,12 @@ public class HematologyDataLoader implements CommandLineRunner {
 
         // Referentiewaarden for Biochemie - Gonaden tests
         referentiewaardeRepository.save(new Referentiewaarde("<5", test430)); // HCG
-        referentiewaardeRepository.save(new Referentiewaarde("LH Mid-folliculair 2.1-10.9", test431)); // LH Mid-folliculair
+        referentiewaardeRepository.save(new Referentiewaarde("LH Mid-folliculair 2.1-10.9", test431)); // LH
+                                                                                                       // Mid-folliculair
         referentiewaardeRepository.save(new Referentiewaarde("LH Mid-cyclus 19.2-103", test431)); // LH Mid-cyclus
         referentiewaardeRepository.save(new Referentiewaarde("LH Mid-luteaal 1.2-12.9", test431)); // LH Mid-luteaal
-        referentiewaardeRepository.save(new Referentiewaarde("LH Postmenopause 10.9-58.6", test431)); // LH Postmenopause
+        referentiewaardeRepository.save(new Referentiewaarde("LH Postmenopause 10.9-58.6", test431)); // LH
+                                                                                                      // Postmenopause
         referentiewaardeRepository.save(new Referentiewaarde("man 1.2-8.6", test431)); // LH man
 
         // Referentiewaarden for Biochemie - Urine tests
@@ -494,7 +540,7 @@ public class HematologyDataLoader implements CommandLineRunner {
         referentiewaardeRepository.save(new Referentiewaarde("71-151", test553)); // Creatinine clearance
 
         // 3 tests toevoegen aan staal 1
-        StaalTest staalTestx= new StaalTest(staal1, test1);
+        StaalTest staalTestx = new StaalTest(staal1, test1);
         StaalTest staalTest1 = new StaalTest(staal1, test601);
         StaalTest staalTest2 = new StaalTest(staal1, test602);
         StaalTest staalTest3 = new StaalTest(staal1, test630);

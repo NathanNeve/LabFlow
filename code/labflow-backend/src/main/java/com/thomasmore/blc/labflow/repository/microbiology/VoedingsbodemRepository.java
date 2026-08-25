@@ -2,6 +2,7 @@ package com.thomasmore.blc.labflow.repository.microbiology;
 
 import com.thomasmore.blc.labflow.entity.microbiology.Voedingsbodem;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface VoedingsbodemRepository extends JpaRepository<Voedingsbodem, Long> {
 
     Optional<Voedingsbodem> findByNaam(String naam);
+
+    List<Voedingsbodem> findAllByOrderByNaamAsc();
 }

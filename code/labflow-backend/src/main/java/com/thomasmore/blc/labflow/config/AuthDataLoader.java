@@ -5,6 +5,8 @@ import com.thomasmore.blc.labflow.entity.auth.User;
 import com.thomasmore.blc.labflow.repository.auth.RolRepository;
 import com.thomasmore.blc.labflow.repository.auth.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(1)
 public class AuthDataLoader implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthDataLoader.class);
 
     private final UserRepository userRepository;
     private final RolRepository rolRepository;
@@ -47,7 +51,8 @@ public class AuthDataLoader implements CommandLineRunner {
             cesarRaw = cesarPw;
         }
 
-        // One bcrypt for storage. If the value already looks like a bcrypt hash (e.g. from a secrets manager), use as-is.
+        // One bcrypt for storage. If the value already looks like a bcrypt hash (e.g.
+        // from a secrets manager), use as-is.
         String adminPasswordHashed = toStoredPassword(adminRaw, admin_password);
         String nathanPasswordHashed = toStoredPassword(nathanRaw, nathan_password);
         String cesarPasswordHashed = toStoredPassword(cesarRaw, cesar_password);

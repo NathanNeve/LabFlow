@@ -69,6 +69,7 @@ export interface Referentiewaarde {
 export interface MicrobiologyStaalType {
     id: number;
     naam: string;
+    confirmDelete?: boolean;
 }
 
 export interface MicrobiologyStaal {
@@ -104,6 +105,7 @@ export interface MicrobiologyVoedingsbodemLogEntry {
     id?: number;
     organisme: string;
     beoordeling: string;
+    sts?: string;
     commentaar: string;
     createdAt?: string;
     updatedAt?: string;
@@ -177,4 +179,24 @@ export interface MicrobiologyCatalogTest {
 export interface MicrobiologyVoedingsbodem {
     id: number;
     naam: string;
+    label?: string;
+    confirmDelete?: boolean;
+}
+
+export interface MicrobiologyAntibiotica {
+    id: number;
+    naam: string;
+    confirmDelete?: boolean;
+}
+
+/** Settings catalog test (GET /api/microbiology/catalog/tests) */
+export interface MicrobiologySettingsTest {
+    id: number;
+    testCode: string;
+    naam: string;
+    extraTest: boolean;
+    testType: MicrobiologyTestType;
+    staalType: MicrobiologyStaalType;
+    voedingsbodems: MicrobiologyVoedingsbodem[];
+    confirmDelete?: boolean;
 }

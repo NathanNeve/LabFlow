@@ -1,4 +1,5 @@
 package com.thomasmore.blc.labflow.config;
+
 // file voor het registreren van beans met betrekking tot authenticatie
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +26,8 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 // dit zorgt ervoor dat we niet de default security provider gaan gebruiken
-// we gaan niet de default flow volgen maar deze provider "DaoAuthenticationProvider"
+// we gaan niet de default flow volgen maar deze provider
+// "DaoAuthenticationProvider"
 public class SecurityConfig {
 
     @Autowired
@@ -61,7 +63,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     // bean voor het configureren van CORS
     @Bean
     public CorsFilter corsFilter() {
@@ -72,8 +73,7 @@ public class SecurityConfig {
                 "https://2425-tm-blc-001-labflow.pages.dev",
                 "http://localhost:4173",
                 "https://labflow.testspot.eu",
-                "https://labflow-os.vercel.app/"
-        ));
+                "https://labflow-os.vercel.app/"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
@@ -83,15 +83,16 @@ public class SecurityConfig {
         return new CorsFilter(source);
     }
 
-
     // bean voor mee te geven welke users verified zijn
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 
-        // Om DaoAuthenticationProvider te doen werken moeten 2 zaken gespecifieerd worden:
+        // Om DaoAuthenticationProvider te doen werken moeten 2 zaken gespecifieerd
+        // worden:
         // 1 De passwordencoder voor encryptie
-        // hierdoor weet de provider dat hij het passwoord verkregen van login moet hashen met Bcrypt in 12 rondes
+        // hierdoor weet de provider dat hij het passwoord verkregen van login moet
+        // hashen met Bcrypt in 12 rondes
         // dit vergelijkt hij met de hash in de database
         provider.setPasswordEncoder(new BCryptPasswordEncoder(4));
 
@@ -99,7 +100,6 @@ public class SecurityConfig {
         provider.setUserDetailsService(userDetailsService);
         return provider;
     }
-
 
     // bean AuthenticationManager
     @Bean

@@ -18,4 +18,6 @@ public interface StaalTestVoedingsbodemRepository extends JpaRepository<StaalTes
     @Modifying(clearAutomatically = true)
     @Query("delete from StaalTestVoedingsbodem stvb where stvb.staalTest.staal.id = :staalId")
     void deleteByStaalId(@Param("staalId") Long staalId);
+
+    boolean existsByVoedingsbodem_Id(Long voedingsbodemId);
 }

@@ -7,7 +7,8 @@
 	import { onMount } from 'svelte';
 	import type {
 		MicrobiologyNotebookResponse,
-		MicrobiologyNotebookSection
+		MicrobiologyNotebookSection,
+		MicrobiologyVoedingsbodemLogEntry
 	} from '$lib/types/dbTypes';
 	import {
 		fetchMicrobiologyNotebook,
@@ -183,10 +184,7 @@
 	}
 
 	async function handleVbLogs(
-		event: CustomEvent<{
-			linkId: number;
-			logs: { organisme: string; beoordeling: string; commentaar: string }[];
-		}>
+		event: CustomEvent<{ linkId: number; logs: MicrobiologyVoedingsbodemLogEntry[] }>
 	) {
 		if (staalId == null || !notebook) return;
 		const res = await syncMicrobiologyVoedingsbodemLogs(

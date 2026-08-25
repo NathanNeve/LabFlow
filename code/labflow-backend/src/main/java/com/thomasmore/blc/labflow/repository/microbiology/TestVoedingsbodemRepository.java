@@ -7,6 +7,7 @@ import com.thomasmore.blc.labflow.entity.microbiology.Voedingsbodem;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,6 +18,8 @@ public interface TestVoedingsbodemRepository extends JpaRepository<TestVoedingsb
     boolean existsByTest_Id(Long testId);
 
     boolean existsByTest_IdAndVoedingsbodem_Id(Long testId, Long voedingsbodemId);
+
+    boolean existsByVoedingsbodem_Id(Long voedingsbodemId);
 
     @Query("""
             select tv.voedingsbodem.naam
@@ -32,4 +35,16 @@ public interface TestVoedingsbodemRepository extends JpaRepository<TestVoedingsb
             where tv.test.id in :testIds
             """)
     List<Voedingsbodem> findDistinctVoedingsbodemsByTestIds(@Param("testIds") List<Long> testIds);
+
+    @Query("""
+            select tv.voedingsbodem
+            from TestVoedingsbodem tv
+            where tv.test.id = :testId
+            order by tv.voedingsbodem.naam
+            """)
+    List<Voedingsbodem> findVoedingsbodemsByTestId(@Param("testId") Long testId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from TestVoedingsbodem tv where tv.test.id = :testId")
+    void deleteByTestId(@Param("testId") Long testId);
 }

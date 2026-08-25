@@ -21,4 +21,6 @@ public interface StaalTestRepository extends JpaRepository<StaalTest, Long> {
     @Modifying(clearAutomatically = true)
     @Query("delete from StaalTest st where st.staal.id = :staalId")
     void deleteByStaalId(@Param("staalId") Long staalId);
+
+    boolean existsByTest_Id(Long testId);
 }

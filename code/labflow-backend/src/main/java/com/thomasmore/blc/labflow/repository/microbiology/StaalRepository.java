@@ -14,4 +14,6 @@ public interface StaalRepository extends JpaRepository<Staal, Long>, JpaSpecific
     Optional<Staal> findByStaalCode(Long staalCode);
 
     boolean existsByStaalCodeAndIdNot(Long staalCode, Long id);
+
+    boolean existsByStaalType_Id(Long staalTypeId);
 }

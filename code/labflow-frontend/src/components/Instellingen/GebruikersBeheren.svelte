@@ -268,7 +268,7 @@
 		<button
 			type="button"
 			on:click={async () => {
-				await goto('/stalen');
+				await goto('/menu');
 			}}
 			class="bg-gray-400 text-xl rounded-lg p-3 text-white h-12 w-32 justify-center items-center flex"
 		>

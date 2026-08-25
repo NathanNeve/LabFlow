@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import logoLabflow from '$lib/assets/labflowLogoTM.svg';
 	// @ts-ignore
 	import GoPerson from 'svelte-icons/go/GoPerson.svelte';
@@ -8,6 +9,14 @@
 	import { getRolNaam_FromToken } from '$lib/globalFunctions';
 
 	const rol = getRolNaam_FromToken();
+
+	function moduleNameFromPath(path: string): string | null {
+		if (path.startsWith('/microbiologie')) return 'Microbiologie';
+		if (path.startsWith('/stalen') || path.startsWith('/instellingen')) return 'Hematologie';
+		return null;
+	}
+
+	$: moduleName = moduleNameFromPath($page.url.pathname);
 
 	function eraseCookie() {
 		document.cookie = 'authToken=;expires=' + new Date(0).toUTCString();
@@ -19,10 +28,13 @@
 </script>
 
 <div class="py-5 px-10 flex justify-between items-center">
-	<!-- logo links -->
-	<img src={logoLabflow} alt="logo Labflow & Thomas More" class="h-10" />
+	<div class="flex items-center space-x-4">
+		<img src={logoLabflow} alt="logo Labflow & Thomas More" class="h-10" />
+		{#if moduleName}
+			<p class="text-xl font-semibold text-gray-800">{moduleName}</p>
+		{/if}
+	</div>
 
-	<!-- navigatie-items rechts -->
 	<div class="flex items-center space-x-4">
 		<a
 			href="/menu"
@@ -40,7 +52,6 @@
 			Uitloggen
 		</button>
 
-		<!-- rol -->
 		<div class="flex items-center space-x-2 bg-slate-100 rounded-lg px-3 py-1">
 			<p class="text-sm font-medium text-gray-700 capitalize">{rol}</p>
 			<div class="w-8 h-8 bg-slate-400 rounded-full flex items-center justify-center text-white">

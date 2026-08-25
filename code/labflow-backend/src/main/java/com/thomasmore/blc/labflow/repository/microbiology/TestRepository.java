@@ -14,4 +14,8 @@ public interface TestRepository extends JpaRepository<Test, Long> {
     Optional<Test> findByTestCode(String testCode);
 
     List<Test> findByStaalType_Id(Long staalTypeId);
+
+    List<Test> findAllByOrderByTestCodeAsc();
+
+    boolean existsByStaalType_Id(Long staalTypeId);
 }

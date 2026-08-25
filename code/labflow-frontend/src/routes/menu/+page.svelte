@@ -3,6 +3,9 @@
 	import logoLabflow from '$lib/assets/labflowLogoTM.svg';
 	import hematologie from '$lib/assets/hematologie.svg';
 	import microbiologie from '$lib/assets/microbiologie.svg';
+	import { getRolNaam_FromToken } from '$lib/globalFunctions';
+
+	const rol = getRolNaam_FromToken();
 </script>
 
 <div class="flex h-screen">
@@ -37,5 +40,11 @@
 				<p class="text-white text-2xl text-center">klinische chemie</p>
 			</a>
 		</div>
+
+		{#if rol === 'admin'}
+			<a href="/gebruikers" class="mt-6 text-sm text-blue-600 hover:text-blue-800 underline">
+				Gebruikers beheren
+			</a>
+		{/if}
 	</div>
 </div>

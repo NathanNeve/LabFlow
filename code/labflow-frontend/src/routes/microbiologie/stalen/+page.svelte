@@ -366,7 +366,7 @@
 		<button
 			type="button"
 			class="{bgColor} flex flex-col items-center justify-center w-56 h-56 rounded-2xl {pointerEvent}"
-			on:click|preventDefault
+			on:click={() => goto('/microbiologie/instellingen')}
 		>
 			<div class="w-28 h-28 text-white flex items-center justify-center">
 				<IoMdSettings />

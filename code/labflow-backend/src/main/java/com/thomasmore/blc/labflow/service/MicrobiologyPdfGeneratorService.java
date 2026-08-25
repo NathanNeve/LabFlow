@@ -56,9 +56,13 @@ public class MicrobiologyPdfGeneratorService {
 
     private static final String GEBOORTE_STRING = "Geboorte: ";
     private static final String GESLACHT_STRING = "Geslacht: ";
-    private static final float SECTION_SUBTITLE_SPACING_AFTER = 12f;
-    private static final float CULTUUR_COMMENT_SPACING_BEFORE = 10f;
-    private static final float CULTUUR_COMMENT_SPACING_AFTER = 14f;
+    /** iText only applies Paragraph spacingAfter before another Paragraph, not before a PdfPTable. */
+    private static final float SECTION_SUBTITLE_SPACING_BEFORE = 16f;
+    private static final float SECTION_SUBTITLE_SPACING_AFTER = 8f;
+    private static final float COMMENT_SPACING_BEFORE = 4f;
+    private static final float COMMENT_SPACING_AFTER = 10f;
+    private static final float TABLE_SPACING_BEFORE = 10f;
+    private static final float TABLE_SPACING_AFTER = 14f;
     private static final BaseColor WARNING_ROW_BG = new BaseColor(255, 243, 205);
 
     @Autowired
@@ -89,24 +93,26 @@ public class MicrobiologyPdfGeneratorService {
         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
         Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
 
-        document.add(new Paragraph("Microbiologie resultaten", titleFont));
-        document.add(Chunk.NEWLINE);
+        Paragraph title = new Paragraph("Microbiologie resultaten", titleFont);
+        title.setSpacingAfter(12f);
+        document.add(title);
         addPatientHeaderTable(document, staal, bodyFont, headerFont);
-        document.add(new LineSeparator());
-        document.add(Chunk.NEWLINE);
+        Paragraph divider = new Paragraph();
+        divider.setSpacingBefore(4f);
+        divider.setSpacingAfter(8f);
+        divider.add(new Chunk(new LineSeparator()));
+        document.add(divider);
 
         if (notebook.getCommentaar() != null && !notebook.getCommentaar().isBlank()) {
             addSectionSubtitle(document, "Algemene commentaar", headerFont);
-            document.add(new Paragraph(notebook.getCommentaar(), bodyFont));
-            document.add(Chunk.NEWLINE);
+            addBodyParagraph(document, notebook.getCommentaar(), bodyFont);
         }
 
         if (activeSections.contains("algemene-testen")
                 && notebook.getAlgemeneTesten() != null
                 && !notebook.getAlgemeneTesten().isEmpty()) {
             addSectionSubtitle(document, "Algemene testen", headerFont);
-            PdfPTable table = new PdfPTable(3);
-            table.setWidthPercentage(100);
+            PdfPTable table = newResultsTable(3);
             addHeaderCell(table, "Test", headerFont);
             addHeaderCell(table, "Waarde", headerFont);
             addHeaderCell(table, "Commentaar", headerFont);
@@ -118,7 +124,6 @@ public class MicrobiologyPdfGeneratorService {
                 addBodyCell(table, commentaar, bodyFont, rowBg);
             }
             document.add(table);
-            document.add(Chunk.NEWLINE);
         }
 
         if (activeSections.contains("voedingsbodems")
@@ -126,14 +131,10 @@ public class MicrobiologyPdfGeneratorService {
             for (MicrobiologyVoedingsbodemNotebookDto vb : notebook.getVoedingsbodems()) {
                 addSectionSubtitle(document, "Cultuur: " + vb.getVoedingsbodemNaam(), headerFont);
                 if (vb.getCommentaar() != null && !vb.getCommentaar().isBlank()) {
-                    Paragraph comment = new Paragraph(vb.getCommentaar(), bodyFont);
-                    comment.setSpacingBefore(CULTUUR_COMMENT_SPACING_BEFORE);
-                    comment.setSpacingAfter(CULTUUR_COMMENT_SPACING_AFTER);
-                    document.add(comment);
+                    addBodyParagraph(document, vb.getCommentaar(), bodyFont);
                 }
                 if (vb.getLogs() != null && !vb.getLogs().isEmpty()) {
-                    PdfPTable logTable = new PdfPTable(4);
-                    logTable.setWidthPercentage(100);
+                    PdfPTable logTable = newResultsTable(4);
                     addHeaderCell(logTable, "Organisme", headerFont);
                     addHeaderCell(logTable, "Beoordeling", headerFont);
                     addHeaderCell(logTable, "STS", headerFont);
@@ -146,7 +147,6 @@ public class MicrobiologyPdfGeneratorService {
                     }
                     document.add(logTable);
                 }
-                document.add(Chunk.NEWLINE);
             }
         }
 
@@ -156,14 +156,11 @@ public class MicrobiologyPdfGeneratorService {
             addSectionSubtitle(document, "Gramkleuring", headerFont);
             if (notebook.getGramkleuring().getCommentaar() != null
                     && !notebook.getGramkleuring().getCommentaar().isBlank()) {
-                Paragraph gramComment = new Paragraph(notebook.getGramkleuring().getCommentaar(), bodyFont);
-                gramComment.setSpacingAfter(CULTUUR_COMMENT_SPACING_AFTER);
-                document.add(gramComment);
+                addBodyParagraph(document, notebook.getGramkleuring().getCommentaar(), bodyFont);
             }
             if (notebook.getGramkleuring().getRows() != null
                     && !notebook.getGramkleuring().getRows().isEmpty()) {
-                PdfPTable gramTable = new PdfPTable(3);
-                gramTable.setWidthPercentage(100);
+                PdfPTable gramTable = newResultsTable(3);
                 addHeaderCell(gramTable, "Bepaling", headerFont);
                 addHeaderCell(gramTable, "Score", headerFont);
                 addHeaderCell(gramTable, "Commentaar", headerFont);
@@ -174,15 +171,13 @@ public class MicrobiologyPdfGeneratorService {
                 }
                 document.add(gramTable);
             }
-            document.add(Chunk.NEWLINE);
         }
 
         if (activeSections.contains("antibiogram")
                 && notebook.getAntibiogram() != null
                 && !notebook.getAntibiogram().isEmpty()) {
             addSectionSubtitle(document, "Antibiogram", headerFont);
-            PdfPTable abTable = new PdfPTable(2);
-            abTable.setWidthPercentage(100);
+            PdfPTable abTable = newResultsTable(2);
             addHeaderCell(abTable, "Antibioticum", headerFont);
             addHeaderCell(abTable, "Beoordeling", headerFont);
             for (MicrobiologyAntibiogramEntryDto entry : notebook.getAntibiogram()) {
@@ -226,14 +221,31 @@ public class MicrobiologyPdfGeneratorService {
         rightCell.addElement(new Paragraph("R-nummer: " + nullToEmpty(staal.getLaborantRnummer()), bodyFont));
         headerTable.addCell(rightCell);
 
+        headerTable.setSpacingAfter(4f);
         document.add(headerTable);
-        document.add(new Paragraph("\n"));
     }
 
     private static void addSectionSubtitle(Document document, String text, Font headerFont) throws DocumentException {
         Paragraph subtitle = new Paragraph(text, headerFont);
+        subtitle.setSpacingBefore(SECTION_SUBTITLE_SPACING_BEFORE);
         subtitle.setSpacingAfter(SECTION_SUBTITLE_SPACING_AFTER);
         document.add(subtitle);
+    }
+
+    private static void addBodyParagraph(Document document, String text, Font bodyFont) throws DocumentException {
+        Paragraph paragraph = new Paragraph(text, bodyFont);
+        paragraph.setSpacingBefore(COMMENT_SPACING_BEFORE);
+        paragraph.setSpacingAfter(COMMENT_SPACING_AFTER);
+        document.add(paragraph);
+    }
+
+    private static PdfPTable newResultsTable(int columns) {
+        PdfPTable table = new PdfPTable(columns);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(TABLE_SPACING_BEFORE);
+        table.setSpacingAfter(TABLE_SPACING_AFTER);
+        table.setSplitLate(false);
+        return table;
     }
 
     private static boolean hasGramkleuringContent(MicrobiologyNotebookResponse notebook) {

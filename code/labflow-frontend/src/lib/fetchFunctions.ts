@@ -576,7 +576,7 @@ export async function patchMicrobiologyVoedingsbodemCommentaar(
 export async function syncMicrobiologyVoedingsbodemLogs(
     staalId: number,
     linkId: number,
-    logs: { organisme: string; beoordeling: string; sts: string; commentaar: string }[]
+    logs: { organisme: string; beoordeling: string; sts?: string; commentaar: string }[]
 ) {
     const token = authToken();
     if (!token) {
@@ -632,4 +632,46 @@ export async function updateMicrobiologyAntibiogram(
         },
         body: JSON.stringify({ entries })
     });
+}
+
+export async function fetchMicrobiologyAntibiotica() {
+    const token = authToken();
+    if (token) {
+        try {
+            return await fetchAll(token, 'microbiology/antibiotica');
+        } catch (error) {
+            console.error('Microbiology antibiotica konden niet gefetched worden:', error);
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
+    }
+}
+
+export async function fetchMicrobiologyCatalogVoedingsbodems() {
+    const token = authToken();
+    if (token) {
+        try {
+            return await fetchAll(token, 'microbiology/voedingsbodems');
+        } catch (error) {
+            console.error('Microbiology voedingsbodems konden niet gefetched worden:', error);
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
+    }
+}
+
+export async function fetchMicrobiologyCatalogTests() {
+    const token = authToken();
+    if (token) {
+        try {
+            return await fetchAll(token, 'microbiology/catalog/tests');
+        } catch (error) {
+            console.error('Microbiology catalog tests konden niet gefetched worden:', error);
+        }
+    } else {
+        console.error('JWT error: token missing of invalid');
+        goto('/');
+    }
 }
